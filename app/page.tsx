@@ -646,8 +646,7 @@ export default function KinshipApp() {
                   </p>
                 </div>
               </div>
-              <button onClick={() => setSelectedAsset(null)} className="text-white hover
-              <button onClick={() => setSelectedAsset(null)} className="text-white hover:text-green-200">
+               <button onClick={() => setSelectedAsset(null)} className="text-white hover:text-green-200">
                 <X size={28} />
               </button>
             </div>
