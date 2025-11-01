@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Users, Search, Home, MapPin, X, Truck, Bell, Award, Filter, Calendar, Heart, ChefHat, Plus, CheckCircle } from 'lucide-react';
+import { Users, Search, Home, MapPin, X, Truck, Bell, Award, Filter, Calendar, Heart, ChefHat, Plus, CheckCircle, MessageSquare, HandHeart, Package, Baby, Car, Wrench, Sparkles, Clock, CheckCircle2, AlertCircle } from 'lucide-react';
 
 export default function KinshipApp() {
   const [currentView, setCurrentView] = useState('landing');
@@ -9,6 +9,7 @@ export default function KinshipApp() {
   const [assetFilter, setAssetFilter] = useState('all');
   const [selectedAsset, setSelectedAsset] = useState<any>(null);
   const [selectedMealTrain, setSelectedMealTrain] = useState<any>(null);
+  const [selectedNeed, setSelectedNeed] = useState<any>(null);
 
   const members = [
     { 
@@ -227,6 +228,128 @@ export default function KinshipApp() {
         { date: '2025-11-01', meal: 'dinner', signedUp: false, volunteer: null, delivered: false },
       ],
       kudosAwarded: false
+    }
+  ];
+
+  const needs = [
+    {
+      id: 1,
+      poster: { name: 'Sarah Johnson', avatar: '👩', campus: 'Downtown' },
+      category: 'Moving Help',
+      categoryIcon: 'truck',
+      title: 'Need help moving to new apartment',
+      description: 'Moving to a 2-bedroom apartment across town on Nov 15th. Need help loading/unloading truck. Heavy furniture includes couch, beds, and dining table. Pizza and drinks provided!',
+      date: '2025-11-15',
+      timeframe: '9:00 AM - 3:00 PM',
+      status: 'open',
+      volunteers: [],
+      volunteersNeeded: 4,
+      urgency: 'medium',
+      createdAt: '2025-10-25',
+      isAnonymous: false,
+      suggestedGroups: ['Truck Owners', 'Young Adults', 'Mens Group'],
+      adminNotes: 'Consider notifying teen parents - good service opportunity'
+    },
+    {
+      id: 2,
+      poster: { name: 'Anonymous', avatar: '🙏', campus: 'Downtown' },
+      category: 'Prayer Request',
+      categoryIcon: 'heart',
+      title: 'Prayer for family health crisis',
+      description: 'Going through a difficult medical situation with a family member. Would appreciate prayers for healing and peace. Prefer to keep details private but deeply need the support of our church family right now.',
+      date: null,
+      timeframe: 'Ongoing',
+      status: 'open',
+      volunteers: [],
+      volunteersNeeded: null,
+      urgency: 'high',
+      createdAt: '2025-10-28',
+      isAnonymous: true,
+      suggestedGroups: ['Prayer Team', 'Care Ministry'],
+      adminNotes: 'Pastoral follow-up requested'
+    },
+    {
+      id: 3,
+      poster: { name: 'Emily Rodriguez', avatar: '👩‍🦱', campus: 'Westside' },
+      category: 'Childcare',
+      categoryIcon: 'baby',
+      title: 'Childcare for parent-teacher conferences',
+      description: 'Need someone to watch my two kids (ages 3 and 5) during parent-teacher conferences on Nov 12th evening. About 2 hours. Kids are well-behaved and love to play!',
+      date: '2025-11-12',
+      timeframe: '6:00 PM - 8:00 PM',
+      status: 'in-progress',
+      volunteers: [
+        { name: 'Lisa Thompson', avatar: '👩‍🎨', signedUp: true, confirmed: true }
+      ],
+      volunteersNeeded: 1,
+      urgency: 'medium',
+      createdAt: '2025-10-20',
+      isAnonymous: false,
+      suggestedGroups: ['Parents', 'Young Moms', 'Childcare Volunteers'],
+      adminNotes: 'Lisa Thompson confirmed - all set!'
+    },
+    {
+      id: 4,
+      poster: { name: 'Robert Chen', avatar: '👴', campus: 'Downtown' },
+      category: 'Transportation',
+      categoryIcon: 'car',
+      title: 'Rides to physical therapy',
+      description: 'Recovering from hip surgery and need rides to PT appointments 3x per week for the next month. Appointments are at Westside Medical Center, usually morning slots around 10 AM. Would be grateful for any help!',
+      date: '2025-11-01',
+      timeframe: 'Mon/Wed/Fri mornings',
+      status: 'open',
+      volunteers: [
+        { name: 'David Martinez', avatar: '👨‍💼', signedUp: true, confirmed: false },
+        { name: 'You!', avatar: '⭐', signedUp: true, confirmed: false }
+      ],
+      volunteersNeeded: 12,
+      urgency: 'high',
+      createdAt: '2025-10-26',
+      isAnonymous: false,
+      suggestedGroups: ['Retired Members', 'Care Ministry', 'Seniors'],
+      adminNotes: 'Could use a coordinator to schedule the rides'
+    },
+    {
+      id: 5,
+      poster: { name: 'Mike Chen', avatar: '👨', campus: 'Downtown' },
+      category: 'Home Repair',
+      categoryIcon: 'wrench',
+      title: 'Help fixing leaky roof before winter',
+      description: 'Have a persistent leak in the garage roof that needs repair before the rainy season. I have the materials but need someone with roofing experience to help guide the project. Probably a Saturday project.',
+      date: '2025-11-09',
+      timeframe: 'Saturday, weather permitting',
+      status: 'fulfilled',
+      volunteers: [
+        { name: 'James Wilson', avatar: '👨‍🔧', signedUp: true, confirmed: true }
+      ],
+      volunteersNeeded: 1,
+      urgency: 'low',
+      createdAt: '2025-10-18',
+      isAnonymous: false,
+      suggestedGroups: ['Handymen', 'Construction', 'Mens Group'],
+      adminNotes: 'James Wilson helped - roof is fixed! Award kudos.'
+    },
+    {
+      id: 6,
+      poster: { name: 'Lisa Thompson', avatar: '👩‍🎨', campus: 'Westside' },
+      category: 'Event Help',
+      categoryIcon: 'sparkles',
+      title: 'Volunteers for Fall Festival setup',
+      description: 'Our church Fall Festival is coming up Nov 16th! Need volunteers to help with setup on Friday evening (Nov 15th) and breakdown on Saturday evening. Setup involves tables, chairs, decorations, and game booths. Fun community event!',
+      date: '2025-11-15',
+      timeframe: 'Friday 5-8 PM, Saturday 7-9 PM',
+      status: 'open',
+      volunteers: [
+        { name: 'Youth Group', avatar: '👥', signedUp: true, confirmed: true },
+        { name: 'Sarah Johnson', avatar: '👩', signedUp: true, confirmed: true },
+        { name: 'Mike Chen', avatar: '👨', signedUp: true, confirmed: false }
+      ],
+      volunteersNeeded: 10,
+      urgency: 'medium',
+      createdAt: '2025-10-22',
+      isAnonymous: false,
+      suggestedGroups: ['Youth Group', 'Young Families', 'Events Team'],
+      adminNotes: 'Great turnout so far! Need 7 more volunteers'
     }
   ];
 
@@ -1034,35 +1157,392 @@ export default function KinshipApp() {
     );
   };
 
+  const NeedsBoardPage = () => {
+    const getCategoryIcon = (iconName: string) => {
+      const icons: any = {
+        truck: <Truck size={20} />,
+        heart: <Heart size={20} />,
+        baby: <Baby size={20} />,
+        car: <Car size={20} />,
+        wrench: <Wrench size={20} />,
+        sparkles: <Sparkles size={20} />
+      };
+      return icons[iconName] || <HandHeart size={20} />;
+    };
+
+    const getStatusColor = (status: string) => {
+      if (status === 'open') return 'bg-blue-100 text-blue-700 border-blue-300';
+      if (status === 'in-progress') return 'bg-yellow-100 text-yellow-700 border-yellow-300';
+      if (status === 'fulfilled') return 'bg-green-100 text-green-700 border-green-300';
+      return 'bg-gray-100 text-gray-700 border-gray-300';
+    };
+
+    const getUrgencyBadge = (urgency: string) => {
+      if (urgency === 'high') return { color: 'bg-red-100 text-red-700 border-red-300', text: '🔴 Urgent' };
+      if (urgency === 'medium') return { color: 'bg-amber-100 text-amber-700 border-amber-300', text: '🟡 Soon' };
+      return { color: 'bg-gray-100 text-gray-600 border-gray-300', text: '⚪ Flexible' };
+    };
+
+    return (
+      <div className="min-h-screen bg-gray-50 pb-24">
+        <div className="bg-gradient-to-r from-teal-500 to-cyan-600 text-white p-6 shadow-lg">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <HandHeart size={36} />
+                <div>
+                  <h1 className="text-3xl font-bold">Needs Board</h1>
+                  <p className="text-teal-100 text-sm">How can we help each other?</p>
+                </div>
+              </div>
+              <button className="bg-white text-teal-600 px-4 py-2 rounded-lg font-semibold hover:bg-teal-50 transition flex items-center gap-2">
+                <Plus size={20} />
+                Post Need
+              </button>
+            </div>
+            
+            <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4 border-2 border-white/30">
+              <p className="text-sm text-white/90">
+                💡 <strong>Demo Tip:</strong> Click any need to see details and volunteer! Anonymous requests show as 🙏.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {needs.map((need) => {
+              const urgencyBadge = getUrgencyBadge(need.urgency);
+              const volunteersCount = need.volunteers.length;
+              const needsMore = need.volunteersNeeded ? volunteersCount < need.volunteersNeeded : false;
+              
+              return (
+                <div 
+                  key={need.id}
+                  className="bg-white rounded-xl shadow-md hover:shadow-xl transition cursor-pointer border-2 border-transparent hover:border-teal-300"
+                  onClick={() => setSelectedNeed(need)}
+                >
+                  <div className="p-5">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <div className="bg-teal-100 text-teal-600 p-2 rounded-lg">
+                          {getCategoryIcon(need.categoryIcon)}
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-gray-900">{need.category}</h3>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-xs text-gray-500 flex items-center gap-1">
+                              <MapPin size={12} />
+                              {need.poster.campus}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <span className={`text-xs font-semibold px-2 py-1 rounded-full border ${getStatusColor(need.status)}`}>
+                        {need.status === 'open' && '🔵 Open'}
+                        {need.status === 'in-progress' && '🟡 In Progress'}
+                        {need.status === 'fulfilled' && '🟢 Fulfilled'}
+                      </span>
+                    </div>
+
+                    <h4 className="font-bold text-lg text-gray-900 mb-2 line-clamp-2">{need.title}</h4>
+                    <p className="text-sm text-gray-600 mb-3 line-clamp-3">{need.description}</p>
+
+                    <div className="space-y-2">
+                      {need.date && (
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <Calendar size={14} />
+                          <span>{new Date(need.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                        </div>
+                      )}
+                      {need.timeframe && (
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <Clock size={14} />
+                          <span>{need.timeframe}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="mt-4 pt-4 border-t border-gray-200">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="text-2xl">{need.poster.avatar}</div>
+                          <span className="text-sm font-medium text-gray-700">
+                            {need.isAnonymous ? 'Anonymous' : need.poster.name}
+                          </span>
+                        </div>
+                        {need.volunteersNeeded && (
+                          <div className="text-sm">
+                            <span className={`font-bold ${needsMore ? 'text-teal-600' : 'text-green-600'}`}>
+                              {volunteersCount}/{need.volunteersNeeded}
+                            </span>
+                            <span className="text-gray-500"> volunteers</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {need.urgency !== 'low' && need.status === 'open' && (
+                      <div className={`mt-3 border-2 rounded-lg p-2 text-xs font-semibold ${urgencyBadge.color}`}>
+                        {urgencyBadge.text}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const NeedModal = () => {
+    if (!selectedNeed) return null;
+
+    const getCategoryIcon = (iconName: string) => {
+      const icons: any = {
+        truck: <Truck size={24} />,
+        heart: <Heart size={24} />,
+        baby: <Baby size={24} />,
+        car: <Car size={24} />,
+        wrench: <Wrench size={24} />,
+        sparkles: <Sparkles size={24} />
+      };
+      return icons[iconName] || <HandHeart size={24} />;
+    };
+
+    const handleVolunteer = () => {
+      alert(`Thank you for volunteering!\n\nIn the real app, this would:\n• Notify ${selectedNeed.isAnonymous ? 'the pastor/admin' : selectedNeed.poster.name}\n• Add you to the volunteer list\n• Send you coordination details\n• Award you kudos after completion`);
+    };
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" onClick={() => setSelectedNeed(null)}>
+        <div 
+          className="bg-white rounded-2xl max-w-3xl w-full" 
+          style={{ 
+            maxHeight: '90vh', 
+            overflowY: 'scroll',
+            WebkitOverflowScrolling: 'touch'
+          }}
+          onClick={e => e.stopPropagation()}
+        >
+          <div className="bg-gradient-to-r from-teal-500 to-cyan-600 text-white p-6 rounded-t-2xl sticky top-0 z-10">
+            <div className="flex justify-between items-start">
+              <div className="flex items-center gap-4">
+                <div className="bg-white/20 p-3 rounded-xl">
+                  {getCategoryIcon(selectedNeed.categoryIcon)}
+                </div>
+                <div>
+                  <h2 className="text-3xl font-bold">{selectedNeed.title}</h2>
+                  <div className="flex items-center gap-3 mt-2">
+                    <span className="bg-white/30 px-3 py-1 rounded-full text-sm font-semibold">
+                      {selectedNeed.category}
+                    </span>
+                    <span className="text-teal-100 text-sm flex items-center gap-1">
+                      <MapPin size={14} />
+                      {selectedNeed.poster.campus}
+                    </span>
+                    {selectedNeed.status === 'fulfilled' && (
+                      <span className="bg-green-500 px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-1">
+                        <CheckCircle2 size={14} />
+                        Fulfilled
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <button onClick={() => setSelectedNeed(null)} className="text-white hover:text-teal-200">
+                <X size={28} />
+              </button>
+            </div>
+          </div>
+
+          <div className="p-6 space-y-6">
+            <div>
+              <h3 className="font-bold text-xl mb-3 text-gray-900">About This Need</h3>
+              <p className="text-gray-700 text-lg leading-relaxed">{selectedNeed.description}</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {selectedNeed.date && (
+                <div className="bg-blue-50 border-2 border-blue-200 p-4 rounded-xl">
+                  <h4 className="font-bold text-blue-900 mb-1 flex items-center gap-2">
+                    <Calendar size={18} />
+                    Date Needed
+                  </h4>
+                  <p className="text-blue-800">
+                    {new Date(selectedNeed.date).toLocaleDateString('en-US', { 
+                      weekday: 'long', 
+                      month: 'long', 
+                      day: 'numeric', 
+                      year: 'numeric' 
+                    })}
+                  </p>
+                </div>
+              )}
+              {selectedNeed.timeframe && (
+                <div className="bg-purple-50 border-2 border-purple-200 p-4 rounded-xl">
+                  <h4 className="font-bold text-purple-900 mb-1 flex items-center gap-2">
+                    <Clock size={18} />
+                    Timeframe
+                  </h4>
+                  <p className="text-purple-800">{selectedNeed.timeframe}</p>
+                </div>
+              )}
+            </div>
+
+            {!selectedNeed.isAnonymous && (
+              <div>
+                <h3 className="font-bold text-xl mb-3 text-gray-900">Posted By</h3>
+                <div 
+                  className="bg-indigo-50 border-2 border-indigo-200 p-4 rounded-xl cursor-pointer hover:border-indigo-400 transition"
+                  onClick={() => {
+                    const member = members.find(m => m.name === selectedNeed.poster.name);
+                    if (member) {
+                      setSelectedNeed(null);
+                      setSelectedMember(member);
+                    }
+                  }}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="text-5xl">{selectedNeed.poster.avatar}</div>
+                    <div className="flex-1">
+                      <p className="font-bold text-lg">{selectedNeed.poster.name}</p>
+                      <p className="text-sm text-gray-600 flex items-center gap-1">
+                        <MapPin size={14} />
+                        {selectedNeed.poster.campus} Campus
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-xs text-indigo-600 mt-3 font-medium">Click to view full profile →</p>
+                </div>
+              </div>
+            )}
+
+            {selectedNeed.isAnonymous && (
+              <div className="bg-purple-50 border-2 border-purple-200 p-4 rounded-xl">
+                <h3 className="font-bold text-lg mb-2 text-purple-900 flex items-center gap-2">
+                  🙏 Anonymous Request
+                </h3>
+                <p className="text-sm text-purple-800">
+                  This request was posted anonymously. The poster's identity is only visible to pastoral staff. 
+                  Your help and prayers are still deeply appreciated!
+                </p>
+              </div>
+            )}
+
+            {selectedNeed.volunteers.length > 0 && (
+              <div>
+                <h3 className="font-bold text-xl mb-3 text-gray-900">
+                  Current Volunteers ({selectedNeed.volunteers.length}
+                  {selectedNeed.volunteersNeeded && `/${selectedNeed.volunteersNeeded}`})
+                </h3>
+                <div className="space-y-2">
+                  {selectedNeed.volunteers.map((volunteer: any, index: number) => (
+                    <div key={index} className="bg-green-50 border-2 border-green-200 p-3 rounded-xl flex items-center gap-3">
+                      <div className="text-3xl">{volunteer.avatar}</div>
+                      <div className="flex-1">
+                        <p className="font-semibold text-gray-900">{volunteer.name}</p>
+                        {volunteer.confirmed && (
+                          <span className="text-xs bg-green-200 text-green-800 px-2 py-1 rounded-full font-bold">
+                            ✓ Confirmed
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {selectedNeed.suggestedGroups && selectedNeed.suggestedGroups.length > 0 && (
+              <div className="bg-amber-50 border-2 border-amber-200 rounded-xl p-4">
+                <h3 className="font-bold text-lg mb-2 text-amber-900 flex items-center gap-2">
+                  💡 Admin Notes
+                </h3>
+                <p className="text-sm text-amber-800 mb-2"><strong>Suggested Groups:</strong></p>
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {selectedNeed.suggestedGroups.map((group: string, i: number) => (
+                    <span key={i} className="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm font-medium">
+                      {group}
+                    </span>
+                  ))}
+                </div>
+                {selectedNeed.adminNotes && (
+                  <p className="text-sm text-amber-800">{selectedNeed.adminNotes}</p>
+                )}
+              </div>
+            )}
+
+            {selectedNeed.status !== 'fulfilled' && (
+              <button 
+                className="w-full bg-gradient-to-r from-teal-500 to-cyan-600 text-white py-4 rounded-xl font-bold text-lg hover:from-teal-600 hover:to-cyan-700 transition shadow-lg flex items-center justify-center gap-2"
+                onClick={handleVolunteer}
+              >
+                <HandHeart size={24} />
+                I Can Help!
+              </button>
+            )}
+
+            {selectedNeed.status === 'fulfilled' && (
+              <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4 text-center">
+                <CheckCircle2 size={48} className="text-green-600 mx-auto mb-3" />
+                <h3 className="font-bold text-xl text-green-900 mb-2">This Need Has Been Met!</h3>
+                <p className="text-green-800">
+                  Thank you to everyone who helped. This is what community looks like! 💚
+                </p>
+              </div>
+            )}
+
+            <div className="bg-gray-50 rounded-xl p-4 text-sm text-gray-600">
+              <p><strong>Posted:</strong> {new Date(selectedNeed.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+              {selectedNeed.urgency === 'high' && (
+                <p className="mt-1 text-red-600 font-semibold">🔴 This is an urgent need</p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const Navigation = () => (
     <div className="fixed bottom-0 w-full bg-white border-t shadow-lg">
       <div className="max-w-7xl mx-auto flex justify-around py-3">
         <button 
           onClick={() => setCurrentView('home')}
-          className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg ${currentView === 'home' ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600'}`}
+          className={`flex flex-col items-center gap-1 px-3 py-2 rounded-lg ${currentView === 'home' ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600'}`}
         >
-          <Home size={24} />
+          <Home size={22} />
           <span className="text-xs">Home</span>
         </button>
         <button 
           onClick={() => setCurrentView('directory')}
-          className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg ${currentView === 'directory' ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600'}`}
+          className={`flex flex-col items-center gap-1 px-3 py-2 rounded-lg ${currentView === 'directory' ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600'}`}
         >
-          <Users size={24} />
+          <Users size={22} />
           <span className="text-xs">Directory</span>
         </button>
         <button 
-          onClick={() => setCurrentView('mealtrains')}
-          className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg ${currentView === 'mealtrains' ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600'}`}
+          onClick={() => setCurrentView('needs')}
+          className={`flex flex-col items-center gap-1 px-3 py-2 rounded-lg ${currentView === 'needs' ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600'}`}
         >
-          <ChefHat size={24} />
-          <span className="text-xs">Meal Trains</span>
+          <HandHeart size={22} />
+          <span className="text-xs">Needs</span>
+        </button>
+        <button 
+          onClick={() => setCurrentView('mealtrains')}
+          className={`flex flex-col items-center gap-1 px-3 py-2 rounded-lg ${currentView === 'mealtrains' ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600'}`}
+        >
+          <ChefHat size={22} />
+          <span className="text-xs">Meals</span>
         </button>
         <button 
           onClick={() => setCurrentView('assets')}
-          className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg ${currentView === 'assets' ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600'}`}
+          className={`flex flex-col items-center gap-1 px-3 py-2 rounded-lg ${currentView === 'assets' ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600'}`}
         >
-          <Truck size={24} />
+          <Truck size={22} />
           <span className="text-xs">Assets</span>
         </button>
       </div>
@@ -1074,11 +1554,13 @@ export default function KinshipApp() {
       {currentView === 'landing' && <LandingPage />}
       {currentView === 'home' && <HomePage />}
       {currentView === 'directory' && <DirectoryPage />}
+      {currentView === 'needs' && <NeedsBoardPage />}
       {currentView === 'mealtrains' && <MealTrainsPage />}
       {currentView === 'assets' && <AssetsPage />}
       {selectedMember && <MemberModal />}
       {selectedAsset && <AssetModal />}
       {selectedMealTrain && <MealTrainModal />}
+      {selectedNeed && <NeedModal />}
     </div>
   );
 }
