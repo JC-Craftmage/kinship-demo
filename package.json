@@ -10,8 +10,12 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.34.1",
+    "@supabase/supabase-js": "^2.78.0",
+    "@types/qrcode": "^1.5.6",
     "lucide-react": "^0.546.0",
+    "nanoid": "^5.1.6",
     "next": "15.5.6",
+    "qrcode": "^1.5.4",
     "react": "19.1.0",
     "react-dom": "19.1.0"
   },

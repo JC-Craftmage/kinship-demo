@@ -2,17 +2,45 @@
 
 'use client';
 
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useUser } from '@clerk/nextjs';
 import { useMembers } from '@/hooks/use-members';
+import { useChurchMembership } from '@/hooks/use-church-membership';
 
 export default function HomePage() {
+  const router = useRouter();
+  const { isLoaded } = useUser();
+  const { hasChurch, isLoading, membership } = useChurchMembership();
   const { totalMembers, totalAssets, champions } = useMembers();
+
+  // Redirect to welcome if user doesn't have a church
+  useEffect(() => {
+    if (isLoaded && !isLoading && !hasChurch) {
+      router.push('/welcome');
+    }
+  }, [isLoaded, isLoading, hasChurch, router]);
+
+  // Show loading state
+  if (!isLoaded || isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-xl text-gray-600">Loading...</div>
+      </div>
+    );
+  }
+
+  // If no church, don't render (will redirect)
+  if (!hasChurch) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
       <div className="bg-indigo-600 text-white p-4 shadow-lg">
         <div className="max-w-7xl mx-auto">
           <h1 className="text-xl font-bold">Kinship</h1>
-          <p className="text-sm text-indigo-200">First Church Community</p>
+          <p className="text-sm text-indigo-200">{membership?.churchName || 'Church Community'}</p>
         </div>
       </div>
 
