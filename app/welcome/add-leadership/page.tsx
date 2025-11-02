@@ -2,13 +2,13 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import QRCode from 'qrcode';
 
-export default function AddLeadershipPage() {
+function AddLeadershipContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const churchId = searchParams.get('churchId');
@@ -235,5 +235,17 @@ export default function AddLeadershipPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function AddLeadershipPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="text-xl text-gray-600">Loading...</div>
+      </div>
+    }>
+      <AddLeadershipContent />
+    </Suspense>
   );
 }
