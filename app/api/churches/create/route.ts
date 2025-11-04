@@ -17,7 +17,16 @@ export async function POST(request: NextRequest) {
 
     // Parse request body
     const body = await request.json();
-    const { churchName, churchDescription, campusName, campusLocation, campusAddress } = body;
+    const {
+      churchName,
+      churchDescription,
+      campusName,
+      campusLocation,
+      campusAddress,
+      campusZipCode,
+      campusLatitude,
+      campusLongitude
+    } = body;
 
     // Validate required fields
     if (!churchName || !campusName) {
@@ -68,6 +77,9 @@ export async function POST(request: NextRequest) {
         name: campusName,
         location: campusLocation,
         address: campusAddress,
+        zip_code: campusZipCode,
+        latitude: campusLatitude,
+        longitude: campusLongitude,
       })
       .select()
       .single();

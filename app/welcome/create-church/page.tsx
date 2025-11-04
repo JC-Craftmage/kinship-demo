@@ -13,10 +13,19 @@ interface Church {
   name: string;
   description: string | null;
   created_at: string;
+  distance?: number | null;
+  nearestCampus?: {
+    id: string;
+    name: string;
+    location: string | null;
+  } | null;
   campuses: Array<{
     id: string;
     name: string;
     location: string | null;
+    latitude?: number | null;
+    longitude?: number | null;
+    zip_code?: string | null;
   }>;
 }
 
@@ -24,8 +33,11 @@ export default function CreateChurchPage() {
   const router = useRouter();
   const [step, setStep] = useState<'search' | 'create'>('search');
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchZipCode, setSearchZipCode] = useState('');
+  const [searchLocation, setSearchLocation] = useState<{latitude: number; longitude: number} | null>(null);
   const [searchResults, setSearchResults] = useState<Church[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [isGettingSearchLocation, setIsGettingSearchLocation] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,12 +48,16 @@ export default function CreateChurchPage() {
     campusName: '',
     campusLocation: '',
     campusAddress: '',
+    campusZipCode: '',
+    campusLatitude: null as number | null,
+    campusLongitude: null as number | null,
   });
+  const [isGettingLocation, setIsGettingLocation] = useState(false);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchQuery.trim().length < 2) {
-      setError('Please enter at least 2 characters');
+    if (searchQuery.trim().length < 2 && !searchLocation && !searchZipCode.trim()) {
+      setError('Please enter a church name, use your location, or enter a ZIP code');
       return;
     }
 
@@ -49,7 +65,16 @@ export default function CreateChurchPage() {
     setError(null);
 
     try {
-      const response = await fetch(`/api/churches/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      // Build search URL with parameters
+      const params = new URLSearchParams();
+      if (searchQuery.trim()) params.append('q', searchQuery.trim());
+      if (searchLocation) {
+        params.append('latitude', searchLocation.latitude.toString());
+        params.append('longitude', searchLocation.longitude.toString());
+      }
+      if (searchZipCode.trim()) params.append('zipCode', searchZipCode.trim());
+
+      const response = await fetch(`/api/churches/search?${params.toString()}`);
       const data = await response.json();
 
       if (!response.ok) {
@@ -64,6 +89,41 @@ export default function CreateChurchPage() {
     } finally {
       setIsSearching(false);
     }
+  };
+
+  const handleSearchWithLocation = () => {
+    if (!navigator.geolocation) {
+      setError('Geolocation is not supported by your browser');
+      return;
+    }
+
+    setIsGettingSearchLocation(true);
+    setError(null);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setSearchLocation({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+        setIsGettingSearchLocation(false);
+        // Automatically trigger search after getting location
+        setTimeout(() => {
+          const form = document.querySelector('form');
+          if (form) form.requestSubmit();
+        }, 100);
+      },
+      (error) => {
+        console.error('Error getting location:', error);
+        setError('Unable to get your location. Please enable location permissions.');
+        setIsGettingSearchLocation(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
   };
 
   const handleCreateNew = () => {
@@ -101,8 +161,39 @@ export default function CreateChurchPage() {
     }
   };
 
-  const handleChange = (field: string, value: string) => {
+  const handleChange = (field: string, value: string | number | null) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleUseMyLocation = () => {
+    if (!navigator.geolocation) {
+      setError('Geolocation is not supported by your browser');
+      return;
+    }
+
+    setIsGettingLocation(true);
+    setError(null);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setFormData(prev => ({
+          ...prev,
+          campusLatitude: position.coords.latitude,
+          campusLongitude: position.coords.longitude,
+        }));
+        setIsGettingLocation(false);
+      },
+      (error) => {
+        console.error('Error getting location:', error);
+        setError('Unable to get your location. Please enable location permissions.');
+        setIsGettingLocation(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
   };
 
   return (
@@ -137,6 +228,40 @@ export default function CreateChurchPage() {
 
             <Card className="p-8">
               <form onSubmit={handleSearch} className="space-y-6">
+                {/* GPS Location Search */}
+                <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Quick Search by Location
+                    </label>
+                    {searchLocation && (
+                      <span className="text-xs text-green-700 bg-green-100 px-2 py-1 rounded">
+                        ✓ Location set
+                      </span>
+                    )}
+                  </div>
+                  <Button
+                    type="button"
+                    variant="primary"
+                    className="w-full py-3"
+                    onClick={handleSearchWithLocation}
+                    disabled={isGettingSearchLocation}
+                  >
+                    {isGettingSearchLocation ? 'Getting Location...' : '📍 Find Churches Near Me'}
+                  </Button>
+                  <p className="mt-2 text-xs text-gray-600">
+                    Use your current location to find nearby churches
+                  </p>
+                </div>
+
+                {/* Divider */}
+                <div className="flex items-center">
+                  <div className="flex-1 border-t border-gray-300"></div>
+                  <span className="px-3 text-sm text-gray-500">OR</span>
+                  <div className="flex-1 border-t border-gray-300"></div>
+                </div>
+
+                {/* Manual Search */}
                 <div>
                   <label htmlFor="searchQuery" className="block text-sm font-medium text-gray-700 mb-2">
                     Church Name
@@ -144,15 +269,29 @@ export default function CreateChurchPage() {
                   <input
                     type="text"
                     id="searchQuery"
-                    required
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-lg"
                     placeholder="e.g., Grace Community Church"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     autoFocus
                   />
+                </div>
+
+                <div>
+                  <label htmlFor="searchZipCode" className="block text-sm font-medium text-gray-700 mb-2">
+                    ZIP Code (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    id="searchZipCode"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-lg"
+                    placeholder="e.g., 98101"
+                    value={searchZipCode}
+                    onChange={(e) => setSearchZipCode(e.target.value)}
+                    maxLength={10}
+                  />
                   <p className="mt-2 text-sm text-gray-500">
-                    Enter your church's name to search for it
+                    Narrow results to churches in your area
                   </p>
                 </div>
 
@@ -164,11 +303,11 @@ export default function CreateChurchPage() {
 
                 <Button
                   type="submit"
-                  variant="primary"
+                  variant="secondary"
                   className="w-full py-3"
-                  disabled={isSearching || searchQuery.trim().length < 2}
+                  disabled={isSearching || (searchQuery.trim().length < 2 && !searchLocation && !searchZipCode.trim())}
                 >
-                  {isSearching ? 'Searching...' : 'Search for My Church'}
+                  {isSearching ? 'Searching...' : 'Search by Name/ZIP'}
                 </Button>
               </form>
 
@@ -184,15 +323,33 @@ export default function CreateChurchPage() {
                         {searchResults.map((church) => (
                           <Card key={church.id} className="p-4 bg-blue-50 border-blue-200">
                             <div className="flex items-start justify-between">
-                              <div>
-                                <h4 className="font-bold text-gray-900">{church.name}</h4>
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2">
+                                  <h4 className="font-bold text-gray-900">{church.name}</h4>
+                                  {church.distance !== null && church.distance !== undefined && (
+                                    <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded font-medium">
+                                      {church.distance < 1
+                                        ? `${(church.distance * 5280).toFixed(0)} ft`
+                                        : `${church.distance.toFixed(1)} mi`
+                                      } away
+                                    </span>
+                                  )}
+                                </div>
                                 {church.description && (
                                   <p className="text-sm text-gray-600 mt-1">{church.description}</p>
                                 )}
                                 {church.campuses && church.campuses.length > 0 && (
-                                  <p className="text-xs text-gray-500 mt-2">
-                                    {church.campuses.length} campus{church.campuses.length !== 1 ? 'es' : ''}: {church.campuses.map(c => c.name).join(', ')}
-                                  </p>
+                                  <div className="mt-2">
+                                    <p className="text-xs text-gray-500">
+                                      {church.campuses.length} campus{church.campuses.length !== 1 ? 'es' : ''}: {church.campuses.map(c => c.name).join(', ')}
+                                    </p>
+                                    {church.nearestCampus && (
+                                      <p className="text-xs text-gray-500 mt-1">
+                                        Nearest: {church.nearestCampus.name}
+                                        {church.nearestCampus.location && ` (${church.nearestCampus.location})`}
+                                      </p>
+                                    )}
+                                  </div>
                                 )}
                               </div>
                             </div>
@@ -335,6 +492,50 @@ export default function CreateChurchPage() {
                         value={formData.campusAddress}
                         onChange={(e) => handleChange('campusAddress', e.target.value)}
                       />
+                    </div>
+
+                    <div>
+                      <label htmlFor="campusZipCode" className="block text-sm font-medium text-gray-700 mb-1">
+                        ZIP Code (Optional but recommended)
+                      </label>
+                      <input
+                        type="text"
+                        id="campusZipCode"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        placeholder="e.g., 98101"
+                        value={formData.campusZipCode}
+                        onChange={(e) => handleChange('campusZipCode', e.target.value)}
+                        maxLength={10}
+                      />
+                      <p className="mt-1 text-xs text-gray-500">
+                        Helps members find your church in search results
+                      </p>
+                    </div>
+
+                    <div className="border-t pt-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="block text-sm font-medium text-gray-700">
+                          Location Coordinates (Optional)
+                        </label>
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          className="text-sm py-1 px-3"
+                          onClick={handleUseMyLocation}
+                          disabled={isGettingLocation}
+                        >
+                          {isGettingLocation ? 'Getting Location...' : '📍 Use My Location'}
+                        </Button>
+                      </div>
+                      {formData.campusLatitude && formData.campusLongitude ? (
+                        <div className="bg-green-50 border border-green-200 rounded-lg px-3 py-2 text-sm text-green-800">
+                          ✓ Location set: {formData.campusLatitude.toFixed(6)}, {formData.campusLongitude.toFixed(6)}
+                        </div>
+                      ) : (
+                        <p className="text-xs text-gray-500">
+                          Click "Use My Location" to automatically set coordinates for better search accuracy
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
