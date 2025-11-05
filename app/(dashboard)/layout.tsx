@@ -21,6 +21,8 @@ export default function DashboardLayout({
     if (pathname === '/assets') return 'assets';
     if (pathname === '/meal-trains') return 'mealtrains';
     if (pathname === '/needs') return 'needs';
+    if (pathname === '/browse-churches') return 'browse';
+    if (pathname === '/settings') return 'settings';
     return 'home';
   };
 
@@ -31,6 +33,8 @@ export default function DashboardLayout({
       assets: '/assets',
       mealtrains: '/meal-trains',
       needs: '/needs',
+      browse: '/browse-churches',
+      settings: '/settings',
     };
     router.push(routes[view] || '/home');
   };
