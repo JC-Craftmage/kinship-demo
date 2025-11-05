@@ -46,97 +46,83 @@ export default function WelcomePage() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-4 py-16">
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold text-gray-900 mb-4">
-            Welcome to Kinship! ⛵
-          </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Let's get you connected with your church community.
-            Choose one of the options below to get started.
-          </p>
+      <div className="max-w-4xl mx-auto px-4 py-12">
+        {/* Primary Action - Join Church */}
+        <div className="mb-12">
+          <Card className="p-10 bg-gradient-to-br from-indigo-500 to-purple-600 text-white border-0 shadow-2xl">
+            <div className="text-center mb-8">
+              <div className="text-8xl mb-6">👥</div>
+              <h1 className="text-5xl font-bold mb-4">
+                Let's Find Your Church!
+              </h1>
+              <p className="text-xl text-indigo-100 max-w-2xl mx-auto">
+                Join your church community on Kinship. Get your invite code from your church leader or scan their QR code.
+              </p>
+            </div>
+
+            <div className="max-w-md mx-auto space-y-4 mb-8">
+              <div className="flex items-center gap-3 text-lg">
+                <span className="text-3xl">✓</span>
+                <span>Connect with your campus community</span>
+              </div>
+              <div className="flex items-center gap-3 text-lg">
+                <span className="text-3xl">✓</span>
+                <span>Participate in meal trains and needs</span>
+              </div>
+              <div className="flex items-center gap-3 text-lg">
+                <span className="text-3xl">✓</span>
+                <span>Share assets and build relationships</span>
+              </div>
+            </div>
+
+            <div className="text-center">
+              <Link href="/welcome/join-church">
+                <Button
+                  variant="primary"
+                  className="px-16 py-6 text-2xl bg-white text-indigo-600 hover:bg-gray-100 shadow-xl"
+                >
+                  Join My Church →
+                </Button>
+              </Link>
+            </div>
+          </Card>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6">
-          {/* Create Church Card */}
-          <Card className="p-8 hover:shadow-xl transition-shadow">
-            <div className="text-center mb-6">
-              <div className="text-6xl mb-4">🏛️</div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                Create a Church
-              </h2>
-              <p className="text-gray-600">
-                Start a new church community on Kinship
-              </p>
-            </div>
+        {/* Divider */}
+        <div className="flex items-center my-12">
+          <div className="flex-1 border-t-2 border-gray-300"></div>
+          <span className="px-6 text-gray-500 font-medium">OR</span>
+          <div className="flex-1 border-t-2 border-gray-300"></div>
+        </div>
 
-            <div className="space-y-3 mb-6 text-sm text-gray-700">
-              <div className="flex items-start gap-2">
-                <span className="text-green-600 mt-1">✓</span>
-                <span>Full control as Church Owner</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <span className="text-green-600 mt-1">✓</span>
-                <span>Create multiple campuses</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <span className="text-green-600 mt-1">✓</span>
-                <span>Invite members with QR codes</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <span className="text-green-600 mt-1">✓</span>
-                <span>Promote overseers and moderators</span>
-              </div>
-            </div>
+        {/* Secondary Action - Create Church */}
+        <div className="text-center">
+          <p className="text-gray-700 mb-6">
+            Is your church not on Kinship yet? You can set it up!
+          </p>
 
-            <Link href="/welcome/create-church">
-              <Button variant="primary" className="w-full py-3">
-                Create Your Church
-              </Button>
-            </Link>
-          </Card>
-
-          {/* Join Church Card */}
-          <Card className="p-8 hover:shadow-xl transition-shadow">
-            <div className="text-center mb-6">
-              <div className="text-6xl mb-4">👥</div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                Join a Church
-              </h2>
-              <p className="text-gray-600">
-                Connect with an existing church community
-              </p>
-            </div>
-
-            <div className="space-y-3 mb-6 text-sm text-gray-700">
-              <div className="flex items-start gap-2">
-                <span className="text-green-600 mt-1">✓</span>
-                <span>Scan a QR code from your church</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <span className="text-green-600 mt-1">✓</span>
-                <span>Or enter an invite code</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <span className="text-green-600 mt-1">✓</span>
-                <span>Access your campus community</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <span className="text-green-600 mt-1">✓</span>
-                <span>Participate in events and needs</span>
+          <Card className="p-6 max-w-2xl mx-auto bg-white/80 backdrop-blur">
+            <div className="flex items-center gap-6">
+              <div className="text-5xl">🏛️</div>
+              <div className="flex-1 text-left">
+                <h3 className="text-xl font-bold text-gray-900 mb-1">
+                  Start a New Church
+                </h3>
+                <p className="text-sm text-gray-600 mb-3">
+                  Set up your church on Kinship and invite your community
+                </p>
+                <Link href="/welcome/create-church">
+                  <Button variant="secondary" className="text-sm">
+                    Create Church Account
+                  </Button>
+                </Link>
               </div>
             </div>
-
-            <Link href="/welcome/join-church">
-              <Button variant="secondary" className="w-full py-3">
-                Join a Church
-              </Button>
-            </Link>
           </Card>
         </div>
 
         <div className="mt-8 text-center text-sm text-gray-500">
-          <p>Not sure which option to choose? Contact your church leadership for guidance.</p>
+          <p>Need help? Contact your church leadership or reach out to support.</p>
         </div>
       </div>
     </div>

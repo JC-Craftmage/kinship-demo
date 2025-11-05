@@ -53,6 +53,9 @@ export interface Database {
           name: string;
           location: string | null;
           address: string | null;
+          latitude: number | null;
+          longitude: number | null;
+          zip_code: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -62,6 +65,9 @@ export interface Database {
           name: string;
           location?: string | null;
           address?: string | null;
+          latitude?: number | null;
+          longitude?: number | null;
+          zip_code?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -71,6 +77,9 @@ export interface Database {
           name?: string;
           location?: string | null;
           address?: string | null;
+          latitude?: number | null;
+          longitude?: number | null;
+          zip_code?: string | null;
           created_at?: string;
           updated_at?: string;
         };
