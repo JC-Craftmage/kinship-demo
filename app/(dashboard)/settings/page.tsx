@@ -150,20 +150,45 @@ export default function SettingsPage() {
           </Card>
         )}
 
-        {/* Account Actions */}
-        <Card className="p-6">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">Account Actions</h3>
-          <div className="space-y-3">
-            <Button
-              variant="secondary"
-              onClick={() => window.open('https://accounts.clerk.dev', '_blank')}
-              className="w-full justify-start"
-            >
-              <UserIcon size={16} className="mr-2" />
-              Manage Clerk Account
-            </Button>
-          </div>
-        </Card>
+        {/* Admin Management Tools */}
+        {membership && ['moderator', 'overseer', 'owner'].includes(membership.role) && (
+          <Card className="p-6">
+            <h3 className="text-lg font-bold text-gray-900 mb-4">Admin Tools</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Manage your church community settings and members
+            </p>
+            <div className="space-y-3">
+              <Button
+                variant="secondary"
+                onClick={() => router.push('/manage-requests')}
+                className="w-full justify-start"
+              >
+                <UserIcon size={16} className="mr-2" />
+                Manage Join Requests
+              </Button>
+              {membership.role === 'owner' && (
+                <>
+                  <Button
+                    variant="secondary"
+                    onClick={() => router.push('/manage-members')}
+                    className="w-full justify-start"
+                  >
+                    <UserIcon size={16} className="mr-2" />
+                    Manage Members & Roles
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    onClick={() => router.push('/manage-questionnaire')}
+                    className="w-full justify-start"
+                  >
+                    <UserIcon size={16} className="mr-2" />
+                    Manage Questionnaire
+                  </Button>
+                </>
+              )}
+            </div>
+          </Card>
+        )}
       </div>
 
       {/* Leave Church Confirmation Modal */}
