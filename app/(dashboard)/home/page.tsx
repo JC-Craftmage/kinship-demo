@@ -4,15 +4,22 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
 import { useMembers } from '@/hooks/use-members';
 import { useChurchMembership } from '@/hooks/use-church-membership';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { UserCheck } from 'lucide-react';
 
 export default function HomePage() {
   const router = useRouter();
   const { isLoaded } = useUser();
-  const { hasChurch, isLoading, membership } = useChurchMembership();
+  const { hasChurch, isLoading, membership, role } = useChurchMembership();
   const { totalMembers, totalAssets, champions } = useMembers();
+
+  // Check if user has admin permissions
+  const isAdmin = role && ['moderator', 'overseer', 'owner'].includes(role);
 
   // Redirect to welcome if user doesn't have a church
   useEffect(() => {
@@ -67,6 +74,25 @@ export default function HomePage() {
             </div>
           </div>
         </div>
+
+        {/* Admin Quick Actions */}
+        {isAdmin && (
+          <Card className="p-6 bg-gradient-to-r from-purple-500 to-indigo-600 text-white">
+            <h3 className="font-bold text-lg mb-2">Admin Tools</h3>
+            <p className="text-indigo-100 text-sm mb-4">
+              Manage your church community
+            </p>
+            <Link href="/manage-requests">
+              <Button
+                variant="primary"
+                className="w-full bg-white text-indigo-600 hover:bg-gray-100"
+              >
+                <UserCheck size={16} className="mr-2" />
+                Manage Join Requests
+              </Button>
+            </Link>
+          </Card>
+        )}
       </div>
     </div>
   );

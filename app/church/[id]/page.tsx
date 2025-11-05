@@ -67,7 +67,6 @@ export default function ChurchProfilePage() {
   }, [churchId, membership]);
 
   const handleRequestToJoin = () => {
-    // TODO: Implement join request flow (Phase 2)
     router.push(`/church/${churchId}/request-join`);
   };
 
@@ -191,9 +190,6 @@ export default function ChurchProfilePage() {
               <Send size={16} className="mr-2" />
               Request to Join
             </Button>
-            <p className="text-xs text-indigo-200 mt-3 text-center">
-              This feature is coming in Phase 2
-            </p>
           </Card>
         )}
 

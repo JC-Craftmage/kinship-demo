@@ -54,10 +54,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Log the departure reason (optional: could store this in a separate table for admin review)
-    if (reason) {
-      console.log(`User ${userId} leaving church ${membership.church_id} with reason: ${reason}`);
-      // TODO: Store departure reason in a separate table for admin visibility
+    // Get user info for logging
+    const { data: userData } = await supabase
+      .from('members')
+      .select('name')
+      .eq('user_id', userId)
+      .single();
+
+    const userName = userData?.name || 'Unknown User';
+
+    // Log the departure for admin visibility
+    const { error: logError } = await supabase
+      .from('member_departures')
+      .insert({
+        church_id: membership.church_id,
+        user_id: userId,
+        user_name: userName,
+        role: membership.role,
+        reason: reason || null,
+      });
+
+    if (logError) {
+      console.error('Error logging departure:', logError);
+      // Continue anyway - logging failure shouldn't block departure
     }
 
     // Delete the membership

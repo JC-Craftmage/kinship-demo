@@ -23,6 +23,7 @@ export default function DashboardLayout({
     if (pathname === '/needs') return 'needs';
     if (pathname === '/browse-churches') return 'browse';
     if (pathname === '/settings') return 'settings';
+    if (pathname === '/manage-requests') return 'home'; // Keep home tab active
     return 'home';
   };
 
