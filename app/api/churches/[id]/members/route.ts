@@ -1,0 +1,89 @@
+// API route for fetching church members
+
+import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
+import { supabase } from '@/lib/supabase/client';
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    // Verify user is authenticated
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    const churchId = params.id;
+
+    // Verify user is a member of this church and has Owner role
+    const { data: membership } = await supabase
+      .from('church_members')
+      .select('role')
+      .eq('church_id', churchId)
+      .eq('user_id', userId)
+      .single();
+
+    if (!membership || membership.role !== 'owner') {
+      return NextResponse.json(
+        { error: 'Only church owners can view member list' },
+        { status: 403 }
+      );
+    }
+
+    // Fetch all members with their details
+    const { data: members, error } = await supabase
+      .from('church_members')
+      .select(`
+        id,
+        user_id,
+        role,
+        joined_at,
+        campuses (
+          name
+        ),
+        members (
+          name,
+          email,
+          avatar
+        )
+      `)
+      .eq('church_id', churchId)
+      .order('joined_at', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching members:', error);
+      return NextResponse.json(
+        { error: 'Failed to fetch members' },
+        { status: 500 }
+      );
+    }
+
+    // Format the response
+    const formattedMembers = (members || []).map((m: any) => ({
+      id: m.id,
+      user_id: m.user_id,
+      user_name: m.members?.name || 'Unknown User',
+      user_email: m.members?.email || 'unknown@email.com',
+      user_photo: m.members?.avatar || null,
+      role: m.role,
+      campus_name: m.campuses?.name || null,
+      joined_at: m.joined_at,
+    }));
+
+    return NextResponse.json({
+      members: formattedMembers
+    });
+
+  } catch (error) {
+    console.error('Unexpected error fetching members:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
