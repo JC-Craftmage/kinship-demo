@@ -10,6 +10,7 @@ export type Json =
   | Json[];
 
 export type ChurchRole = 'owner' | 'overseer' | 'moderator' | 'member';
+export type JoinRequestStatus = 'pending' | 'approved' | 'denied' | 'withdrawn';
 
 export type NeedCategory = 'practical' | 'spiritual' | 'financial' | 'emotional' | 'other';
 export type NeedUrgency = 'low' | 'medium' | 'high';
@@ -423,6 +424,166 @@ export interface Database {
           volunteered_at?: string;
         };
       };
+      join_requests: {
+        Row: {
+          id: string;
+          church_id: string;
+          campus_id: string | null;
+          user_id: string;
+          user_name: string;
+          user_email: string;
+          user_photo: string | null;
+          status: JoinRequestStatus;
+          personal_note: string | null;
+          created_at: string;
+          updated_at: string;
+          reviewed_by: string | null;
+          reviewed_at: string | null;
+          review_note: string | null;
+        };
+        Insert: {
+          id?: string;
+          church_id: string;
+          campus_id?: string | null;
+          user_id: string;
+          user_name: string;
+          user_email: string;
+          user_photo?: string | null;
+          status?: JoinRequestStatus;
+          personal_note?: string | null;
+          created_at?: string;
+          updated_at?: string;
+          reviewed_by?: string | null;
+          reviewed_at?: string | null;
+          review_note?: string | null;
+        };
+        Update: {
+          id?: string;
+          church_id?: string;
+          campus_id?: string | null;
+          user_id?: string;
+          user_name?: string;
+          user_email?: string;
+          user_photo?: string | null;
+          status?: JoinRequestStatus;
+          personal_note?: string | null;
+          created_at?: string;
+          updated_at?: string;
+          reviewed_by?: string | null;
+          reviewed_at?: string | null;
+          review_note?: string | null;
+        };
+      };
+      church_questionnaires: {
+        Row: {
+          id: string;
+          church_id: string;
+          question: string;
+          is_required: boolean;
+          display_order: number;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          church_id: string;
+          question: string;
+          is_required?: boolean;
+          display_order: number;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          church_id?: string;
+          question?: string;
+          is_required?: boolean;
+          display_order?: number;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      join_request_responses: {
+        Row: {
+          id: string;
+          join_request_id: string;
+          questionnaire_id: string;
+          answer: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          join_request_id: string;
+          questionnaire_id: string;
+          answer: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          join_request_id?: string;
+          questionnaire_id?: string;
+          answer?: string;
+          created_at?: string;
+        };
+      };
+      join_request_denials: {
+        Row: {
+          id: string;
+          church_id: string;
+          user_id: string;
+          denied_at: string;
+          denied_by: string;
+          reason: string | null;
+        };
+        Insert: {
+          id?: string;
+          church_id: string;
+          user_id: string;
+          denied_at?: string;
+          denied_by: string;
+          reason?: string | null;
+        };
+        Update: {
+          id?: string;
+          church_id?: string;
+          user_id?: string;
+          denied_at?: string;
+          denied_by?: string;
+          reason?: string | null;
+        };
+      };
+      member_departures: {
+        Row: {
+          id: string;
+          church_id: string;
+          user_id: string;
+          user_name: string;
+          role: ChurchRole;
+          reason: string | null;
+          departed_at: string;
+        };
+        Insert: {
+          id?: string;
+          church_id: string;
+          user_id: string;
+          user_name: string;
+          role: ChurchRole;
+          reason?: string | null;
+          departed_at?: string;
+        };
+        Update: {
+          id?: string;
+          church_id?: string;
+          user_id?: string;
+          user_name?: string;
+          role?: ChurchRole;
+          reason?: string | null;
+          departed_at?: string;
+        };
+      };
     };
     Views: {
       [_ in never]: never;
@@ -432,6 +593,7 @@ export interface Database {
     };
     Enums: {
       church_role: ChurchRole;
+      join_request_status: JoinRequestStatus;
       need_category: NeedCategory;
       need_urgency: NeedUrgency;
       need_status: NeedStatus;

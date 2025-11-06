@@ -79,6 +79,15 @@ function JoinChurchContent() {
           </p>
         </div>
 
+        {/* Profile Photo Guidelines */}
+        <Card className="p-4 bg-blue-50 border-blue-200 mb-6">
+          <h4 className="font-bold text-blue-900 text-sm mb-2">📸 Before You Join</h4>
+          <p className="text-xs text-blue-800">
+            Please make sure you have a <strong>real and recent photo</strong> of yourself set as your profile picture.
+            This helps your church community recognize and connect with you. Avoid using emojis, cartoons, pets, or old photos.
+          </p>
+        </Card>
+
         <Card className="p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
