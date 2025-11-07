@@ -36,6 +36,12 @@ export default function ManageMembersPage() {
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [error, setError] = useState<string | null>(null);
 
+  // Bulk actions state
+  const [selectedMemberIds, setSelectedMemberIds] = useState<Set<string>>(new Set());
+  const [showBulkRoleModal, setShowBulkRoleModal] = useState(false);
+  const [showBulkRemoveModal, setShowBulkRemoveModal] = useState(false);
+  const [bulkNewRole, setBulkNewRole] = useState<string>('');
+
   const isOwner = role === 'owner';
 
   useEffect(() => {
@@ -165,6 +171,98 @@ export default function ManageMembersPage() {
     return role.charAt(0).toUpperCase() + role.slice(1);
   };
 
+  // Bulk actions handlers
+  const toggleMemberSelection = (memberId: string) => {
+    const newSelection = new Set(selectedMemberIds);
+    if (newSelection.has(memberId)) {
+      newSelection.delete(memberId);
+    } else {
+      newSelection.add(memberId);
+    }
+    setSelectedMemberIds(newSelection);
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedMemberIds.size === filteredMembers.length) {
+      setSelectedMemberIds(new Set());
+    } else {
+      setSelectedMemberIds(new Set(filteredMembers.map(m => m.id)));
+    }
+  };
+
+  const handleBulkChangeRole = async () => {
+    if (!bulkNewRole || selectedMemberIds.size === 0) return;
+
+    setIsProcessing(true);
+    setError(null);
+
+    try {
+      // Call each role change individually (could be optimized with bulk API later)
+      const promises = Array.from(selectedMemberIds).map(memberId =>
+        fetch(`/api/churches/members/${memberId}/role`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ role: bulkNewRole }),
+        })
+      );
+
+      const responses = await Promise.all(promises);
+      const failedCount = responses.filter(r => !r.ok).length;
+
+      if (failedCount > 0) {
+        throw new Error(`Failed to update ${failedCount} member(s)`);
+      }
+
+      // Update local state
+      setMembers(members.map(m =>
+        selectedMemberIds.has(m.id) ? { ...m, role: bulkNewRole as any } : m
+      ));
+
+      setShowBulkRoleModal(false);
+      setSelectedMemberIds(new Set());
+      setBulkNewRole('');
+    } catch (err) {
+      console.error('Error in bulk role change:', err);
+      setError(err instanceof Error ? err.message : 'Failed to change roles');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleBulkRemove = async () => {
+    if (selectedMemberIds.size === 0) return;
+
+    setIsProcessing(true);
+    setError(null);
+
+    try {
+      // Call each remove individually
+      const promises = Array.from(selectedMemberIds).map(memberId =>
+        fetch(`/api/churches/members/${memberId}`, {
+          method: 'DELETE',
+        })
+      );
+
+      const responses = await Promise.all(promises);
+      const failedCount = responses.filter(r => !r.ok).length;
+
+      if (failedCount > 0) {
+        throw new Error(`Failed to remove ${failedCount} member(s)`);
+      }
+
+      // Update local state
+      setMembers(members.filter(m => !selectedMemberIds.has(m.id)));
+
+      setShowBulkRemoveModal(false);
+      setSelectedMemberIds(new Set());
+    } catch (err) {
+      console.error('Error in bulk remove:', err);
+      setError(err instanceof Error ? err.message : 'Failed to remove members');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   if (!isOwner) {
     return (
       <div className="min-h-screen bg-gray-50 pb-24">
@@ -281,12 +379,73 @@ export default function ManageMembersPage() {
           </div>
         </Card>
 
+        {/* Bulk Actions Toolbar */}
+        {selectedMemberIds.size > 0 && (
+          <Card className="p-4 bg-indigo-50 border-indigo-200">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className="font-bold text-indigo-900">
+                  {selectedMemberIds.size} member{selectedMemberIds.size > 1 ? 's' : ''} selected
+                </span>
+                <button
+                  onClick={() => setSelectedMemberIds(new Set())}
+                  className="text-sm text-indigo-600 hover:text-indigo-800 underline"
+                >
+                  Clear selection
+                </button>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="secondary"
+                  onClick={() => setShowBulkRoleModal(true)}
+                  className="bg-blue-600 text-white hover:bg-blue-700"
+                >
+                  <Shield size={14} className="mr-1" />
+                  Change Roles
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => setShowBulkRemoveModal(true)}
+                  className="bg-red-600 text-white hover:bg-red-700"
+                >
+                  <UserX size={14} className="mr-1" />
+                  Remove Members
+                </Button>
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {/* Select All / Deselect All */}
+        {filteredMembers.length > 0 && (
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={selectedMemberIds.size === filteredMembers.length && filteredMembers.length > 0}
+              onChange={toggleSelectAll}
+              className="w-4 h-4 text-indigo-600 rounded border-gray-300"
+            />
+            <span className="text-sm text-gray-600">
+              {selectedMemberIds.size === filteredMembers.length && filteredMembers.length > 0
+                ? 'Deselect all'
+                : 'Select all'}
+            </span>
+          </div>
+        )}
+
         {/* Members List */}
         {filteredMembers.length > 0 ? (
           <div className="space-y-3">
             {filteredMembers.map((member) => (
-              <Card key={member.id} className="p-4">
+              <Card key={member.id} className={`p-4 ${selectedMemberIds.has(member.id) ? 'ring-2 ring-indigo-500' : ''}`}>
                 <div className="flex items-center gap-4">
+                  {/* Checkbox */}
+                  <input
+                    type="checkbox"
+                    checked={selectedMemberIds.has(member.id)}
+                    onChange={() => toggleMemberSelection(member.id)}
+                    className="w-5 h-5 text-indigo-600 rounded border-gray-300"
+                  />
                   {member.user_photo ? (
                     <img
                       src={member.user_photo}
@@ -487,6 +646,139 @@ export default function ManageMembersPage() {
                 disabled={isProcessing}
               >
                 {isProcessing ? 'Removing...' : 'Remove Member'}
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Bulk Change Role Modal */}
+      {showBulkRoleModal && (
+        <Modal
+          isOpen={showBulkRoleModal}
+          onClose={() => {
+            setShowBulkRoleModal(false);
+            setBulkNewRole('');
+            setError(null);
+          }}
+          title="Bulk Change Roles"
+        >
+          <div className="space-y-4">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <p className="text-sm text-blue-800">
+                You are about to change the role for <strong>{selectedMemberIds.size} member(s)</strong>.
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                New Role
+              </label>
+              <select
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                value={bulkNewRole}
+                onChange={(e) => setBulkNewRole(e.target.value)}
+              >
+                <option value="">Select a role...</option>
+                <option value="member">Member - Basic access</option>
+                <option value="moderator">Moderator - Can approve join requests</option>
+                <option value="overseer">Overseer - Campus leadership</option>
+                <option value="owner">Owner - Full control</option>
+              </select>
+            </div>
+
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+              <p className="text-sm text-yellow-800">
+                <strong>Note:</strong> This will change the role for all selected members at once.
+              </p>
+            </div>
+
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                {error}
+              </div>
+            )}
+
+            <div className="flex gap-3 pt-4">
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setShowBulkRoleModal(false);
+                  setBulkNewRole('');
+                  setError(null);
+                }}
+                className="flex-1"
+                disabled={isProcessing}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="primary"
+                onClick={handleBulkChangeRole}
+                className="flex-1"
+                disabled={isProcessing || !bulkNewRole}
+              >
+                {isProcessing ? 'Changing...' : `Change ${selectedMemberIds.size} Role(s)`}
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Bulk Remove Modal */}
+      {showBulkRemoveModal && (
+        <Modal
+          isOpen={showBulkRemoveModal}
+          onClose={() => {
+            setShowBulkRemoveModal(false);
+            setError(null);
+          }}
+          title="Bulk Remove Members"
+        >
+          <div className="space-y-4">
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <p className="text-sm text-red-800">
+                <strong>Warning:</strong> This will remove <strong>{selectedMemberIds.size} member(s)</strong> from your church.
+                They will need new invite codes to rejoin.
+              </p>
+            </div>
+
+            <div className="max-h-48 overflow-y-auto bg-gray-50 border border-gray-200 rounded p-3">
+              <p className="text-xs text-gray-600 font-bold mb-2">Members to be removed:</p>
+              <ul className="text-sm text-gray-800 space-y-1">
+                {members
+                  .filter(m => selectedMemberIds.has(m.id))
+                  .map(m => (
+                    <li key={m.id}>• {m.user_name} ({m.user_email})</li>
+                  ))}
+              </ul>
+            </div>
+
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                {error}
+              </div>
+            )}
+
+            <div className="flex gap-3 pt-4">
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setShowBulkRemoveModal(false);
+                  setError(null);
+                }}
+                className="flex-1"
+                disabled={isProcessing}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="primary"
+                onClick={handleBulkRemove}
+                className="flex-1 bg-red-600 hover:bg-red-700"
+                disabled={isProcessing}
+              >
+                {isProcessing ? 'Removing...' : `Remove ${selectedMemberIds.size} Member(s)`}
               </Button>
             </div>
           </div>
