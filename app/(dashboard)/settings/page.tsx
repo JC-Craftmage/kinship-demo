@@ -21,6 +21,57 @@ export default function SettingsPage() {
   const [isLeaving, setIsLeaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Church visibility state
+  const [isPublic, setIsPublic] = useState<boolean>(true);
+  const [isTogglingVisibility, setIsTogglingVisibility] = useState(false);
+
+  // Fetch church visibility on mount
+  useEffect(() => {
+    const fetchChurchVisibility = async () => {
+      if (!membership?.churchId || membership.role !== 'owner') return;
+
+      try {
+        const response = await fetch(`/api/churches/${membership.churchId}`);
+        const data = await response.json();
+        if (data.church?.is_public !== undefined) {
+          setIsPublic(data.church.is_public);
+        }
+      } catch (err) {
+        console.error('Error fetching church visibility:', err);
+      }
+    };
+
+    fetchChurchVisibility();
+  }, [membership]);
+
+  const handleToggleVisibility = async () => {
+    if (!membership?.churchId) return;
+
+    setIsTogglingVisibility(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`/api/churches/${membership.churchId}/visibility`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isPublic: !isPublic }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to update visibility');
+      }
+
+      setIsPublic(!isPublic);
+    } catch (err) {
+      console.error('Error toggling visibility:', err);
+      setError(err instanceof Error ? err.message : 'Failed to update visibility');
+    } finally {
+      setIsTogglingVisibility(false);
+    }
+  };
+
   const handleLeaveChurch = async () => {
     if (confirmText.toLowerCase() !== 'i understand') {
       setError('Please type "I understand" to confirm');
@@ -188,6 +239,14 @@ export default function SettingsPage() {
                 <>
                   <Button
                     variant="secondary"
+                    onClick={() => router.push('/analytics')}
+                    className="w-full justify-start bg-indigo-50 border-indigo-200 hover:bg-indigo-100"
+                  >
+                    <UserIcon size={16} className="mr-2" />
+                    Analytics Dashboard
+                  </Button>
+                  <Button
+                    variant="secondary"
                     onClick={() => router.push('/manage-members')}
                     className="w-full justify-start"
                   >
@@ -220,6 +279,61 @@ export default function SettingsPage() {
                   </Button>
                 </>
               )}
+            </div>
+          </Card>
+        )}
+
+        {/* Church Visibility Settings (Owner only) */}
+        {membership && membership.role === 'owner' && (
+          <Card className="p-6">
+            <h3 className="text-lg font-bold text-gray-900 mb-4">Church Visibility</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Control whether your church appears in public search results
+            </p>
+
+            <div className="flex items-start gap-4 p-4 border border-gray-200 rounded-lg bg-gray-50">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <h4 className="font-bold text-gray-900">
+                    {isPublic ? 'Public' : 'Private'}
+                  </h4>
+                  <span className={`px-2 py-0.5 rounded text-xs font-bold ${
+                    isPublic
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-gray-200 text-gray-700'
+                  }`}>
+                    {isPublic ? 'Searchable' : 'Invite-Only'}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-600">
+                  {isPublic
+                    ? 'Your church appears in search results. Anyone can find and request to join.'
+                    : 'Your church is hidden from search. Only people with invite codes can join.'}
+                </p>
+              </div>
+              <Button
+                variant="secondary"
+                onClick={handleToggleVisibility}
+                disabled={isTogglingVisibility}
+                className={`${
+                  isPublic
+                    ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'
+                }`}
+              >
+                {isTogglingVisibility
+                  ? 'Updating...'
+                  : isPublic
+                  ? 'Make Private'
+                  : 'Make Public'}
+              </Button>
+            </div>
+
+            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded">
+              <p className="text-xs text-blue-800">
+                <strong>Note:</strong> Making your church private means it won't appear in search results.
+                Members can only join via invite codes. Existing members remain unaffected.
+              </p>
             </div>
           </Card>
         )}

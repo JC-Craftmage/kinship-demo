@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Build base query
+    // Build base query - only show public churches in search
     let supabaseQuery = supabase
       .from('churches')
       .select(`
@@ -64,7 +64,8 @@ export async function GET(request: NextRequest) {
           longitude,
           zip_code
         )
-      `);
+      `)
+      .eq('is_public', true);
 
     // Add name filter if provided
     if (query && query.trim().length >= 2) {

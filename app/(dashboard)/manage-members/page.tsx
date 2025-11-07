@@ -8,7 +8,7 @@ import { useChurchMembership } from '@/hooks/use-church-membership';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
-import { Users, Shield, UserX, ChevronDown, Search } from 'lucide-react';
+import { Users, Shield, UserX, ChevronDown, Search, MapPin } from 'lucide-react';
 
 interface Member {
   id: string;
@@ -42,10 +42,16 @@ export default function ManageMembersPage() {
   const [showBulkRemoveModal, setShowBulkRemoveModal] = useState(false);
   const [bulkNewRole, setBulkNewRole] = useState<string>('');
 
+  // Campus assignment state
+  const [showCampusModal, setShowCampusModal] = useState(false);
+  const [newCampusId, setNewCampusId] = useState<string>('');
+  const [campuses, setCampuses] = useState<Array<{id: string, name: string}>>([]);
+
   const isOwner = role === 'owner';
+  const canAssignCampus = role === 'owner' || role === 'overseer';
 
   useEffect(() => {
-    const fetchMembers = async () => {
+    const fetchData = async () => {
       if (!membership?.churchId || !isOwner) {
         setIsLoading(false);
         return;
@@ -53,24 +59,32 @@ export default function ManageMembersPage() {
 
       try {
         setIsLoading(true);
-        const response = await fetch(`/api/churches/${membership.churchId}/members`);
-        const data = await response.json();
 
-        if (!response.ok) {
-          throw new Error(data.error || 'Failed to fetch members');
+        // Fetch members
+        const membersResponse = await fetch(`/api/churches/${membership.churchId}/members`);
+        const membersData = await membersResponse.json();
+
+        if (!membersResponse.ok) {
+          throw new Error(membersData.error || 'Failed to fetch members');
         }
 
-        setMembers(data.members || []);
-        setFilteredMembers(data.members || []);
+        setMembers(membersData.members || []);
+        setFilteredMembers(membersData.members || []);
+
+        // Fetch campuses for assignment
+        const campusesResponse = await fetch(`/api/churches/${membership.churchId}/campuses`);
+        const campusesData = await campusesResponse.json();
+        setCampuses(campusesData.campuses || []);
+
       } catch (err) {
-        console.error('Error fetching members:', err);
-        setError(err instanceof Error ? err.message : 'Failed to load members');
+        console.error('Error fetching data:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load data');
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchMembers();
+    fetchData();
   }, [membership?.churchId, isOwner]);
 
   // Filter members based on search and role filter
@@ -258,6 +272,45 @@ export default function ManageMembersPage() {
     } catch (err) {
       console.error('Error in bulk remove:', err);
       setError(err instanceof Error ? err.message : 'Failed to remove members');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleAssignCampus = async () => {
+    if (!selectedMember) return;
+
+    setIsProcessing(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`/api/churches/members/${selectedMember.id}/campus`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ campusId: newCampusId || null }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to assign campus');
+      }
+
+      // Update local state
+      const campusName = newCampusId
+        ? campuses.find(c => c.id === newCampusId)?.name || null
+        : null;
+
+      setMembers(members.map(m =>
+        m.id === selectedMember.id ? { ...m, campus_name: campusName } : m
+      ));
+
+      setShowCampusModal(false);
+      setSelectedMember(null);
+      setNewCampusId('');
+    } catch (err) {
+      console.error('Error assigning campus:', err);
+      setError(err instanceof Error ? err.message : 'Failed to assign campus');
     } finally {
       setIsProcessing(false);
     }
@@ -458,7 +511,12 @@ export default function ManageMembersPage() {
                     </div>
                   )}
                   <div className="flex-1">
-                    <h3 className="font-bold text-gray-900">{member.user_name}</h3>
+                    <button
+                      onClick={() => router.push(`/members/${member.id}`)}
+                      className="font-bold text-gray-900 hover:text-indigo-600 hover:underline text-left"
+                    >
+                      {member.user_name}
+                    </button>
                     <p className="text-sm text-gray-600">{member.user_email}</p>
                     <div className="flex items-center gap-2 mt-1">
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${getRoleBadgeColor(member.role)}`}>
@@ -485,6 +543,20 @@ export default function ManageMembersPage() {
                       <Shield size={14} />
                       Change Role
                     </Button>
+                    {canAssignCampus && campuses.length > 0 && (
+                      <Button
+                        variant="secondary"
+                        onClick={() => {
+                          setSelectedMember(member);
+                          setNewCampusId(member.campus_name || '');
+                          setShowCampusModal(true);
+                        }}
+                        className="flex items-center gap-1"
+                      >
+                        <MapPin size={14} />
+                        Campus
+                      </Button>
+                    )}
                     {member.role !== 'owner' && (
                       <Button
                         variant="secondary"
@@ -779,6 +851,76 @@ export default function ManageMembersPage() {
                 disabled={isProcessing}
               >
                 {isProcessing ? 'Removing...' : `Remove ${selectedMemberIds.size} Member(s)`}
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Assign Campus Modal */}
+      {showCampusModal && selectedMember && (
+        <Modal
+          isOpen={showCampusModal}
+          onClose={() => {
+            setShowCampusModal(false);
+            setSelectedMember(null);
+            setNewCampusId('');
+            setError(null);
+          }}
+          title="Assign Campus"
+        >
+          <div className="space-y-4">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <p className="text-sm text-blue-800">
+                Assign <strong>{selectedMember.user_name}</strong> to a campus or leave unassigned.
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Campus
+              </label>
+              <select
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                value={newCampusId}
+                onChange={(e) => setNewCampusId(e.target.value)}
+              >
+                <option value="">No Campus (Unassigned)</option>
+                {campuses.map(campus => (
+                  <option key={campus.id} value={campus.id}>
+                    {campus.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                {error}
+              </div>
+            )}
+
+            <div className="flex gap-3 pt-4">
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setShowCampusModal(false);
+                  setSelectedMember(null);
+                  setNewCampusId('');
+                  setError(null);
+                }}
+                className="flex-1"
+                disabled={isProcessing}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="primary"
+                onClick={handleAssignCampus}
+                className="flex-1"
+                disabled={isProcessing}
+              >
+                {isProcessing ? 'Assigning...' : 'Assign Campus'}
               </Button>
             </div>
           </div>
