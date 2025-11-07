@@ -196,6 +196,14 @@ export default function SettingsPage() {
                   </Button>
                   <Button
                     variant="secondary"
+                    onClick={() => router.push('/manage-campuses')}
+                    className="w-full justify-start"
+                  >
+                    <UserIcon size={16} className="mr-2" />
+                    Manage Campuses
+                  </Button>
+                  <Button
+                    variant="secondary"
                     onClick={() => router.push('/manage-questionnaire')}
                     className="w-full justify-start"
                   >
