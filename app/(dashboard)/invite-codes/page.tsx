@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
+import { useChurchMembership } from '@/hooks/use-church-membership';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import QRCode from 'qrcode';
@@ -29,9 +30,9 @@ interface Campus {
 export default function InviteCodesPage() {
   const router = useRouter();
   const { user, isLoaded } = useUser();
+  const { membership, role } = useChurchMembership();
   const [invites, setInvites] = useState<InviteCode[]>([]);
   const [campuses, setCampuses] = useState<Campus[]>([]);
-  const [membership, setMembership] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -45,37 +46,29 @@ export default function InviteCodesPage() {
   const [maxUses, setMaxUses] = useState<string>('');
   const [generating, setGenerating] = useState(false);
 
-  // Fetch membership and church data
+  // Fetch church data when membership is loaded
   useEffect(() => {
-    if (!isLoaded || !user) return;
-
     const fetchData = async () => {
+      if (!membership) {
+        setLoading(false);
+        return;
+      }
+
+      // Check permission
+      if (!['owner', 'overseer'].includes(membership.role)) {
+        setError('You do not have permission to manage invite codes');
+        setLoading(false);
+        return;
+      }
+
       try {
-        // Get membership
-        const memberRes = await fetch('/api/user/membership');
-        const memberData = await memberRes.json();
-
-        if (!memberData.membership) {
-          router.push('/welcome');
-          return;
-        }
-
-        setMembership(memberData.membership);
-
-        // Check permission
-        if (!['owner', 'overseer'].includes(memberData.membership.role)) {
-          setError('You do not have permission to manage invite codes');
-          setLoading(false);
-          return;
-        }
-
         // Fetch campuses
-        const campusRes = await fetch(`/api/churches/${memberData.membership.churchId}/campuses`);
+        const campusRes = await fetch(`/api/churches/${membership.churchId}/campuses`);
         const campusData = await campusRes.json();
         setCampuses(campusData.campuses || []);
 
         // Fetch invite codes
-        await loadInvites(memberData.membership.churchId);
+        await loadInvites(membership.churchId);
 
         setLoading(false);
       } catch (err) {
@@ -86,7 +79,7 @@ export default function InviteCodesPage() {
     };
 
     fetchData();
-  }, [isLoaded, user, router]);
+  }, [membership]);
 
   const loadInvites = async (churchId: string) => {
     const response = await fetch(`/api/invites/list?churchId=${churchId}`);
