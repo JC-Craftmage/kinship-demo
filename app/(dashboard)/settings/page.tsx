@@ -210,6 +210,14 @@ export default function SettingsPage() {
                     <UserIcon size={16} className="mr-2" />
                     Manage Questionnaire
                   </Button>
+                  <Button
+                    variant="secondary"
+                    onClick={() => router.push('/departure-history')}
+                    className="w-full justify-start"
+                  >
+                    <UserIcon size={16} className="mr-2" />
+                    Departure History
+                  </Button>
                 </>
               )}
             </div>
