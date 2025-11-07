@@ -2,7 +2,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import { useChurchMembership } from '@/hooks/use-church-membership';
