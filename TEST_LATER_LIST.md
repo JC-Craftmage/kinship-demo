@@ -16,19 +16,19 @@ This is a master list of features to test when you have time or when we reach a 
 - **Location:** Manage Members → "Campus" button on each member
 - **Expected:** Modal to select campus or leave unassigned
 
-### 3. Church Visibility Toggle
+### 3. Church Visibility Toggle ✅ UI VERIFIED
 - **What:** Make church Public (searchable) or Private (invite-only)
 - **How to test:** Toggle setting, then search for church while logged out
 - **Location:** Settings → "Church Visibility" section (Owner only)
 - **Expected:** Church appears/disappears from search based on setting
-- **Status:** Section not appearing - needs debugging
+- **Status:** UI working, needs logged-out search test
 
-### 4. Analytics Dashboard
+### 4. Analytics Dashboard ✅ UI VERIFIED
 - **What:** View church statistics and growth metrics
 - **How to test:** View dashboard with existing data
 - **Location:** Settings → "Analytics Dashboard" button (Owner only)
 - **Expected:** Member counts, join requests, campus stats, growth charts
-- **Status:** Not appearing in Settings - needs debugging
+- **Status:** UI working, needs test with real data
 
 ### 5. QR Code Generator
 - **What:** Generate invite codes with QR codes
