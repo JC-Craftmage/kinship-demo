@@ -166,6 +166,14 @@ export default function SettingsPage() {
                 <UserIcon size={16} className="mr-2" />
                 Manage Join Requests
               </Button>
+              <Button
+                variant="secondary"
+                onClick={() => router.push('/request-history')}
+                className="w-full justify-start"
+              >
+                <UserIcon size={16} className="mr-2" />
+                Request History
+              </Button>
               {['overseer', 'owner'].includes(membership.role) && (
                 <Button
                   variant="secondary"

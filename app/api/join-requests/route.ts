@@ -52,6 +52,9 @@ export async function GET(request: NextRequest) {
         personal_note,
         status,
         created_at,
+        reviewed_by,
+        reviewed_at,
+        review_note,
         campus_id,
         campuses (
           id,
