@@ -226,14 +226,24 @@ export default function SettingsPage() {
                 Request History
               </Button>
               {['overseer', 'owner'].includes(membership.role) && (
-                <Button
-                  variant="secondary"
-                  onClick={() => router.push('/invite-codes')}
-                  className="w-full justify-start"
-                >
-                  <UserIcon size={16} className="mr-2" />
-                  Manage Invite Codes
-                </Button>
+                <>
+                  <Button
+                    variant="secondary"
+                    onClick={() => router.push('/invite-codes')}
+                    className="w-full justify-start"
+                  >
+                    <UserIcon size={16} className="mr-2" />
+                    Manage Invite Codes
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    onClick={() => router.push('/safety-team')}
+                    className="w-full justify-start"
+                  >
+                    <UserIcon size={16} className="mr-2" />
+                    Safety Team
+                  </Button>
+                </>
               )}
               {membership.role === 'owner' && (
                 <>

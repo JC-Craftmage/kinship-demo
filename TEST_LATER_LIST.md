@@ -57,9 +57,26 @@ This is a master list of features to test when you have time or when we reach a 
 - **Location:** Settings → Departure History
 - **Expected:** List of departed members with reasons
 
+### 10. Safety Team Roster (Feature 1 of 5)
+- **What:** Manage church safety team members with roles, specialties, and certifications
+- **How to test:** Need church members to add to safety team
+- **Location:** Settings → Safety Team (Owner/Overseer only)
+- **Expected:**
+  - View safety team roster with member details
+  - Add members to team with role (Leader/Member)
+  - Assign specialty (Medical/Security/Fire Safety/General)
+  - Add certifications (CPR, First Aid, etc.)
+  - Add emergency contact phone
+  - Edit member details and active status
+  - Remove members from team
+  - Filter by active/inactive status
+- **Database:** Requires migration `005_safety_team_system.sql` to be run in Supabase
+- **Note:** This is part 1 of 5-part Safety Team system (Roster, Scheduling, Incidents, Protocols, Communications)
+
 ---
 
 ## Notes
 - Most features require test data (multiple members, campuses, etc.)
 - Some features are Owner-only, some Moderator+
+- Safety Team feature requires database migration to be run in Supabase first
 - Remind me to review this list periodically or when we have test data
