@@ -315,6 +315,15 @@ export default function SafetyTeamPage() {
             >
               Schedules
             </Button>
+            {['owner', 'overseer', 'moderator'].includes(role || '') && (
+              <Button
+                variant="secondary"
+                onClick={() => router.push('/safety-incidents')}
+                className="bg-white text-gray-700 border-gray-300"
+              >
+                Incidents
+              </Button>
+            )}
           </div>
         </div>
 
