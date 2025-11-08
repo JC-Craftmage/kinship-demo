@@ -278,25 +278,44 @@ export default function SafetyTeamPage() {
     <div className="min-h-screen bg-gray-50 p-6 pb-24">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-2">
-              <Shield size={32} className="text-indigo-600" />
-              Safety Team Roster
-            </h1>
-            <p className="text-gray-600">
-              Manage your church safety and security team members
-            </p>
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-2">
+                <Shield size={32} className="text-indigo-600" />
+                Safety Team Roster
+              </h1>
+              <p className="text-gray-600">
+                Manage your church safety and security team members
+              </p>
+            </div>
+            {canManage && (
+              <Button
+                onClick={() => setShowAddModal(true)}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white"
+              >
+                <UserPlus size={18} className="mr-2" />
+                Add Member
+              </Button>
+            )}
           </div>
-          {canManage && (
+
+          {/* Navigation Links */}
+          <div className="flex gap-2">
             <Button
-              onClick={() => setShowAddModal(true)}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white"
+              variant="secondary"
+              className="bg-indigo-100 text-indigo-900 border-indigo-300"
             >
-              <UserPlus size={18} className="mr-2" />
-              Add Member
+              Roster
             </Button>
-          )}
+            <Button
+              variant="secondary"
+              onClick={() => router.push('/safety-schedules')}
+              className="bg-white text-gray-700 border-gray-300"
+            >
+              Schedules
+            </Button>
+          </div>
         </div>
 
         {/* Filter Tabs */}
