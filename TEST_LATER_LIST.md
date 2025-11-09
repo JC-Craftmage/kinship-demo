@@ -57,26 +57,73 @@ This is a master list of features to test when you have time or when we reach a 
 - **Location:** Settings → Departure History
 - **Expected:** List of departed members with reasons
 
-### 10. Safety Team Roster (Feature 1 of 5)
+### 10. Safety Team Roster (Feature 1 of 5) ✅ PUSHED
 - **What:** Manage church safety team members with roles, specialties, and certifications
 - **How to test:** Need church members to add to safety team
 - **Location:** Settings → Safety Team (Owner/Overseer only)
-- **Expected:**
-  - View safety team roster with member details
-  - Add members to team with role (Leader/Member)
-  - Assign specialty (Medical/Security/Fire Safety/General)
-  - Add certifications (CPR, First Aid, etc.)
-  - Add emergency contact phone
-  - Edit member details and active status
-  - Remove members from team
-  - Filter by active/inactive status
 - **Database:** Requires migration `005_safety_team_system.sql` to be run in Supabase
-- **Note:** This is part 1 of 5-part Safety Team system (Roster, Scheduling, Incidents, Protocols, Communications)
+
+### 11. Safety Team Scheduling (Feature 2 of 5) ✅ PUSHED
+- **What:** Schedule safety team members for services and events with calendar view
+- **How to test:** Need safety team members created first
+- **Location:** Safety Team → Schedules tab
+- **Database:** Uses safety_schedules table from migration 005
+
+### 12. Safety Team Incident Reporting (Feature 3 of 5 - ADMIN ONLY) ✅ PUSHED
+- **What:** Document and track safety incidents (medical, security, accidents, etc.)
+- **How to test:** Must be admin (Owner/Overseer/Moderator)
+- **Location:** Safety Team → Incidents tab (only visible to admins)
+- **Database:** Uses incident_reports table from migration 005
+- **Note:** This feature is ADMIN ONLY per user request
+
+### 13. Emergency Protocols (Feature 4 of 5) - IN PROGRESS
+- **What:** View 7 default emergency protocols and create custom ones
+- **Status:** Database ready with default protocols, UI not built yet
+- **Database:** Uses emergency_protocols table from migration 005
+
+### 14. Safety Team Communications (Feature 5 of 5) - NOT STARTED
+- **What:** Alert system for safety team members
+- **Status:** Database ready, UI not built yet
+- **Database:** Uses safety_alerts table from migration 005
+
+### 15. Ministries System - IN PROGRESS
+- **What:** Comprehensive ministries management with scheduling, volunteers, and ministry-specific features
+- **Database:** Requires migration `006_ministries_system.sql` to be run in Supabase
+- **Default Ministries Created for All Churches:**
+  1. Children's Ministry (with age groups)
+  2. Worship Team (with instruments tracking)
+  3. Sound Team
+  4. Security Team (integrates with Safety Team)
+  5. Cafe Ministry
+  6. Celebrate Recovery
+  7. Singles Ministry
+  8. Single Parents Ministry
+
+**Ministries Features Built So Far:**
+- ✅ Database migration with 8 default ministries
+- ✅ API: List ministries (GET /api/churches/[id]/ministries)
+- ✅ API: Create custom ministry (POST /api/churches/[id]/ministries)
+- ✅ API: Update ministry (PUT /api/churches/[id]/ministries/[ministryId])
+- ✅ API: Delete ministry (DELETE /api/churches/[id]/ministries/[ministryId])
+
+**Still To Build:**
+- ⏳ Ministry Volunteers API and UI
+- ⏳ Ministry Scheduling API and UI
+- ⏳ Children's Ministry age groups UI
+- ⏳ Worship Team instruments UI
+- ⏳ Sound Team page
+- ⏳ Cafe page
+- ⏳ Celebrate Recovery page
+- ⏳ Singles Groups page
+- ⏳ Single Parents Ministry page
+- ⏳ Main Ministries overview page
+- ⏳ Navigation links
 
 ---
 
 ## Notes
 - Most features require test data (multiple members, campuses, etc.)
 - Some features are Owner-only, some Moderator+
-- Safety Team feature requires database migration to be run in Supabase first
+- **Safety Team** requires migration `005_safety_team_system.sql`
+- **Ministries** requires migration `006_ministries_system.sql`
 - Remind me to review this list periodically or when we have test data
