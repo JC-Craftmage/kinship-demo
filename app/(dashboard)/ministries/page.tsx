@@ -165,11 +165,9 @@ export default function MinistriesPage() {
                       </div>
                       <div className="flex-1">
                         <h3 className="text-lg font-bold text-gray-900">{ministry.name}</h3>
-                        {ministry.leaderName && (
-                          <p className="text-sm text-gray-600">
-                            Led by {ministry.leaderName}
-                          </p>
-                        )}
+                        <p className="text-sm text-gray-600">
+                          {ministry.leaderName ? `Led by ${ministry.leaderName}` : 'No leader assigned'}
+                        </p>
                       </div>
                     </div>
 
@@ -190,20 +188,26 @@ export default function MinistriesPage() {
                     </div>
 
                     {/* Contact Info */}
-                    {(ministry.contact_email || ministry.contact_phone) && (
-                      <div className="mt-4 pt-4 border-t border-gray-200">
-                        {ministry.contact_email && (
-                          <p className="text-xs text-gray-600">
-                            Email: {ministry.contact_email}
-                          </p>
-                        )}
-                        {ministry.contact_phone && (
-                          <p className="text-xs text-gray-600">
-                            Phone: {ministry.contact_phone}
-                          </p>
-                        )}
-                      </div>
-                    )}
+                    <div className="mt-4 pt-4 border-t border-gray-200">
+                      {ministry.contact_email ? (
+                        <p className="text-xs text-gray-600">
+                          Email: {ministry.contact_email}
+                        </p>
+                      ) : (
+                        <p className="text-xs text-gray-500 italic">
+                          No contact email
+                        </p>
+                      )}
+                      {ministry.contact_phone ? (
+                        <p className="text-xs text-gray-600">
+                          Phone: {ministry.contact_phone}
+                        </p>
+                      ) : (
+                        <p className="text-xs text-gray-500 italic">
+                          No contact phone
+                        </p>
+                      )}
+                    </div>
                   </Card>
                 );
               })}
