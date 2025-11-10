@@ -243,6 +243,14 @@ export default function SettingsPage() {
                     <UserIcon size={16} className="mr-2" />
                     Safety Team
                   </Button>
+                  <Button
+                    variant="secondary"
+                    onClick={() => router.push('/ministries')}
+                    className="w-full justify-start bg-purple-50 border-purple-200 hover:bg-purple-100"
+                  >
+                    <UserIcon size={16} className="mr-2" />
+                    Ministries
+                  </Button>
                 </>
               )}
               {membership.role === 'owner' && (
