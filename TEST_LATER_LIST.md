@@ -86,38 +86,75 @@ This is a master list of features to test when you have time or when we reach a 
 - **Status:** Database ready, UI not built yet
 - **Database:** Uses safety_alerts table from migration 005
 
-### 15. Ministries System - IN PROGRESS
+### 15. Ministries System ✅ BACKEND COMPLETE + OVERVIEW UI
 - **What:** Comprehensive ministries management with scheduling, volunteers, and ministry-specific features
+- **Location:** Settings → Ministries (Owner/Overseer)
 - **Database:** Requires migration `006_ministries_system.sql` to be run in Supabase
-- **Default Ministries Created for All Churches:**
-  1. Children's Ministry (with age groups)
-  2. Worship Team (with instruments tracking)
-  3. Sound Team
-  4. Security Team (integrates with Safety Team)
-  5. Cafe Ministry
-  6. Celebrate Recovery
-  7. Singles Ministry
-  8. Single Parents Ministry
 
-**Ministries Features Built So Far:**
-- ✅ Database migration with 8 default ministries
-- ✅ API: List ministries (GET /api/churches/[id]/ministries)
-- ✅ API: Create custom ministry (POST /api/churches/[id]/ministries)
-- ✅ API: Update ministry (PUT /api/churches/[id]/ministries/[ministryId])
-- ✅ API: Delete ministry (DELETE /api/churches/[id]/ministries/[ministryId])
+**8 Default Ministries Auto-Created:**
+  1. **Children's Ministry** (pink) - with 5 default age groups (Nursery → Elementary)
+  2. **Worship Team** (purple) - with instrument tracking (14 instrument types)
+  3. **Sound Team** (blue) - for audio/tech volunteers
+  4. **Security Team** (red) - integrates with Safety Team
+  5. **Cafe Ministry** (yellow) - hospitality volunteers
+  6. **Celebrate Recovery** (green) - recovery program
+  7. **Singles Ministry** (indigo) - single adults fellowship
+  8. **Single Parents Ministry** (teal) - support for single parents
 
-**Still To Build:**
-- ⏳ Ministry Volunteers API and UI
-- ⏳ Ministry Scheduling API and UI
-- ⏳ Children's Ministry age groups UI
-- ⏳ Worship Team instruments UI
-- ⏳ Sound Team page
-- ⏳ Cafe page
-- ⏳ Celebrate Recovery page
-- ⏳ Singles Groups page
-- ⏳ Single Parents Ministry page
-- ⏳ Main Ministries overview page
-- ⏳ Navigation links
+**✅ COMPLETED APIs (All Tested & Pushed):**
+
+Ministry Management (4 endpoints):
+- GET /api/churches/[id]/ministries - List all with volunteer counts
+- POST /api/churches/[id]/ministries - Create custom ministry
+- PUT /api/churches/[id]/ministries/[ministryId] - Update details
+- DELETE /api/churches/[id]/ministries/[ministryId] - Delete custom
+
+Volunteer Management (4 endpoints):
+- GET /api/churches/[id]/ministries/[ministryId]/volunteers - List volunteers
+- POST /api/churches/[id]/ministries/[ministryId]/volunteers - Add volunteer
+- PUT /api/churches/[id]/ministries/[ministryId]/volunteers/[volunteerId] - Update
+- DELETE /api/churches/[id]/ministries/[ministryId]/volunteers/[volunteerId] - Remove
+
+Ministry Scheduling (4 endpoints):
+- GET /api/churches/[id]/ministries/[ministryId]/schedules - List with filters
+- POST /api/churches/[id]/ministries/[ministryId]/schedules - Create (with conflict detection)
+- PUT /api/churches/[id]/ministries/[ministryId]/schedules/[scheduleId] - Update
+- DELETE /api/churches/[id]/ministries/[ministryId]/schedules/[scheduleId] - Delete
+
+Children's Age Groups (4 endpoints):
+- GET /api/churches/[id]/ministries/[ministryId]/age-groups - List groups
+- POST /api/churches/[id]/ministries/[ministryId]/age-groups - Create group
+- PUT /api/churches/[id]/ministries/[ministryId]/age-groups/[ageGroupId] - Update
+- DELETE /api/churches/[id]/ministries/[ministryId]/age-groups/[ageGroupId] - Delete
+
+Worship Team Instruments (4 endpoints):
+- GET /api/churches/[id]/ministries/[ministryId]/worship-team - List with instruments
+- POST /api/churches/[id]/ministries/[ministryId]/worship-team - Add member
+- PUT /api/churches/[id]/ministries/[ministryId]/worship-team/[worshipMemberId] - Update
+- DELETE /api/churches/[id]/ministries/[ministryId]/worship-team/[worshipMemberId] - Remove
+
+**✅ COMPLETED UI:**
+- Main Ministries overview page (/ministries) with color-coded ministry cards
+- Navigation link in Settings (Owner/Overseer only)
+- Shows volunteer counts, leader names, contact info per ministry
+
+**⏳ Still To Build (UI Only - APIs Done!):**
+- Individual ministry detail pages with tabs (Overview, Volunteers, Schedule, Settings)
+- Volunteer management interface (add/remove members, assign roles)
+- Interactive scheduling calendar with drag-and-drop
+- Children's age groups editor
+- Worship team instruments selector
+- Ministry-specific settings pages
+
+**Key Features:**
+- Conflict detection prevents double-booking volunteers
+- Background check and training tracking for volunteers
+- Service type tracking (Sunday AM, Wednesday, events, etc.)
+- Role assignments per schedule (e.g., "Lead Guitar")
+- Status tracking (scheduled, completed, cancelled, no-show)
+- Active/inactive volunteer management
+- Custom ministry creation (in addition to 8 defaults)
+- Default ministries can only be deactivated, not deleted
 
 ---
 
