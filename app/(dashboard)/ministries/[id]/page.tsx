@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { useChurchMembership } from '@/hooks/use-church-membership';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Modal } from '@/components/ui/modal';
 import {
   Users,
   Music,
@@ -18,6 +19,8 @@ import {
   Calendar,
   UserPlus,
   Settings,
+  Clock,
+  X,
 } from 'lucide-react';
 
 interface Ministry {
@@ -35,17 +38,59 @@ interface Ministry {
   volunteerCount: number;
 }
 
+interface Volunteer {
+  id: string;
+  user_id: string;
+  userName: string;
+  is_active: boolean;
+  role: {
+    name: string;
+    role_type: string;
+  } | null;
+}
+
+interface Schedule {
+  id: string;
+  scheduled_date: string;
+  start_time: string;
+  end_time: string;
+  service_type: string;
+  service_name: string | null;
+  role_assignment: string | null;
+  status: string;
+  notes: string | null;
+  volunteer: {
+    userName: string;
+  };
+}
+
 export default function MinistryDetailPage() {
   const router = useRouter();
   const params = useParams();
   const ministryId = params.id as string;
   const { membership, role } = useChurchMembership();
   const [ministry, setMinistry] = useState<Ministry | null>(null);
+  const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
+  const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'volunteers' | 'schedule' | 'settings'>('overview');
+  const [showScheduleModal, setShowScheduleModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const canManage = role && ['owner', 'overseer'].includes(role);
+
+  // Schedule form state
+  const [scheduleForm, setScheduleForm] = useState({
+    volunteerId: '',
+    scheduledDate: '',
+    startTime: '',
+    endTime: '',
+    serviceType: 'sunday_morning',
+    serviceName: '',
+    roleAssignment: '',
+    notes: '',
+  });
 
   useEffect(() => {
     const fetchMinistry = async () => {
@@ -81,6 +126,107 @@ export default function MinistryDetailPage() {
 
     fetchMinistry();
   }, [membership, ministryId]);
+
+  // Fetch volunteers
+  useEffect(() => {
+    const fetchVolunteers = async () => {
+      if (!membership?.churchId || !ministryId) return;
+
+      try {
+        const response = await fetch(`/api/churches/${membership.churchId}/ministries/${ministryId}/volunteers`);
+        const data = await response.json();
+
+        if (response.ok) {
+          setVolunteers(data.volunteers || []);
+        }
+      } catch (err) {
+        console.error('Error fetching volunteers:', err);
+      }
+    };
+
+    fetchVolunteers();
+  }, [membership, ministryId]);
+
+  // Fetch schedules
+  useEffect(() => {
+    const fetchSchedules = async () => {
+      if (!membership?.churchId || !ministryId) return;
+
+      try {
+        const response = await fetch(`/api/churches/${membership.churchId}/ministries/${ministryId}/schedules`);
+        const data = await response.json();
+
+        if (response.ok) {
+          setSchedules(data.schedules || []);
+        }
+      } catch (err) {
+        console.error('Error fetching schedules:', err);
+      }
+    };
+
+    fetchSchedules();
+  }, [membership, ministryId]);
+
+  const handleCreateSchedule = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!membership?.churchId || !ministryId) return;
+    if (!scheduleForm.volunteerId || !scheduleForm.scheduledDate || !scheduleForm.startTime || !scheduleForm.endTime) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch(`/api/churches/${membership.churchId}/ministries/${ministryId}/schedules`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          volunteerId: scheduleForm.volunteerId,
+          scheduledDate: scheduleForm.scheduledDate,
+          startTime: scheduleForm.startTime,
+          endTime: scheduleForm.endTime,
+          serviceType: scheduleForm.serviceType,
+          serviceName: scheduleForm.serviceName || null,
+          roleAssignment: scheduleForm.roleAssignment || null,
+          notes: scheduleForm.notes || null,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create schedule');
+      }
+
+      // Refresh schedules
+      const refreshResponse = await fetch(`/api/churches/${membership.churchId}/ministries/${ministryId}/schedules`);
+      const refreshData = await refreshResponse.json();
+      if (refreshResponse.ok) {
+        setSchedules(refreshData.schedules || []);
+      }
+
+      // Reset form and close modal
+      setScheduleForm({
+        volunteerId: '',
+        scheduledDate: '',
+        startTime: '',
+        endTime: '',
+        serviceType: 'sunday_morning',
+        serviceName: '',
+        roleAssignment: '',
+        notes: '',
+      });
+      setShowScheduleModal(false);
+      alert('Schedule created successfully!');
+    } catch (err) {
+      console.error('Error creating schedule:', err);
+      alert(err instanceof Error ? err.message : 'Failed to create schedule');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const getMinistryIcon = (category: string) => {
     const icons: Record<string, any> = {
@@ -347,16 +493,81 @@ export default function MinistryDetailPage() {
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-gray-900">Schedule</h2>
                 {canManage && (
-                  <Button className="bg-indigo-600 hover:bg-indigo-700">
+                  <Button
+                    className="bg-indigo-600 hover:bg-indigo-700"
+                    onClick={() => setShowScheduleModal(true)}
+                    disabled={volunteers.length === 0}
+                  >
                     <Calendar size={16} className="mr-2" />
                     Add Schedule
                   </Button>
                 )}
               </div>
-              <div className="text-center py-12 text-gray-500">
-                <Calendar size={48} className="mx-auto mb-4 text-gray-300" />
-                <p>No scheduled events yet. Create your first schedule!</p>
-              </div>
+
+              {volunteers.length === 0 ? (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                  <p className="text-yellow-800 text-sm">
+                    You need to add volunteers before creating schedules.
+                  </p>
+                </div>
+              ) : null}
+
+              {schedules.length > 0 ? (
+                <div className="space-y-4">
+                  {schedules.map((schedule) => (
+                    <div key={schedule.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h3 className="font-semibold text-gray-900">
+                              {schedule.volunteer.userName}
+                            </h3>
+                            <span className={`px-2 py-1 rounded text-xs font-medium ${
+                              schedule.status === 'scheduled' ? 'bg-blue-100 text-blue-700' :
+                              schedule.status === 'completed' ? 'bg-green-100 text-green-700' :
+                              schedule.status === 'cancelled' ? 'bg-red-100 text-red-700' :
+                              'bg-gray-100 text-gray-700'
+                            }`}>
+                              {schedule.status.toUpperCase()}
+                            </span>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
+                            <div className="flex items-center gap-2">
+                              <Calendar size={14} />
+                              <span>{new Date(schedule.scheduled_date).toLocaleDateString()}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Clock size={14} />
+                              <span>{schedule.start_time} - {schedule.end_time}</span>
+                            </div>
+                            {schedule.service_name && (
+                              <div className="col-span-2">
+                                <span className="font-medium">Service:</span> {schedule.service_name}
+                              </div>
+                            )}
+                            {schedule.role_assignment && (
+                              <div className="col-span-2">
+                                <span className="font-medium">Role:</span> {schedule.role_assignment}
+                              </div>
+                            )}
+                            {schedule.notes && (
+                              <div className="col-span-2 text-gray-500 italic">
+                                {schedule.notes}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12 text-gray-500">
+                  <Calendar size={48} className="mx-auto mb-4 text-gray-300" />
+                  <p>No scheduled events yet. Create your first schedule!</p>
+                </div>
+              )}
             </Card>
           )}
 
@@ -392,6 +603,158 @@ export default function MinistryDetailPage() {
             </Card>
           )}
         </div>
+
+        {/* Schedule Creation Modal */}
+        <Modal
+          isOpen={showScheduleModal}
+          onClose={() => setShowScheduleModal(false)}
+          title="Add Schedule"
+          titleIcon={<Calendar size={32} />}
+        >
+          <form onSubmit={handleCreateSchedule} className="space-y-6">
+            {/* Volunteer Selection */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Volunteer *
+              </label>
+              <select
+                value={scheduleForm.volunteerId}
+                onChange={(e) => setScheduleForm({ ...scheduleForm, volunteerId: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                required
+              >
+                <option value="">Select a volunteer...</option>
+                {volunteers.filter(v => v.is_active).map((volunteer) => (
+                  <option key={volunteer.id} value={volunteer.id}>
+                    {volunteer.userName} {volunteer.role ? `(${volunteer.role.name})` : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Date */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Date *
+              </label>
+              <input
+                type="date"
+                value={scheduleForm.scheduledDate}
+                onChange={(e) => setScheduleForm({ ...scheduleForm, scheduledDate: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                required
+              />
+            </div>
+
+            {/* Time Range */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Start Time *
+                </label>
+                <input
+                  type="time"
+                  value={scheduleForm.startTime}
+                  onChange={(e) => setScheduleForm({ ...scheduleForm, startTime: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  End Time *
+                </label>
+                <input
+                  type="time"
+                  value={scheduleForm.endTime}
+                  onChange={(e) => setScheduleForm({ ...scheduleForm, endTime: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Service Type */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Service Type
+              </label>
+              <select
+                value={scheduleForm.serviceType}
+                onChange={(e) => setScheduleForm({ ...scheduleForm, serviceType: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                <option value="sunday_morning">Sunday Morning</option>
+                <option value="sunday_evening">Sunday Evening</option>
+                <option value="wednesday">Wednesday</option>
+                <option value="saturday">Saturday</option>
+                <option value="special_event">Special Event</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            {/* Service Name */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Service Name
+              </label>
+              <input
+                type="text"
+                value={scheduleForm.serviceName}
+                onChange={(e) => setScheduleForm({ ...scheduleForm, serviceName: e.target.value })}
+                placeholder="e.g., Morning Worship, Youth Night"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+
+            {/* Role Assignment */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Role Assignment
+              </label>
+              <input
+                type="text"
+                value={scheduleForm.roleAssignment}
+                onChange={(e) => setScheduleForm({ ...scheduleForm, roleAssignment: e.target.value })}
+                placeholder="e.g., Lead Guitar, Nursery Teacher"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+
+            {/* Notes */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Notes
+              </label>
+              <textarea
+                value={scheduleForm.notes}
+                onChange={(e) => setScheduleForm({ ...scheduleForm, notes: e.target.value })}
+                placeholder="Any additional notes..."
+                rows={3}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3 pt-4">
+              <Button
+                type="submit"
+                className="flex-1 bg-indigo-600 hover:bg-indigo-700"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Creating...' : 'Create Schedule'}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowScheduleModal(false)}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+            </div>
+          </form>
+        </Modal>
       </div>
     </div>
   );
