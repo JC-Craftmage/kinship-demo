@@ -212,8 +212,13 @@ export default function MinistryDetailPage() {
         const response = await fetch(`/api/churches/${membership.churchId}/members`);
         const data = await response.json();
 
+        console.log('Members API response:', { ok: response.ok, status: response.status, data });
+
         if (response.ok) {
+          console.log('Setting church members:', data.members);
           setChurchMembers(data.members || []);
+        } else {
+          console.error('Members API error:', data);
         }
       } catch (err) {
         console.error('Error fetching church members:', err);
