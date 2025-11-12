@@ -73,11 +73,13 @@ export default function MinistryDetailPage() {
   const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [churchMembers, setChurchMembers] = useState<Array<{ user_id: string; user_name: string }>>([]);
+  const [ministryRoles, setMinistryRoles] = useState<Array<{ id: string; name: string; role_type: string }>>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'volunteers' | 'schedule' | 'settings'>('overview');
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showAddVolunteerModal, setShowAddVolunteerModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [conflictError, setConflictError] = useState<{
     message: string;
@@ -115,6 +117,15 @@ export default function MinistryDetailPage() {
     contactPhone: '',
     meetingInfo: '',
     isActive: true,
+  });
+
+  // Volunteer form state
+  const [volunteerForm, setVolunteerForm] = useState({
+    targetUserId: '',
+    roleId: '',
+    availabilityNotes: '',
+    backgroundCheckDate: '',
+    trainingCompleted: false,
   });
 
   useEffect(() => {
@@ -211,6 +222,81 @@ export default function MinistryDetailPage() {
 
     fetchChurchMembers();
   }, [membership]);
+
+  // Fetch ministry roles
+  useEffect(() => {
+    const fetchMinistryRoles = async () => {
+      if (!membership?.churchId || !ministryId) return;
+
+      try {
+        const response = await fetch(`/api/churches/${membership.churchId}/ministries/${ministryId}/roles`);
+        const data = await response.json();
+
+        if (response.ok) {
+          setMinistryRoles(data.roles || []);
+        }
+      } catch (err) {
+        console.error('Error fetching ministry roles:', err);
+      }
+    };
+
+    fetchMinistryRoles();
+  }, [membership, ministryId]);
+
+  const handleAddVolunteer = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!membership?.churchId || !ministryId) return;
+    if (!volunteerForm.targetUserId) {
+      alert('Please select a person to add');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch(`/api/churches/${membership.churchId}/ministries/${ministryId}/volunteers`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          targetUserId: volunteerForm.targetUserId,
+          roleId: volunteerForm.roleId || null,
+          availabilityNotes: volunteerForm.availabilityNotes.trim() || null,
+          backgroundCheckDate: volunteerForm.backgroundCheckDate || null,
+          trainingCompleted: volunteerForm.trainingCompleted,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to add volunteer');
+      }
+
+      // Refresh volunteers
+      const refreshResponse = await fetch(`/api/churches/${membership.churchId}/ministries/${ministryId}/volunteers`);
+      const refreshData = await refreshResponse.json();
+      if (refreshResponse.ok) {
+        setVolunteers(refreshData.volunteers || []);
+      }
+
+      // Reset form and close modal
+      setVolunteerForm({
+        targetUserId: '',
+        roleId: '',
+        availabilityNotes: '',
+        backgroundCheckDate: '',
+        trainingCompleted: false,
+      });
+      setShowAddVolunteerModal(false);
+      alert('Volunteer added successfully!');
+    } catch (err) {
+      console.error('Error adding volunteer:', err);
+      alert(err instanceof Error ? err.message : 'Failed to add volunteer');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const handleOpenEditModal = () => {
     if (!ministry) return;
@@ -598,18 +684,68 @@ export default function MinistryDetailPage() {
           {activeTab === 'volunteers' && (
             <Card className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-gray-900">Volunteers</h2>
+                <h2 className="text-xl font-bold text-gray-900">Volunteers ({volunteers.length})</h2>
                 {canManage && (
-                  <Button className="bg-indigo-600 hover:bg-indigo-700">
+                  <Button
+                    className="bg-indigo-600 hover:bg-indigo-700"
+                    onClick={() => setShowAddVolunteerModal(true)}
+                  >
                     <UserPlus size={16} className="mr-2" />
                     Add Volunteer
                   </Button>
                 )}
               </div>
-              <div className="text-center py-12 text-gray-500">
-                <Users size={48} className="mx-auto mb-4 text-gray-300" />
-                <p>No volunteers yet. Add your first volunteer to get started!</p>
-              </div>
+
+              {volunteers.length > 0 ? (
+                <div className="space-y-3">
+                  {volunteers.map((volunteer) => (
+                    <div key={volunteer.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h3 className="font-semibold text-gray-900">{volunteer.userName}</h3>
+                            {!volunteer.is_active && (
+                              <span className="px-2 py-1 bg-gray-200 text-gray-700 text-xs rounded">
+                                INACTIVE
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-sm text-gray-600 space-y-1">
+                            {volunteer.role && (
+                              <p>
+                                <span className="font-medium">Role:</span> {volunteer.role.name}
+                                <span className="ml-2 text-xs text-gray-500 capitalize">
+                                  ({volunteer.role.role_type})
+                                </span>
+                              </p>
+                            )}
+                            {volunteer.availability_notes && (
+                              <p>
+                                <span className="font-medium">Availability:</span> {volunteer.availability_notes}
+                              </p>
+                            )}
+                            <div className="flex items-center gap-4 mt-2">
+                              {volunteer.background_check_date && (
+                                <span className="text-xs text-green-600">
+                                  ✓ Background Check: {new Date(volunteer.background_check_date).toLocaleDateString()}
+                                </span>
+                              )}
+                              {volunteer.training_completed && (
+                                <span className="text-xs text-blue-600">✓ Training Complete</span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12 text-gray-500">
+                  <Users size={48} className="mx-auto mb-4 text-gray-300" />
+                  <p>No volunteers yet. Add your first volunteer to get started!</p>
+                </div>
+              )}
             </Card>
           )}
 
@@ -1060,6 +1196,120 @@ export default function MinistryDetailPage() {
                 type="button"
                 variant="outline"
                 onClick={() => setShowEditModal(false)}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+            </div>
+          </form>
+        </Modal>
+
+        {/* Add Volunteer Modal */}
+        <Modal
+          isOpen={showAddVolunteerModal}
+          onClose={() => setShowAddVolunteerModal(false)}
+          title="Add Volunteer"
+          titleIcon={<UserPlus size={32} />}
+        >
+          <form onSubmit={handleAddVolunteer} className="space-y-6">
+            {/* Person Selection */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Select Person *
+              </label>
+              <select
+                value={volunteerForm.targetUserId}
+                onChange={(e) => setVolunteerForm({ ...volunteerForm, targetUserId: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                required
+              >
+                <option value="">Choose a church member...</option>
+                {churchMembers
+                  .filter(member => !volunteers.some(v => v.user_id === member.user_id))
+                  .map((member) => (
+                    <option key={member.user_id} value={member.user_id}>
+                      {member.user_name}
+                    </option>
+                  ))}
+              </select>
+              <p className="mt-1 text-xs text-gray-500">
+                Only showing members who are not already volunteers
+              </p>
+            </div>
+
+            {/* Role Selection */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Assign Role
+              </label>
+              <select
+                value={volunteerForm.roleId}
+                onChange={(e) => setVolunteerForm({ ...volunteerForm, roleId: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                <option value="">No role assigned</option>
+                {ministryRoles.map((role) => (
+                  <option key={role.id} value={role.id}>
+                    {role.name} ({role.role_type})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Availability Notes */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Availability Notes
+              </label>
+              <textarea
+                value={volunteerForm.availabilityNotes}
+                onChange={(e) => setVolunteerForm({ ...volunteerForm, availabilityNotes: e.target.value })}
+                rows={2}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                placeholder="e.g., Available 1st and 3rd Sundays"
+              />
+            </div>
+
+            {/* Background Check Date */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Background Check Date
+              </label>
+              <input
+                type="date"
+                value={volunteerForm.backgroundCheckDate}
+                onChange={(e) => setVolunteerForm({ ...volunteerForm, backgroundCheckDate: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+
+            {/* Training Completed */}
+            <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+              <input
+                type="checkbox"
+                id="trainingCompleted"
+                checked={volunteerForm.trainingCompleted}
+                onChange={(e) => setVolunteerForm({ ...volunteerForm, trainingCompleted: e.target.checked })}
+                className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+              />
+              <label htmlFor="trainingCompleted" className="text-sm font-medium text-gray-900">
+                Training completed
+              </label>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3 pt-4">
+              <Button
+                type="submit"
+                className="flex-1 bg-indigo-600 hover:bg-indigo-700"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Adding...' : 'Add Volunteer'}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowAddVolunteerModal(false)}
                 disabled={isSubmitting}
               >
                 Cancel
