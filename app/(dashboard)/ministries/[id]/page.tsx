@@ -77,6 +77,18 @@ export default function MinistryDetailPage() {
   const [activeTab, setActiveTab] = useState<'overview' | 'volunteers' | 'schedule' | 'settings'>('overview');
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [conflictError, setConflictError] = useState<{
+    message: string;
+    details: {
+      ministryName: string;
+      volunteerName: string;
+      date: string;
+      startTime: string;
+      endTime: string;
+      serviceName: string | null;
+    };
+  } | null>(null);
+  const [overrideConflict, setOverrideConflict] = useState(false);
 
   const canManage = role && ['owner', 'overseer'].includes(role);
 
@@ -177,6 +189,7 @@ export default function MinistryDetailPage() {
     }
 
     setIsSubmitting(true);
+    setConflictError(null);
 
     try {
       const response = await fetch(`/api/churches/${membership.churchId}/ministries/${ministryId}/schedules`, {
@@ -191,12 +204,22 @@ export default function MinistryDetailPage() {
           serviceName: scheduleForm.serviceName || null,
           roleAssignment: scheduleForm.roleAssignment || null,
           notes: scheduleForm.notes || null,
+          overrideConflict: overrideConflict,
         }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
+        // Check if it's a conflict error
+        if (data.hasConflict && data.conflictDetails) {
+          setConflictError({
+            message: data.error,
+            details: data.conflictDetails,
+          });
+          setIsSubmitting(false);
+          return;
+        }
         throw new Error(data.error || 'Failed to create schedule');
       }
 
@@ -218,6 +241,8 @@ export default function MinistryDetailPage() {
         roleAssignment: '',
         notes: '',
       });
+      setConflictError(null);
+      setOverrideConflict(false);
       setShowScheduleModal(false);
       alert('Schedule created successfully!');
     } catch (err) {
@@ -607,7 +632,11 @@ export default function MinistryDetailPage() {
         {/* Schedule Creation Modal */}
         <Modal
           isOpen={showScheduleModal}
-          onClose={() => setShowScheduleModal(false)}
+          onClose={() => {
+            setShowScheduleModal(false);
+            setConflictError(null);
+            setOverrideConflict(false);
+          }}
           title="Add Schedule"
           titleIcon={<Calendar size={32} />}
         >
@@ -735,6 +764,48 @@ export default function MinistryDetailPage() {
               />
             </div>
 
+            {/* Conflict Warning */}
+            {conflictError && (
+              <div className="bg-red-50 border-2 border-red-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0">
+                    <X size={20} className="text-red-600 mt-0.5" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-red-900 mb-1">Scheduling Conflict</h4>
+                    <p className="text-sm text-red-800 mb-3">
+                      {conflictError.message}
+                    </p>
+                    <div className="bg-white rounded p-3 text-sm space-y-1">
+                      <p className="text-gray-700">
+                        <span className="font-medium">Date:</span> {new Date(conflictError.details.date).toLocaleDateString()}
+                      </p>
+                      <p className="text-gray-700">
+                        <span className="font-medium">Time:</span> {conflictError.details.startTime} - {conflictError.details.endTime}
+                      </p>
+                      {conflictError.details.serviceName && (
+                        <p className="text-gray-700">
+                          <span className="font-medium">Service:</span> {conflictError.details.serviceName}
+                        </p>
+                      )}
+                    </div>
+                    <div className="mt-4 flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="overrideConflict"
+                        checked={overrideConflict}
+                        onChange={(e) => setOverrideConflict(e.target.checked)}
+                        className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                      />
+                      <label htmlFor="overrideConflict" className="text-sm font-medium text-gray-900">
+                        Override and schedule anyway
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Actions */}
             <div className="flex gap-3 pt-4">
               <Button
@@ -747,7 +818,11 @@ export default function MinistryDetailPage() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => setShowScheduleModal(false)}
+                onClick={() => {
+                  setShowScheduleModal(false);
+                  setConflictError(null);
+                  setOverrideConflict(false);
+                }}
                 disabled={isSubmitting}
               >
                 Cancel

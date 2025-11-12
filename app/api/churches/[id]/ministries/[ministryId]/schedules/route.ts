@@ -156,6 +156,7 @@ export async function POST(
       roleAssignment,
       campusId,
       notes,
+      overrideConflict,
     } = body;
 
     if (!volunteerId || !scheduledDate || !startTime || !endTime) {
@@ -187,20 +188,67 @@ export async function POST(
       );
     }
 
-    // Check for scheduling conflicts
-    const { data: conflicts } = await supabase
-      .from('ministry_schedules')
-      .select('id')
-      .eq('volunteer_id', volunteerId)
-      .eq('scheduled_date', scheduledDate)
-      .in('status', ['scheduled', 'completed'])
-      .or(`and(start_time.lte.${endTime},end_time.gte.${startTime})`);
+    // Check for scheduling conflicts (unless override is enabled)
+    if (!overrideConflict) {
+      const { data: conflicts } = await supabase
+        .from('ministry_schedules')
+        .select(`
+          id,
+          scheduled_date,
+          start_time,
+          end_time,
+          service_name,
+          ministry_id,
+          ministry_volunteers!inner(
+            user_id,
+            ministries!inner(name)
+          )
+        `)
+        .eq('volunteer_id', volunteerId)
+        .eq('scheduled_date', scheduledDate)
+        .in('status', ['scheduled', 'completed'])
+        .or(`and(start_time.lte.${endTime},end_time.gte.${startTime})`);
 
-    if (conflicts && conflicts.length > 0) {
-      return NextResponse.json(
-        { error: 'This volunteer is already scheduled during this time' },
-        { status: 409 }
-      );
+      if (conflicts && conflicts.length > 0) {
+        // Get volunteer name
+        const { data: volunteerData } = await supabase
+          .from('ministry_volunteers')
+          .select(`
+            user_id,
+            ministry_id
+          `)
+          .eq('id', volunteerId)
+          .single();
+
+        const { data: userData } = await supabase
+          .from('church_members')
+          .select('user_name')
+          .eq('user_id', volunteerData?.user_id)
+          .eq('church_id', churchId)
+          .single();
+
+        const conflict = conflicts[0];
+        const conflictMinistryName = conflict.ministry_volunteers?.ministries?.name || 'another ministry';
+        const volunteerName = userData?.user_name || 'This volunteer';
+        const conflictTime = `${conflict.start_time} - ${conflict.end_time}`;
+        const conflictService = conflict.service_name ? ` (${conflict.service_name})` : '';
+
+        return NextResponse.json(
+          {
+            error: `${volunteerName} is already scheduled in ${conflictMinistryName} from ${conflictTime}${conflictService}`,
+            hasConflict: true,
+            conflictDetails: {
+              ministryName: conflictMinistryName,
+              volunteerName: volunteerName,
+              date: conflict.scheduled_date,
+              startTime: conflict.start_time,
+              endTime: conflict.end_time,
+              serviceName: conflict.service_name,
+            }
+          },
+          { status: 409 }
+        );
+      }
     }
 
     // Create schedule
