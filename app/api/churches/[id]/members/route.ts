@@ -44,10 +44,8 @@ export async function GET(
         user_name,
         user_email,
         role,
-        joined_at,
-        campuses (
-          name
-        )
+        campus_id,
+        joined_at
       `)
       .eq('church_id', churchId)
       .order('joined_at', { ascending: true });
@@ -68,7 +66,7 @@ export async function GET(
       user_email: m.user_email || 'unknown@email.com',
       user_photo: null,
       role: m.role,
-      campus_name: m.campuses?.name || null,
+      campus_id: m.campus_id || null,
       joined_at: m.joined_at,
     }));
 
