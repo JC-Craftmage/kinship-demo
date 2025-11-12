@@ -20,7 +20,7 @@ export async function GET(
 
     const churchId = params.id;
 
-    // Verify user is a member of this church and has Owner role
+    // Verify user is a member of this church
     const { data: membership } = await supabase
       .from('church_members')
       .select('role')
@@ -28,9 +28,9 @@ export async function GET(
       .eq('user_id', userId)
       .single();
 
-    if (!membership || membership.role !== 'owner') {
+    if (!membership) {
       return NextResponse.json(
-        { error: 'Only church owners can view member list' },
+        { error: 'You must be a member of this church' },
         { status: 403 }
       );
     }
@@ -41,15 +41,12 @@ export async function GET(
       .select(`
         id,
         user_id,
+        user_name,
+        user_email,
         role,
         joined_at,
         campuses (
           name
-        ),
-        members (
-          name,
-          email,
-          avatar
         )
       `)
       .eq('church_id', churchId)
@@ -67,9 +64,9 @@ export async function GET(
     const formattedMembers = (members || []).map((m: any) => ({
       id: m.id,
       user_id: m.user_id,
-      user_name: m.members?.name || 'Unknown User',
-      user_email: m.members?.email || 'unknown@email.com',
-      user_photo: m.members?.avatar || null,
+      user_name: m.user_name || 'Unknown User',
+      user_email: m.user_email || 'unknown@email.com',
+      user_photo: null,
       role: m.role,
       campus_name: m.campuses?.name || null,
       joined_at: m.joined_at,
