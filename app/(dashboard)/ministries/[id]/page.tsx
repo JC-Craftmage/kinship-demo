@@ -72,10 +72,12 @@ export default function MinistryDetailPage() {
   const [ministry, setMinistry] = useState<Ministry | null>(null);
   const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
   const [schedules, setSchedules] = useState<Schedule[]>([]);
+  const [churchMembers, setChurchMembers] = useState<Array<{ user_id: string; user_name: string }>>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'volunteers' | 'schedule' | 'settings'>('overview');
   const [showScheduleModal, setShowScheduleModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [conflictError, setConflictError] = useState<{
     message: string;
@@ -102,6 +104,17 @@ export default function MinistryDetailPage() {
     serviceName: '',
     roleAssignment: '',
     notes: '',
+  });
+
+  // Edit form state
+  const [editForm, setEditForm] = useState({
+    name: '',
+    description: '',
+    leaderUserId: '',
+    contactEmail: '',
+    contactPhone: '',
+    meetingInfo: '',
+    isActive: true,
   });
 
   useEffect(() => {
@@ -178,6 +191,93 @@ export default function MinistryDetailPage() {
 
     fetchSchedules();
   }, [membership, ministryId]);
+
+  // Fetch church members for leader dropdown
+  useEffect(() => {
+    const fetchChurchMembers = async () => {
+      if (!membership?.churchId) return;
+
+      try {
+        const response = await fetch(`/api/churches/${membership.churchId}/members`);
+        const data = await response.json();
+
+        if (response.ok) {
+          setChurchMembers(data.members || []);
+        }
+      } catch (err) {
+        console.error('Error fetching church members:', err);
+      }
+    };
+
+    fetchChurchMembers();
+  }, [membership]);
+
+  const handleOpenEditModal = () => {
+    if (!ministry) return;
+
+    setEditForm({
+      name: ministry.name,
+      description: ministry.description || '',
+      leaderUserId: ministry.leader_user_id || '',
+      contactEmail: ministry.contact_email || '',
+      contactPhone: ministry.contact_phone || '',
+      meetingInfo: ministry.meeting_info || '',
+      isActive: ministry.is_active,
+    });
+    setShowEditModal(true);
+  };
+
+  const handleUpdateMinistry = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!membership?.churchId || !ministryId) return;
+    if (!editForm.name.trim()) {
+      alert('Ministry name is required');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch(`/api/churches/${membership.churchId}/ministries/${ministryId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: editForm.name.trim(),
+          description: editForm.description.trim() || null,
+          leaderUserId: editForm.leaderUserId || null,
+          contactEmail: editForm.contactEmail.trim() || null,
+          contactPhone: editForm.contactPhone.trim() || null,
+          meetingInfo: editForm.meetingInfo.trim() || null,
+          isActive: editForm.isActive,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to update ministry');
+      }
+
+      // Refresh ministry data
+      const refreshResponse = await fetch(`/api/churches/${membership.churchId}/ministries`);
+      const refreshData = await refreshResponse.json();
+      if (refreshResponse.ok) {
+        const updatedMinistry = refreshData.ministries?.find((m: Ministry) => m.id === ministryId);
+        if (updatedMinistry) {
+          setMinistry(updatedMinistry);
+        }
+      }
+
+      setShowEditModal(false);
+      alert('Ministry updated successfully!');
+    } catch (err) {
+      console.error('Error updating ministry:', err);
+      alert(err instanceof Error ? err.message : 'Failed to update ministry');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const handleCreateSchedule = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -611,7 +711,11 @@ export default function MinistryDetailPage() {
                 </div>
 
                 <div className="pt-4 border-t border-gray-200">
-                  <Button variant="outline" className="text-indigo-600 border-indigo-600 hover:bg-indigo-50">
+                  <Button
+                    variant="outline"
+                    className="text-indigo-600 border-indigo-600 hover:bg-indigo-50"
+                    onClick={handleOpenEditModal}
+                  >
                     <Edit size={16} className="mr-2" />
                     Edit Ministry Details
                   </Button>
@@ -823,6 +927,139 @@ export default function MinistryDetailPage() {
                   setConflictError(null);
                   setOverrideConflict(false);
                 }}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+            </div>
+          </form>
+        </Modal>
+
+        {/* Edit Ministry Modal */}
+        <Modal
+          isOpen={showEditModal}
+          onClose={() => setShowEditModal(false)}
+          title="Edit Ministry Details"
+          titleIcon={<Edit size={32} />}
+        >
+          <form onSubmit={handleUpdateMinistry} className="space-y-6">
+            {/* Ministry Name */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Ministry Name *
+              </label>
+              <input
+                type="text"
+                value={editForm.name}
+                onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                required
+                placeholder="e.g., Worship Team"
+              />
+            </div>
+
+            {/* Description */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Description
+              </label>
+              <textarea
+                value={editForm.description}
+                onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                rows={3}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                placeholder="Brief description of this ministry..."
+              />
+            </div>
+
+            {/* Leader Selection */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Ministry Leader
+              </label>
+              <select
+                value={editForm.leaderUserId}
+                onChange={(e) => setEditForm({ ...editForm, leaderUserId: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                <option value="">No leader assigned</option>
+                {churchMembers.map((member) => (
+                  <option key={member.user_id} value={member.user_id}>
+                    {member.user_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Contact Info */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Contact Email
+                </label>
+                <input
+                  type="email"
+                  value={editForm.contactEmail}
+                  onChange={(e) => setEditForm({ ...editForm, contactEmail: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  placeholder="ministry@church.com"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Contact Phone
+                </label>
+                <input
+                  type="tel"
+                  value={editForm.contactPhone}
+                  onChange={(e) => setEditForm({ ...editForm, contactPhone: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  placeholder="(555) 123-4567"
+                />
+              </div>
+            </div>
+
+            {/* Meeting Info */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Meeting Times & Location
+              </label>
+              <textarea
+                value={editForm.meetingInfo}
+                onChange={(e) => setEditForm({ ...editForm, meetingInfo: e.target.value })}
+                rows={2}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                placeholder="e.g., Sundays at 9:00 AM in Room 201"
+              />
+            </div>
+
+            {/* Active Status */}
+            <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+              <input
+                type="checkbox"
+                id="isActive"
+                checked={editForm.isActive}
+                onChange={(e) => setEditForm({ ...editForm, isActive: e.target.checked })}
+                className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+              />
+              <label htmlFor="isActive" className="text-sm font-medium text-gray-900">
+                Ministry is active
+              </label>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3 pt-4">
+              <Button
+                type="submit"
+                className="flex-1 bg-indigo-600 hover:bg-indigo-700"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Updating...' : 'Update Ministry'}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowEditModal(false)}
                 disabled={isSubmitting}
               >
                 Cancel
