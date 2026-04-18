@@ -2,7 +2,7 @@
 
 'use client';
 
-import { Home, Users, HandHeart, ChefHat, Truck, Settings, Search } from 'lucide-react';
+import { Home, Users, HandHeart, ChefHat, Truck, Settings, Search, Award, PartyPopper } from 'lucide-react';
 import { UserButton, useUser } from '@clerk/nextjs';
 
 interface NavigationProps {
@@ -18,7 +18,9 @@ export function Navigation({ currentView, onNavigate }: NavigationProps) {
     { id: 'directory', label: 'Directory', icon: Users },
     { id: 'needs', label: 'Needs', icon: HandHeart },
     { id: 'mealtrains', label: 'Meals', icon: ChefHat },
+    { id: 'kudos', label: 'Kudos', icon: Award },
     { id: 'browse', label: 'Browse', icon: Search },
+    { id: 'lifeevents', label: 'Life', icon: PartyPopper },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 

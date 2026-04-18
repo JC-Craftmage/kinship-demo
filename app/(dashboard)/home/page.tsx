@@ -12,6 +12,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { UserCheck } from 'lucide-react';
 import { PhotoPromptModal } from '@/components/features/onboarding/photo-prompt-modal';
+import { DashboardHeader } from '@/components/layout/dashboard-header';
 
 export default function HomePage() {
   const router = useRouter();
@@ -50,8 +51,12 @@ export default function HomePage() {
       <div className="min-h-screen bg-gray-50 pb-20">
         <div className="bg-indigo-600 text-white p-4 shadow-lg">
           <div className="max-w-7xl mx-auto">
-            <h1 className="text-xl font-bold">Kinship</h1>
-            <p className="text-sm text-indigo-200">{membership?.churchName || 'Church Community'}</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-xl font-bold">Kinship</h1>
+                <p className="text-sm text-indigo-200">{membership?.churchName || 'Church Community'}</p>
+              </div>
+            </div>
           </div>
         </div>
 

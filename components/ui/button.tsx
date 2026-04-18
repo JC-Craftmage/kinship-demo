@@ -17,7 +17,7 @@ interface ButtonProps {
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary: 'bg-indigo-600 text-white hover:bg-indigo-700',
-  secondary: 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50',
+  secondary: 'bg-gray-100 text-gray-700 border border-gray-300 hover:bg-gray-200',
   success: 'bg-green-600 text-white hover:bg-green-700',
   danger: 'bg-red-600 text-white hover:bg-red-700',
   ghost: 'bg-transparent text-indigo-600 hover:bg-indigo-50',

@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useMealTrains } from '@/hooks/use-meal-trains';
 import { MealTrainCard } from '@/components/features/meal-trains/meal-train-card';
 import { MealTrainModal } from '@/components/features/meal-trains/meal-train-modal';
+import { CreateMealTrainModal, type MealTrainData } from '@/components/features/meal-trains/create-meal-train-modal';
 import { MealTrain } from '@/lib/types';
 import { ChefHat, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -13,6 +14,12 @@ import { Button } from '@/components/ui/button';
 export default function MealTrainsPage() {
   const { mealTrains } = useMealTrains();
   const [selectedMealTrain, setSelectedMealTrain] = useState<MealTrain | null>(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+
+  const handleCreateMealTrain = (data: MealTrainData) => {
+    console.log('Creating meal train:', data);
+    // In production: POST to API, update local state
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
@@ -27,7 +34,7 @@ export default function MealTrainsPage() {
                 <p className="text-rose-100 text-sm">Supporting our church family</p>
               </div>
             </div>
-            <Button variant="secondary" icon={<Plus size={20} />}>
+            <Button variant="secondary" icon={<Plus size={20} />} onClick={() => setShowCreateModal(true)}>
               Create New
             </Button>
           </div>
@@ -55,6 +62,13 @@ export default function MealTrainsPage() {
       <MealTrainModal
         train={selectedMealTrain}
         onClose={() => setSelectedMealTrain(null)}
+      />
+
+      {/* Create Meal Train Modal */}
+      <CreateMealTrainModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSubmit={handleCreateMealTrain}
       />
     </div>
   );

@@ -21,6 +21,8 @@ export default function DashboardLayout({
     if (pathname === '/assets') return 'assets';
     if (pathname === '/meal-trains') return 'mealtrains';
     if (pathname === '/needs') return 'needs';
+    if (pathname === '/kudos') return 'kudos';
+    if (pathname === '/life-events') return 'lifeevents';
     if (pathname === '/browse-churches') return 'browse';
     if (pathname === '/settings') return 'settings';
     if (pathname === '/manage-requests') return 'home'; // Keep home tab active
@@ -34,6 +36,8 @@ export default function DashboardLayout({
       assets: '/assets',
       mealtrains: '/meal-trains',
       needs: '/needs',
+      kudos: '/kudos',
+      lifeevents: '/life-events',
       browse: '/browse-churches',
       settings: '/settings',
     };
