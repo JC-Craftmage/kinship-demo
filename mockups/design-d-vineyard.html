@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kinship — Design D: The Vineyard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #FAFAF8;
+      color: #1A1A1A;
+      min-height: 100vh;
+      padding-bottom: 100px;
+    }
+    
+    h1, h2, h3 { font-family: 'Playfair Display', serif; }
+    
+    /* Header */
+    .header {
+      background: #FAFAF8;
+      border-bottom: 1px solid #E8E4DC;
+      padding: 20px 36px;
+    }
+    
+    .header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .header-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: #4A1C6B;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .header-logo span { font-size: 28px; }
+    
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    
+    .header-church {
+      text-align: right;
+    }
+    
+    .header-church-name {
+      font-weight: 600;
+      font-size: 14px;
+      color: #1A1A1A;
+    }
+    
+    .header-church-sub {
+      font-size: 12px;
+      color: #8A8A8A;
+    }
+    
+    .divider {
+      width: 1px;
+      height: 32px;
+      background: #E8E4DC;
+    }
+    
+    .notif-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: none;
+      border: 1px solid #E8E4DC;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: #4A1C6B;
+      position: relative;
+      cursor: pointer;
+    }
+    
+    .notif-dot {
+      position: absolute;
+      top: -3px;
+      right: -3px;
+      width: 18px;
+      height: 18px;
+      background: #4A1C6B;
+      color: white;
+      border-radius: 50%;
+      font-size: 10px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    /* Main */
+    .main { max-width: 1100px; margin: 0 auto; padding: 40px 36px; }
+    
+    /* Hero */
+    .hero {
+      margin-bottom: 48px;
+    }
+    
+    .hero-eyebrow {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #4A1C6B;
+      margin-bottom: 12px;
+    }
+    
+    .hero h2 {
+      font-size: 48px;
+      font-weight: 700;
+      color: #1A1A1A;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+    
+    .hero h2 em {
+      font-style: italic;
+      color: #4A1C6B;
+    }
+    
+    .hero p {
+      font-size: 17px;
+      color: #6B6B6B;
+      max-width: 500px;
+      line-height: 1.6;
+    }
+    
+    /* Stats */
+    .stats-row {
+      display: flex;
+      gap: 0;
+      margin-bottom: 48px;
+      background: white;
+      border: 1px solid #E8E4DC;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    
+    .stat-item {
+      flex: 1;
+      padding: 28px 24px;
+      text-align: center;
+      border-right: 1px solid #E8E4DC;
+    }
+    
+    .stat-item:last-child { border-right: none; }
+    
+    .stat-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 40px;
+      font-weight: 700;
+      color: #4A1C6B;
+    }
+    
+    .stat-lbl {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #8A8A8A;
+      margin-top: 4px;
+    }
+    
+    /* Section Headers */
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #E8E4DC;
+      padding-bottom: 12px;
+    }
+    
+    .section-header h3 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1A1A1A;
+    }
+    
+    .section-header a {
+      font-size: 13px;
+      color: #4A1C6B;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    
+    /* Quick Actions */
+    .qa-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 48px;
+    }
+    
+    .qa-card {
+      background: white;
+      border: 1px solid #E8E4DC;
+      border-radius: 12px;
+      padding: 28px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      color: inherit;
+    }
+    
+    .qa-card:hover {
+      border-color: #4A1C6B;
+      box-shadow: 0 4px 20px rgba(74, 28, 107, 0.1);
+    }
+    
+    .qa-emoji {
+      font-size: 36px;
+      margin-bottom: 12px;
+      display: block;
+    }
+    
+    .qa-label {
+      font-weight: 700;
+      font-size: 14px;
+      color: #1A1A1A;
+    }
+    
+    /* Two Col */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 36px;
+      margin-bottom: 48px;
+    }
+    
+    /* Need/Activity lists */
+    .list-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 18px 0;
+      border-bottom: 1px solid #F0EDE8;
+    }
+    
+    .list-item:last-child { border-bottom: none; }
+    
+    .list-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: #F5F0FA;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    
+    .list-body { flex: 1; }
+    .list-title { font-weight: 700; font-size: 15px; color: #1A1A1A; margin-bottom: 3px; }
+    .list-sub { font-size: 13px; color: #8A8A8A; }
+    .list-meta { font-size: 12px; color: #4A1C6B; font-weight: 600; }
+    
+    .list-item.urgent .list-icon { background: #FFF5F5; }
+    .list-item.meal .list-icon { background: #F5FAF5; }
+    
+    /* Footer Nav */
+    .footer-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      border-top: 1px solid #E8E4DC;
+      display: flex;
+      justify-content: space-around;
+      padding: 14px 0 20px;
+      z-index: 100;
+    }
+    
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      color: #8A8A8A;
+      text-decoration: none;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    
+    .nav-item.active { color: #4A1C6B; }
+    .nav-icon { font-size: 22px; }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-inner">
+    <div class="header-logo">
+      <span>⛵</span>
+      Kinship
+    </div>
+    <div class="header-right">
+      <div class="header-church">
+        <div class="header-church-name">First Church</div>
+        <div class="header-church-sub">Downtown Campus</div>
+      </div>
+      <div class="divider"></div>
+      <button class="notif-btn">
+        🔔
+        <span class="notif-dot">3</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-eyebrow">Welcome back</div>
+    <h2>Good evening,<br><em>Jesse.</em></h2>
+    <p>Your church community is thriving. Here's everything happening at First Church right now.</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-item">
+      <div class="stat-num">47</div>
+      <div class="stat-lbl">Members</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">12</div>
+      <div class="stat-lbl">Assets</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">5</div>
+      <div class="stat-lbl">Champions</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">2</div>
+      <div class="stat-lbl">Meal Trains</div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="section-header">
+    <h3>Quick Actions</h3>
+  </div>
+  <div class="qa-grid">
+    <a href="#" class="qa-card">
+      <span class="qa-emoji">🙏</span>
+      <div class="qa-label">Post a Need</div>
+    </a>
+    <a href="#" class="qa-card">
+      <span class="qa-emoji">🏆</span>
+      <div class="qa-label">Give Kudos</div>
+    </a>
+    <a href="#" class="qa-card">
+      <span class="qa-emoji">👥</span>
+      <div class="qa-label">Directory</div>
+    </a>
+    <a href="#" class="qa-card">
+      <span class="qa-emoji">🚗</span>
+      <div class="qa-label">Borrow Asset</div>
+    </a>
+  </div>
+
+  <!-- Two Col -->
+  <div class="two-col">
+    
+    <div>
+      <div class="section-header">
+        <h3>🚨 Urgent Needs</h3>
+        <a href="#">View all →</a>
+      </div>
+      
+      <div class="list-item urgent">
+        <div class="list-icon">🚨</div>
+        <div class="list-body">
+          <div class="list-title">Moving help needed — this weekend</div>
+          <div class="list-sub">Volunteers needed • Sarah Johnson</div>
+        </div>
+        <div class="list-meta">Today</div>
+      </div>
+      
+      <div class="list-item urgent">
+        <div class="list-icon">🚨</div>
+        <div class="list-body">
+          <div class="list-title">Rides to medical appointments</div>
+          <div class="list-sub">Ongoing need • The Martinez Family</div>
+        </div>
+        <div class="list-meta">2d ago</div>
+      </div>
+      
+      <div class="section-header" style="margin-top:32px;">
+        <h3>🍲 Meal Trains</h3>
+        <a href="#">View all →</a>
+      </div>
+      
+      <div class="list-item meal">
+        <div class="list-icon">🍲</div>
+        <div class="list-body">
+          <div class="list-title">Dinner for Thompson Family</div>
+          <div class="list-sub">3 of 7 meals covered</div>
+        </div>
+        <div class="list-meta">Apr 22</div>
+      </div>
+    </div>
+    
+    <div>
+      <div class="section-header">
+        <h3>⚡ Recent Activity</h3>
+      </div>
+      
+      <div class="list-item">
+        <div class="list-icon">🏆</div>
+        <div class="list-body">
+          <div class="list-title">Mike Chen received 3 kudos</div>
+          <div class="list-sub">"Helped with moving"</div>
+        </div>
+        <div class="list-meta">2h ago</div>
+      </div>
+      
+      <div class="list-item">
+        <div class="list-icon">👶</div>
+        <div class="list-body">
+          <div class="list-title">Baby Elijah James born!</div>
+          <div class="list-sub">To the Thompson family</div>
+        </div>
+        <div class="list-meta">1d ago</div>
+      </div>
+      
+      <div class="list-item">
+        <div class="list-icon">🍲</div>
+        <div class="list-body">
+          <div class="list-title">Meal train created for Sarah Johnson</div>
+          <div class="list-sub">Community support</div>
+        </div>
+        <div class="list-meta">2d ago</div>
+      </div>
+      
+      <div class="list-item">
+        <div class="list-icon">👋</div>
+        <div class="list-body">
+          <div class="list-title">Emily Davis joined</div>
+          <div class="list-sub">New member of the community</div>
+        </div>
+        <div class="list-meta">3d ago</div>
+      </div>
+    </div>
+    
+  </div>
+
+</div>
+
+<!-- Footer Nav -->
+<div class="footer-nav">
+  <a href="#" class="nav-item active">
+    <span class="nav-icon">🏠</span>
+    Home
+  </a>
+  <a href="#" class="nav-item">
+    <span class="nav-icon">👥</span>
+    Directory
+  </a>
+  <a href="#" class="nav-item">
+    <span class="nav-icon">🙏</span>
+    Needs
+  </a>
+  <a href="#" class="nav-item">
+    <span class="nav-icon">🔔</span>
+    Alerts
+  </a>
+  <a href="#" class="nav-item">
+    <span class="nav-icon">⚙️</span>
+    Settings
+  </a>
+</div>
+
+</body>
+</html>
