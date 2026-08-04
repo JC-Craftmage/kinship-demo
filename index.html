@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kinship - Church Community App</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; }
+    .scroll-hidden::-webkit-scrollbar { display: none; }
+    .scroll-hidden { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="bg-gray-100">
+
+<!-- ===== LANDING PAGE ===== -->
+<div id="landing" class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+  <nav class="bg-white shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="text-3xl">⛵</div>
+        <span class="text-2xl font-bold text-indigo-600">Kinship</span>
+      </div>
+      <button onclick="showPage('home')" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition font-medium">
+        View Demo
+      </button>
+    </div>
+  </nav>
+
+  <div class="max-w-6xl mx-auto px-4 py-20 text-center">
+    <h1 class="text-6xl font-bold text-gray-900 mb-6">Ahoy! Join the Crew 👋</h1>
+    <p class="text-2xl text-gray-600 mb-4 max-w-3xl mx-auto">Your church family, connected.</p>
+    <p class="text-xl text-gray-500 mb-12 max-w-3xl mx-auto">Automated coordination, frictionless engagement, meaningful community.</p>
+    <button onclick="showPage('home')" class="bg-indigo-600 text-white px-12 py-4 rounded-xl text-xl font-semibold hover:bg-indigo-700 transition shadow-lg">
+      Explore the Demo ⛵
+    </button>
+    <p class="text-gray-500 mt-8 text-sm">Interactive demo — click around and explore all features</p>
+  </div>
+</div>
+
+<!-- ===== HOME PAGE ===== -->
+<div id="home" class="min-h-screen bg-gray-50 pb-24 hidden">
+  <div class="bg-indigo-600 text-white p-4 shadow-lg">
+    <div class="max-w-7xl mx-auto">
+      <h1 class="text-xl font-bold">Kinship</h1>
+      <p class="text-sm text-indigo-200">First Church Community</p>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto p-4 space-y-6">
+    <div class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-6 rounded-xl shadow-lg">
+      <h2 class="text-2xl font-bold mb-2">Welcome! ⛵</h2>
+      <p>Your community is thriving — 7 members connected</p>
+    </div>
+
+    <div class="bg-white p-6 rounded-xl shadow">
+      <h3 class="font-bold text-lg mb-4">Quick Stats</h3>
+      <div class="grid grid-cols-3 gap-4">
+        <div class="text-center">
+          <div class="text-3xl font-bold text-indigo-600">7</div>
+          <div class="text-sm text-gray-600">Members</div>
+        </div>
+        <div class="text-center">
+          <div class="text-3xl font-bold text-green-600">8</div>
+          <div class="text-sm text-gray-600">Assets</div>
+        </div>
+        <div class="text-center">
+          <div class="text-3xl font-bold text-yellow-600">4</div>
+          <div class="text-sm text-gray-600">Champions</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-xl shadow">
+      <h3 class="font-bold text-lg mb-4">Recent Activity</h3>
+      <div class="space-y-3">
+        <div class="flex items-start gap-3 p-3 bg-green-50 rounded-lg">
+          <span class="text-xl">🎉</span>
+          <div>
+            <p class="text-sm font-medium">Mike Chen's roof repair marked complete</p>
+            <p class="text-xs text-gray-500">James Wilson helped — 2 kudos awarded</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-3 p-3 bg-rose-50 rounded-lg">
+          <span class="text-xl">🍲</span>
+          <div>
+            <p class="text-sm font-medium">Meal train: Sarah Johnson's family is 36% covered</p>
+            <p class="text-xs text-gray-500">5 of 14 dinners signed up</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
+          <span class="text-xl">🙏</span>
+          <div>
+            <p class="text-sm font-medium">New prayer request posted (anonymous)</p>
+            <p class="text-xs text-gray-500">Urgent — 23 people praying</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== DIRECTORY PAGE ===== -->
+<div id="directory" class="min-h-screen bg-gray-50 pb-24 hidden">
+  <div class="bg-indigo-600 text-white p-4 shadow-lg">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div>
+        <h1 class="text-xl font-bold">Kinship</h1>
+        <p class="text-sm text-indigo-200">Member Directory</p>
+      </div>
+      <div class="relative">
+        <input type="text" id="memberSearch" placeholder="Search members..." oninput="filterMembers()"
+          class="bg-white/20 text-white placeholder-indigo-200 border border-white/30 rounded-lg px-4 py-2 text-sm w-48 focus:w-64 transition-all outline-none">
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto p-4">
+    <div id="memberList" class="grid md:grid-cols-2 gap-4"></div>
+  </div>
+</div>
+
+<!-- ===== ASSETS PAGE ===== -->
+<div id="assets" class="min-h-screen bg-gray-50 pb-24 hidden">
+  <div class="bg-green-600 text-white p-6 shadow-lg">
+    <div class="max-w-7xl mx-auto">
+      <h1 class="text-2xl font-bold">Available Assets</h1>
+      <p class="text-green-100 text-sm">Equipment, vehicles, and resources from church members</p>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto p-4">
+    <div class="flex gap-2 overflow-x-auto pb-4 scroll-hidden">
+      <button onclick="filterAssets('all')" class="asset-filter px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap bg-green-600 text-white" data-filter="all">All (8)</button>
+      <button onclick="filterAssets('vehicle')" class="asset-filter px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap bg-white text-gray-700 border" data-filter="vehicle">🚗 Vehicles (3)</button>
+      <button onclick="filterAssets('equipment')" class="asset-filter px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap bg-white text-gray-700 border" data-filter="equipment">🚜 Equipment (2)</button>
+      <button onclick="filterAssets('business')" class="asset-filter px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap bg-white text-gray-700 border" data-filter="business">💼 Business (2)</button>
+    </div>
+    <div id="assetList" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+  </div>
+</div>
+
+<!-- ===== MEAL TRAINS PAGE ===== -->
+<div id="meals" class="min-h-screen bg-gray-50 pb-24 hidden">
+  <div class="bg-gradient-to-r from-rose-500 to-pink-600 text-white p-6 shadow-lg">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center gap-3">
+          <span class="text-4xl">🍲</span>
+          <div>
+            <h1 class="text-3xl font-bold">Meal Trains</h1>
+            <p class="text-rose-100 text-sm">Supporting our church family</p>
+          </div>
+        </div>
+        <button class="bg-white text-rose-600 px-4 py-2 rounded-lg font-semibold hover:bg-rose-50 transition text-sm">+ Create New</button>
+      </div>
+      <div class="bg-white/20 backdrop-blur-sm rounded-lg p-3 border border-white/20 mt-3">
+        <p class="text-sm text-white/90">💡 <strong>Demo:</strong> Click any meal train to see the calendar and sign up for a slot!</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-4 py-6 space-y-4" id="mealTrainList"></div>
+</div>
+
+<!-- ===== NEEDS BOARD PAGE ===== -->
+<div id="needs" class="min-h-screen bg-gray-50 pb-24 hidden">
+  <div class="bg-gradient-to-r from-cyan-600 to-teal-600 text-white p-6 shadow-lg">
+    <div class="max-w-7xl mx-auto">
+      <h1 class="text-3xl font-bold mb-1">Needs Board</h1>
+      <p class="text-cyan-100 text-sm">Where church family helps church family</p>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto p-4">
+    <div class="grid md:grid-cols-3 gap-4" id="needsList"></div>
+  </div>
+</div>
+
+<!-- ===== BOTTOM NAVIGATION ===== -->
+<nav id="bottomNav" class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 hidden z-40">
+  <div class="flex justify-around">
+    <button onclick="showPage('home')" class="nav-btn flex flex-col items-center py-3 px-4 text-gray-500 hover:text-indigo-600 transition" data-page="home">
+      <span class="text-2xl">🏠</span><span class="text-xs mt-1">Home</span>
+    </button>
+    <button onclick="showPage('directory')" class="nav-btn flex flex-col items-center py-3 px-4 text-gray-500 hover:text-indigo-600 transition" data-page="directory">
+      <span class="text-2xl">👥</span><span class="text-xs mt-1">Directory</span>
+    </button>
+    <button onclick="showPage('needs')" class="nav-btn flex flex-col items-center py-3 px-4 text-gray-500 hover:text-indigo-600 transition" data-page="needs">
+      <span class="text-2xl">🤝</span><span class="text-xs mt-1">Needs</span>
+    </button>
+    <button onclick="showPage('meals')" class="nav-btn flex flex-col items-center py-3 px-4 text-gray-500 hover:text-indigo-600 transition" data-page="meals">
+      <span class="text-2xl">🧑‍🍳</span><span class="text-xs mt-1">Meals</span>
+    </button>
+    <button onclick="showPage('assets')" class="nav-btn flex flex-col items-center py-3 px-4 text-gray-500 hover:text-indigo-600 transition" data-page="assets">
+      <span class="text-2xl">🚚</span><span class="text-xs mt-1">Assets</span>
+    </button>
+  </div>
+</nav>
+
+<!-- ===== MEMBER MODAL ===== -->
+<div id="memberModal" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 hidden" onclick="closeMemberModal()">
+  <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+    <div id="memberModalHeader" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6 rounded-t-2xl sticky top-0"></div>
+    <div id="memberModalBody" class="p-6 space-y-5"></div>
+  </div>
+</div>
+
+<!-- ===== ASSET MODAL ===== -->
+<div id="assetModal" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 hidden" onclick="closeAssetModal()">
+  <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+    <div id="assetModalHeader" class="bg-gradient-to-r from-green-500 to-emerald-600 text-white p-6 rounded-t-2xl"></div>
+    <div id="assetModalBody" class="p-6 space-y-5"></div>
+  </div>
+</div>
+
+<!-- ===== MEAL TRAIN MODAL ===== -->
+<div id="mealModal" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 hidden" onclick="closeMealModal()">
+  <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+    <div id="mealModalHeader" class="bg-gradient-to-r from-rose-500 to-pink-600 text-white p-6 rounded-t-2xl"></div>
+    <div id="mealModalBody" class="p-6"></div>
+  </div>
+</div>
+
+<!-- ===== NEED MODAL ===== -->
+<div id="needModal" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 hidden" onclick="closeNeedModal()">
+  <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+    <div id="needModalHeader" class="bg-gradient-to-r from-cyan-500 to-teal-600 text-white p-6 rounded-t-2xl"></div>
+    <div id="needModalBody" class="p-6 space-y-4"></div>
+  </div>
+</div>
+
+<script>
+// ===== DATA =====
+const members = [
+  { id: 2, name: 'Mike Chen', campus: 'Downtown', skills: ['Carpenter', 'Home Repair', 'Woodworking'], interests: ['Biking', 'Cooking', 'Mentoring'], avatar: '👨', kudos: 67, jobTitle: 'Master Carpenter', company: 'Chen Custom Carpentry', bio: 'Running my own carpentry business for 15 years. Always happy to help church family with projects!', seekingWork: false, lookingForGroups: [], assets: [{ type: 'vehicle', name: '2019 F-150 Pickup Truck', available: 'Weekends, happy to help deliver!', description: '8-foot bed, can tow up to 5000lbs' }, { type: 'equipment', name: 'Kubota Tractor with loader', available: 'By arrangement', description: 'Perfect for landscaping projects' }, { type: 'equipment', name: 'Mini Excavator', available: 'Contact first, experience required', description: 'Great for digging foundations or trenches' }], memberSince: '2015' },
+  { id: 1, name: 'Sarah Johnson', campus: 'Downtown', skills: ['Real Estate Agent', 'Photography'], interests: ['Hiking', 'Book Club'], avatar: '👩', kudos: 45, jobTitle: 'Senior Real Estate Agent', company: 'Pacific Northwest Realty', bio: 'Been with First Church for 8 years. Love connecting people with their dream homes.', seekingWork: false, lookingForGroups: ['Young Professionals'], assets: [{ type: 'vehicle', name: 'Honda Odyssey (7 seats)', available: 'Weekends', description: 'Great for carpools' }], memberSince: '2017' },
+  { id: 8, name: 'Robert Chen', campus: 'Downtown', skills: ['Retired Teacher', 'Mentoring', 'Tutoring'], interests: ['Reading', 'Gardening'], avatar: '👴', kudos: 156, jobTitle: 'Retired High School Principal', company: null, bio: 'Retired after 40 years in education. Now I have time to give back!', seekingWork: false, lookingForGroups: [], assets: [], memberSince: '1998' },
+  { id: 7, name: 'Rachel Kim', campus: 'Downtown', skills: ['Software Engineer', 'Web Development', 'React'], interests: ['Technology', 'Coffee', 'Hiking'], avatar: '👩‍💻', kudos: 12, jobTitle: 'Software Engineer', company: 'Recently laid off', bio: 'Recently affected by tech layoffs. Looking for my next opportunity while staying connected to community.', seekingWork: true, lookingForGroups: ['Young Adults', 'Tech Professionals', 'Career Support'], assets: [], memberSince: '2023' },
+  { id: 3, name: 'Emily Rodriguez', campus: 'Westside', skills: ['Teacher', 'Piano', 'Childcare'], interests: ['Gardening', 'Yoga', 'Young Moms'], avatar: '👩‍🦱', kudos: 23, jobTitle: 'Elementary School Teacher', company: 'Westside Elementary', bio: 'Teaching 3rd grade. Love helping families in our church community!', seekingWork: false, lookingForGroups: [], assets: [], memberSince: '2020' },
+  { id: 4, name: 'David Martinez', campus: 'Downtown', skills: ['Accountant', 'Financial Advisor', 'Tax Prep'], interests: ['Golf', 'Mentoring', 'Young Professionals'], avatar: '👨‍💼', kudos: 31, jobTitle: 'CPA & Financial Advisor', company: 'Martinez Financial Group', bio: 'Helping families achieve financial peace. Free consultations for church members!', seekingWork: false, lookingForGroups: [], assets: [{ type: 'business', name: 'Conference room (seats 12)', available: 'Weekday evenings', description: 'Great for small group meetings' }], memberSince: '2018' },
+  { id: 5, name: 'Lisa Thompson', campus: 'Westside', skills: ['Graphic Designer', 'Event Planning', 'Social Media'], interests: ['Art', 'Young Moms', 'Coffee'], avatar: '👩‍🎨', kudos: 52, jobTitle: 'Creative Director', company: 'Thompson Design Studio', bio: "Running a design studio and raising three kids. Church bulletin designs are my love language!", seekingWork: false, lookingForGroups: [], assets: [{ type: 'business', name: 'Full-service print shop access', available: 'For church projects', description: 'Business cards, flyers, banners, etc.' }], memberSince: '2016' },
+  { id: 6, name: 'James Wilson', campus: 'Downtown', skills: ['Plumber', 'Home Repair', 'HVAC'], interests: ['Fishing', 'Woodworking', "Men's Group"], avatar: '👨‍🔧', kudos: 89, jobTitle: 'Master Plumber', company: 'Wilson Plumbing & Heating', bio: 'Third generation plumber. Church family gets priority service!', seekingWork: false, lookingForGroups: [], assets: [{ type: 'vehicle', name: 'Cargo trailer (6x12)', available: 'Most weekends', description: 'Perfect for moving or hauling' }], memberSince: '2010' }
+];
+
+const mealTrains = [
+  { id: 1, recipient: { name: 'Sarah Johnson', avatar: '👩', campus: 'Downtown' }, reason: 'New Baby', description: 'Baby Emma arrived! Meals for a family of 4 (including two picky eaters).', preferences: 'No nuts please! Love casseroles.', signups: [{ date: 'Nov 1', meal: 'dinner', signedUp: true, volunteer: 'Emily R.', delivered: false }, { date: 'Nov 2', meal: 'dinner', signedUp: true, volunteer: 'Lisa T.', delivered: false }, { date: 'Nov 3', meal: 'dinner', signedUp: false, volunteer: null, delivered: false }, { date: 'Nov 4', meal: 'dinner', signedUp: false, volunteer: null, delivered: false }, { date: 'Nov 5', meal: 'dinner', signedUp: true, volunteer: 'You!', delivered: false }, { date: 'Nov 6', meal: 'dinner', signedUp: false, volunteer: null, delivered: false }, { date: 'Nov 7', meal: 'dinner', signedUp: false, volunteer: null, delivered: false }, { date: 'Nov 8', meal: 'dinner', signedUp: true, volunteer: 'David M.', delivered: false }, { date: 'Nov 9', meal: 'dinner', signedUp: false, volunteer: null, delivered: false }, { date: 'Nov 10', meal: 'dinner', signedUp: false, volunteer: null, delivered: false }, { date: 'Nov 11', meal: 'dinner', signedUp: false, volunteer: null, delivered: false }, { date: 'Nov 12', meal: 'dinner', signedUp: false, volunteer: null, delivered: false }, { date: 'Nov 13', meal: 'dinner', signedUp: false, volunteer: null, delivered: false }, { date: 'Nov 14', meal: 'dinner', signedUp: false, volunteer: null, delivered: false }] },
+  { id: 2, recipient: { name: 'Robert Chen', avatar: '👴', campus: 'Downtown' }, reason: 'Recovery - Hip Surgery', description: 'Robert is recovering from hip surgery. Meals for 1 person.', preferences: 'Light, healthy meals preferred. Easy to reheat.', signups: [{ date: 'Nov 3', meal: 'lunch', signedUp: true, volunteer: 'James W.', delivered: false }, { date: 'Nov 3', meal: 'dinner', signedUp: true, volunteer: 'Mike C.', delivered: false }, { date: 'Nov 4', meal: 'lunch', signedUp: false, volunteer: null, delivered: false }, { date: 'Nov 4', meal: 'dinner', signedUp: false, volunteer: null, delivered: false }, { date: 'Nov 5', meal: 'lunch', signedUp: false, volunteer: null, delivered: false }, { date: 'Nov 5', meal: 'dinner', signedUp: false, volunteer: null, delivered: false }] },
+  { id: 3, recipient: { name: 'Martinez Family', avatar: '👨‍👩‍👧‍👦', campus: 'Westside' }, reason: 'House Fire Recovery', description: 'The Martinez family lost their home in a fire. Meals for 5 people while they rebuild.', preferences: 'No dietary restrictions. Very grateful for any help!', signups: [{ date: 'Oct 28', meal: 'dinner', signedUp: true, volunteer: 'Multiple families', delivered: true }, { date: 'Oct 29', meal: 'dinner', signedUp: true, volunteer: 'Small Group #3', delivered: true }, { date: 'Oct 30', meal: 'dinner', signedUp: true, volunteer: 'Youth Group', delivered: false }, { date: 'Oct 31', meal: 'dinner', signedUp: true, volunteer: 'Emily R.', delivered: false }, { date: 'Nov 1', meal: 'dinner', signedUp: false, volunteer: null, delivered: false }] }
+];
+
+const needs = [
+  { id: 1, poster: { name: 'Sarah Johnson', avatar: '👩', campus: 'Downtown' }, category: 'Moving Help', categoryIcon: '🚚', title: 'Need help moving to new apartment', description: 'Moving to a 2-bedroom apartment across town on Nov 15th. Need help loading/unloading truck. Heavy furniture included. Pizza and drinks provided!', date: 'Nov 15', timeframe: '9 AM - 3 PM', status: 'open', volunteersNeeded: 4, urgency: 'medium', isAnonymous: false, suggestedGroups: ['Truck Owners', 'Young Adults'] },
+  { id: 2, poster: { name: 'Anonymous', avatar: '🙏', campus: 'Downtown' }, category: 'Prayer Request', categoryIcon: '❤️', title: 'Prayer for family health crisis', description: 'Going through a difficult medical situation with a family member. Would appreciate prayers for healing and peace.', date: null, timeframe: 'Ongoing', status: 'open', volunteersNeeded: null, urgency: 'high', isAnonymous: true, suggestedGroups: ['Prayer Team', 'Care Ministry'] },
+  { id: 3, poster: { name: 'Emily Rodriguez', avatar: '👩‍🦱', campus: 'Westside' }, category: 'Childcare', categoryIcon: '👶', title: 'Childcare for parent-teacher conferences', description: 'Need someone to watch my two kids (ages 3 and 5) during parent-teacher conferences on Nov 12th evening. About 2 hours.', date: 'Nov 12', timeframe: '6 PM - 8 PM', status: 'in-progress', volunteersNeeded: 1, urgency: 'medium', isAnonymous: false, suggestedGroups: ['Parents', 'Young Moms'] },
+  { id: 4, poster: { name: 'Robert Chen', avatar: '👴', campus: 'Downtown' }, category: 'Transportation', categoryIcon: '🚗', title: 'Rides to physical therapy', description: 'Recovering from hip surgery and need rides to PT appointments 3x per week for the next month. Morning slots around 10 AM.', date: null, timeframe: 'Mon/Wed/Fri mornings', status: 'open', volunteersNeeded: 12, urgency: 'high', isAnonymous: false, suggestedGroups: ['Retired Members', 'Care Ministry'] },
+  { id: 5, poster: { name: 'Mike Chen', avatar: '👨', campus: 'Downtown' }, category: 'Home Repair', categoryIcon: '🔧', title: 'Help fixing leaky roof before winter', description: 'Have a persistent leak in the garage roof. I have the materials but need someone with roofing experience. Saturday project.', date: 'Nov 9', timeframe: 'Saturday', status: 'fulfilled', volunteersNeeded: 1, urgency: 'low', isAnonymous: false, suggestedGroups: ['Handymen', "Men's Group"] },
+  { id: 6, poster: { name: 'Lisa Thompson', avatar: '👩‍🎨', campus: 'Westside' }, category: 'Event Help', categoryIcon: '✨', title: 'Volunteers for Fall Festival setup', description: 'Our church Fall Festival is coming up Nov 16th! Need volunteers to help with setup on Friday evening and breakdown on Saturday.', date: 'Nov 15-16', timeframe: 'Fri 5-8 PM, Sat 7-9 PM', status: 'open', volunteersNeeded: 10, urgency: 'medium', isAnonymous: false, suggestedGroups: ['Youth Group', 'All Volunteers'] }
+];
+
+// ===== NAVIGATION =====
+function showPage(page) {
+  ['landing','home','directory','assets','meals','needs'].forEach(p => {
+    document.getElementById(p).classList.add('hidden');
+  });
+  document.getElementById(page).classList.remove('hidden');
+
+  const nav = document.getElementById('bottomNav');
+  if (page === 'landing') {
+    nav.classList.add('hidden');
+  } else {
+    nav.classList.remove('hidden');
+    nav.classList.add('flex');
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+      btn.classList.remove('text-indigo-600');
+      btn.classList.add('text-gray-500');
+      if (btn.dataset.page === page) {
+        btn.classList.add('text-indigo-600');
+        btn.classList.remove('text-gray-500');
+      }
+    });
+  }
+
+  if (page === 'directory') renderMembers();
+  if (page === 'assets') renderAssets('all');
+  if (page === 'meals') renderMealTrains();
+  if (page === 'needs') renderNeeds();
+}
+
+// ===== MEMBER RENDERING =====
+function renderMembers(filter = '') {
+  const list = document.getElementById('memberList');
+  const filtered = members.filter(m => m.name.toLowerCase().includes(filter.toLowerCase()) || m.skills.some(s => s.toLowerCase().includes(filter.toLowerCase())));
+  list.innerHTML = filtered.map(m => `
+    <div onclick="openMemberModal(${m.id})" class="bg-white p-5 rounded-xl shadow hover:shadow-lg transition cursor-pointer border-2 border-transparent hover:border-indigo-200">
+      <div class="flex gap-4">
+        <div class="text-5xl">${m.avatar}</div>
+        <div class="flex-1">
+          <div class="flex items-center gap-3 mb-2">
+            <h3 class="font-bold text-lg">${m.name}</h3>
+            ${m.kudos >= 50 ? `<span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs font-bold flex items-center gap-1">⭐ ${m.kudos}</span>` : ''}
+          </div>
+          <p class="text-sm text-gray-500">📍 ${m.campus} Campus</p>
+          ${m.seekingWork ? '<span class="inline-block mt-2 bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-xs font-bold">💼 Seeking Work</span>' : ''}
+          ${m.lookingForGroups.length > 0 ? `<span class="inline-block mt-2 ml-2 bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-xs font-bold">👥 Looking for groups</span>` : ''}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterMembers() {
+  const q = document.getElementById('memberSearch').value;
+  renderMembers(q);
+}
+
+function openMemberModal(id) {
+  const m = members.find(x => x.id === id);
+  document.getElementById('memberModalHeader').innerHTML = `
+    <div class="flex justify-between items-start">
+      <div class="flex items-center gap-4">
+        <div class="text-6xl">${m.avatar}</div>
+        <div>
+          <div class="flex items-center gap-3 mb-1">
+            <h2 class="text-3xl font-bold">${m.name}</h2>
+            ${m.kudos > 0 ? `<span class="bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-sm font-bold flex items-center gap-1">⭐ ${m.kudos}</span>` : ''}
+          </div>
+          <p class="text-indigo-200">📍 ${m.campus} Campus • Member since ${m.memberSince}</p>
+        </div>
+      </div>
+      <button onclick="closeMemberModal()" class="text-white hover:text-indigo-200 text-3xl">&times;</button>
+    </div>
+  `;
+  let body = '';
+  if (m.seekingWork) body += `<div class="bg-orange-50 border-2 border-orange-300 p-4 rounded-xl"><div class="flex items-center gap-3"><div class="text-3xl">💼</div><div><p class="font-bold text-orange-900 text-lg">Actively Seeking Employment</p><p class="text-sm text-orange-700">Open to opportunities — connect to help!</p></div></div></div>`;
+  if (m.lookingForGroups.length > 0) body += `<div class="bg-purple-50 border-2 border-purple-300 p-4 rounded-xl"><div class="flex items-center gap-3"><div class="text-3xl">👥</div><div><p class="font-bold text-purple-900 text-lg">Looking to Join</p><p class="text-sm text-purple-700">${m.lookingForGroups.join(', ')}</p></div></div></div>`;
+  body += `<div><h3 class="font-bold text-lg mb-2">About</h3><p class="text-gray-700">${m.bio}</p></div>`;
+  body += `<div><h3 class="font-bold text-lg mb-2">${m.jobTitle}${m.company ? ' at ' + m.company : ''}</h3></div>`;
+  if (m.assets.length > 0) {
+    body += `<div><h3 class="font-bold text-xl mb-3">Available Assets</h3><div class="space-y-2">${m.assets.map(a => `<div class="bg-green-50 border-2 border-green-200 p-4 rounded-xl cursor-pointer hover:border-green-400 transition" onclick="event.stopPropagation(); closeMemberModal(); showPage('assets'); setTimeout(() => openAssetModal(\\'${a.name.replace(/'/g,"\\\\'")}\\'), 100)"><div class="flex items-start gap-3"><div class="text-2xl">${a.type === 'vehicle' ? '🚗' : a.type === 'equipment' ? '🚜' : '💼'}</div><div><p class="font-bold">${a.name}</p><p class="text-sm text-green-700">📅 ${a.available}</p></div></div></div>`).join('')}</div></div>`;
+  }
+  body += `<div><h3 class="font-bold text-xl mb-3">Skills</h3><div class="flex flex-wrap gap-2">${m.skills.map(s => `<span class="bg-blue-100 text-blue-800 px-4 py-2 rounded-lg text-sm font-medium">${s}</span>`).join('')}</div></div>`;
+  body += `<div><h3 class="font-bold text-xl mb-3">Interests</h3><div class="flex flex-wrap gap-2">${m.interests.map(i => `<span class="bg-purple-100 text-purple-800 px-4 py-2 rounded-lg text-sm font-medium">${i}</span>`).join('')}</div></div>`;
+  body += `<button class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition text-lg">💬 Send Message</button>`;
+  document.getElementById('memberModalBody').innerHTML = body;
+  document.getElementById('memberModal').classList.remove('hidden');
+}
+
+function closeMemberModal() { document.getElementById('memberModal').classList.add('hidden'); }
+
+// ===== ASSET RENDERING =====
+function getAllAssets() {
+  const out = [];
+  members.forEach(m => m.assets.forEach(a => out.push({...a, owner: m})));
+  return out;
+}
+
+function renderAssets(filter) {
+  const list = document.getElementById('assetList');
+  const assets = getAllAssets().filter(a => filter === 'all' || a.type === filter);
+  list.innerHTML = assets.map(a => `
+    <div onclick="openAssetModal('${a.name.replace(/'/g,"\\'")}')" class="bg-white rounded-xl shadow hover:shadow-lg transition cursor-pointer border-2 border-transparent hover:border-green-200">
+      <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-t-xl border-b-2 border-green-200">
+        <div class="flex items-start gap-3">
+          <div class="text-4xl">${a.type === 'vehicle' ? '🚗' : a.type === 'equipment' ? '🚜' : '💼'}</div>
+          <div class="flex-1">
+            <h3 class="font-bold text-lg text-gray-900">${a.name}</h3>
+            <p class="text-sm text-green-700 font-medium mt-1">📅 ${a.available}</p>
+            ${a.description ? `<p class="text-sm text-gray-600 mt-2">${a.description}</p>` : ''}
+          </div>
+        </div>
+      </div>
+      <div class="p-4 flex items-center gap-3">
+        <div class="text-3xl">${a.owner.avatar}</div>
+        <div class="flex-1">
+          <p class="font-bold text-sm">${a.owner.name}</p>
+          <p class="text-xs text-gray-500">📍 ${a.owner.campus} Campus</p>
+          ${a.owner.kudos >= 50 ? `<span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full font-bold inline-flex items-center gap-1 mt-1">⭐ ${a.owner.kudos}</span>` : ''}
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  document.querySelectorAll('.asset-filter').forEach(btn => {
+    if (btn.dataset.filter === filter) {
+      btn.classList.remove('bg-white', 'text-gray-700', 'border');
+      btn.classList.add('bg-green-600', 'text-white');
+    } else {
+      btn.classList.add('bg-white', 'text-gray-700', 'border');
+      btn.classList.remove('bg-green-600', 'text-white');
+    }
+  });
+}
+
+function filterAssets(f) { renderAssets(f); }
+
+function openAssetModal(assetName) {
+  const a = getAllAssets().find(x => x.name === assetName);
+  document.getElementById('assetModalHeader').innerHTML = `
+    <div class="flex justify-between items-start">
+      <div class="flex items-center gap-4">
+        <div class="text-6xl">${a.type === 'vehicle' ? '🚗' : a.type === 'equipment' ? '🚜' : '💼'}</div>
+        <div>
+          <h2 class="text-3xl font-bold">${a.name}</h2>
+          <p class="text-green-100 text-sm mt-1">📅 ${a.available}</p>
+        </div>
+      </div>
+      <button onclick="closeAssetModal()" class="text-white hover:text-green-200 text-3xl">&times;</button>
+    </div>
+  `;
+  let body = '';
+  if (a.description) body += `<div><h3 class="font-bold text-lg mb-2">Description</h3><p class="text-gray-700">${a.description}</p></div>`;
+  body += `<div><h3 class="font-bold text-lg mb-2">Availability</h3><p class="text-gray-700">${a.available}</p></div>`;
+  body += `<div><h3 class="font-bold text-lg mb-3">Owner</h3><div class="bg-indigo-50 border-2 border-indigo-200 p-4 rounded-xl cursor-pointer hover:border-indigo-400 transition" onclick="closeAssetModal(); showPage('directory'); setTimeout(() => openMemberModal(${a.owner.id}), 100)"><div class="flex items-center gap-4"><div class="text-5xl">${a.owner.avatar}</div><div><p class="font-bold text-lg">${a.owner.name}</p><p class="text-sm text-gray-600">📍 ${a.owner.campus} Campus</p>${a.owner.kudos >= 50 ? `<span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full font-bold inline-flex items-center gap-1 mt-1">⭐ ${a.owner.kudos} kudos</span>` : ''}</div></div><p class="text-xs text-indigo-600 mt-2 font-medium">Click to view full profile →</p></div></div>`;
+  body += `<button class="w-full bg-green-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-green-700 transition shadow-lg" onclick="alert('Request sent to ' + '${a.owner.name}' + '!\\nIn the real app, this would send a notification and start a message thread.')">📬 Request to Borrow</button>`;
+  body += `<p class="text-xs text-center text-gray-500">The owner will receive your request and can approve or suggest alternative dates</p>`;
+  document.getElementById('assetModalBody').innerHTML = body;
+  document.getElementById('assetModal').classList.remove('hidden');
+}
+
+function closeAssetModal() { document.getElementById('assetModal').classList.add('hidden'); }
+
+// ===== MEAL TRAIN RENDERING =====
+function renderMealTrains() {
+  const list = document.getElementById('mealTrainList');
+  list.innerHTML = mealTrains.map(train => {
+    const filled = train.signups.filter(s => s.signedUp).length;
+    const total = train.signups.length;
+    const pct = Math.round((filled / total) * 100);
+    return `
+      <div onclick="openMealModal(${train.id})" class="bg-white rounded-xl shadow-md hover:shadow-xl transition cursor-pointer border-2 border-transparent hover:border-rose-300 p-6">
+        <div class="flex items-start gap-4 mb-4">
+          <div class="text-5xl">${train.recipient.avatar}</div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-1">
+              <h3 class="font-bold text-xl">${train.recipient.name}</h3>
+              <span class="bg-rose-100 text-rose-700 px-2 py-1 rounded-full text-xs font-bold">${train.reason}</span>
+            </div>
+            <p class="text-sm text-gray-600">📍 ${train.recipient.campus} Campus</p>
+            <p class="text-sm text-gray-500 mt-1">${train.description}</p>
+          </div>
+        </div>
+        <div class="bg-gray-100 rounded-lg p-3">
+          <div class="flex justify-between text-sm mb-2">
+            <span class="font-medium">${pct}% covered</span>
+            <span class="text-gray-500">${filled} of ${total} slots</span>
+          </div>
+          <div class="h-3 bg-gray-200 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-rose-400 to-pink-500 rounded-full transition-all" style="width:${pct}%"></div>
+          </div>
+        </div>
+        <p class="text-xs text-center text-gray-400 mt-3">Tap to view calendar and sign up →</p>
+      </div>
+    `;
+  }).join('');
+}
+
+function openMealModal(id) {
+  const train = mealTrains.find(t => t.id === id);
+  document.getElementById('mealModalHeader').innerHTML = `
+    <div class="flex justify-between items-start">
+      <div class="flex items-center gap-4">
+        <div class="text-6xl">${train.recipient.avatar}</div>
+        <div>
+          <h2 class="text-3xl font-bold">${train.recipient.name}</h2>
+          <p class="text-rose-100 mt-1">🍲 ${train.reason} • 📍 ${train.recipient.campus}</p>
+        </div>
+      </div>
+      <button onclick="closeMealModal()" class="text-white hover:text-rose-200 text-3xl">&times;</button>
+    </div>
+  `;
+  let body = `
+    <p class="text-gray-600 mb-4">${train.description}</p>
+    <div class="bg-amber-50 border border-amber-200 p-3 rounded-lg mb-4">
+      <p class="text-sm text-amber-800"><strong>Dietary preferences:</strong> ${train.preferences}</p>
+    </div>
+    <h3 class="font-bold text-lg mb-3">Meal Calendar — tap a slot to sign up</h3>
+    <div class="space-y-2">
+      ${train.signups.map((s, i) => `
+        <div onclick="${s.signedUp ? '' : `signUpMeal(${id}, ${i})`}" class="flex items-center justify-between p-3 rounded-lg cursor-pointer transition ${s.signedUp ? (s.delivered ? 'bg-green-100 border-2 border-green-300' : 'bg-gray-100 border-2 border-gray-300') : 'bg-white border-2 border-gray-200 hover:border-rose-400'}">
+          <div class="flex items-center gap-3">
+            <span class="text-lg">${s.signedUp ? (s.delivered ? '✅' : '🍽️') : '⬜'}</span>
+            <div>
+              <p class="font-medium ${s.signedUp ? 'text-gray-700' : 'text-gray-900'}">${s.date} — ${s.meal.charAt(0).toUpperCase() + s.meal.slice(1)}</p>
+              <p class="text-sm ${s.signedUp ? 'text-gray-500' : 'text-gray-400'}">${s.signedUp ? (s.volunteer === 'You!' ? '✅ You signed up!' : '🍽️ ' + s.volunteer) : 'Click to sign up'}</p>
+            </div>
+          </div>
+          ${s.signedUp ? `<span class="text-xs ${s.delivered ? 'text-green-600 font-bold' : 'text-gray-500'}">${s.delivered ? 'Delivered!' : 'Signed up'}</span>` : ''}
+        </div>
+      `).join('')}
+    </div>
+    <p class="text-xs text-center text-gray-400 mt-4">🍽️ = signed up • ✅ = delivered • ⬜ = open slot</p>
+  `;
+  document.getElementById('mealModalBody').innerHTML = body;
+  document.getElementById('mealModal').classList.remove('hidden');
+}
+
+function signUpMeal(trainId, slotIndex) {
+  mealTrains[trainId - 1].signups[slotIndex].signedUp = true;
+  mealTrains[trainId - 1].signups[slotIndex].volunteer = 'You!';
+  openMealModal(trainId);
+}
+
+function closeMealModal() { document.getElementById('mealModal').classList.add('hidden'); }
+
+// ===== NEEDS RENDERING =====
+const statusColors = { open: ['bg-blue-100 text-blue-700 border-blue-300', 'Open'], 'in-progress': ['bg-yellow-100 text-yellow-700 border-yellow-300', 'In Progress'], fulfilled: ['bg-green-100 text-green-700 border-green-300', 'Fulfilled'] };
+const urgencyColors = { high: 'bg-red-500', medium: 'bg-amber-500', low: 'bg-gray-400' };
+
+function renderNeeds() {
+  const list = document.getElementById('needsList');
+  list.innerHTML = needs.map(n => {
+    const sc = statusColors[n.status];
+    const filled = n.volunteersNeeded ? n.volunteers.filter(v => v.signedUp).length : 0;
+    return `
+      <div onclick="openNeedModal(${n.id})" class="bg-white rounded-xl shadow hover:shadow-lg transition cursor-pointer border-2 border-transparent hover:border-cyan-200 overflow-hidden">
+        <div class="p-5">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <span class="text-3xl">${n.categoryIcon}</span>
+              <span class="text-xs font-bold px-2 py-1 rounded-full border ${sc[0]}">${sc[1]}</span>
+            </div>
+            <span class="w-3 h-3 rounded-full ${urgencyColors[n.urgency]}" title="${n.urgency} urgency"></span>
+          </div>
+          <h3 class="font-bold text-lg mb-2">${n.title}</h3>
+          <p class="text-sm text-gray-600 mb-3 line-clamp-2">${n.description}</p>
+          <div class="flex items-center justify-between text-xs text-gray-500">
+            <span>${n.isAnonymous ? '🙏 Anonymous' : n.poster.avatar + ' ' + n.poster.name}</span>
+            <span>${n.date || 'Ongoing'}</span>
+          </div>
+        </div>
+        ${n.volunteersNeeded ? `
+        <div class="border-t px-5 py-3 bg-gray-50">
+          <div class="flex justify-between text-xs mb-1">
+            <span class="font-medium">${n.status === 'fulfilled' ? '✅ Completed' : `${filled}/${n.volunteersNeeded} volunteers`}</span>
+          </div>
+          ${n.status !== 'fulfilled' ? `<div class="h-2 bg-gray-200 rounded-full"><div class="h-full bg-cyan-500 rounded-full" style="width:${(filled/n.volunteersNeeded)*100}%"></div></div>` : ''}
+        </div>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+function openNeedModal(id) {
+  const n = needs.find(x => x.id === id);
+  document.getElementById('needModalHeader').innerHTML = `
+    <div class="flex justify-between items-start">
+      <div class="flex items-center gap-3">
+        <span class="text-5xl">${n.categoryIcon}</span>
+        <div>
+          <h2 class="text-2xl font-bold">${n.title}</h2>
+          <p class="text-cyan-100 mt-1">${n.category} • ${n.isAnonymous ? '🙏 Anonymous' : n.poster.avatar + ' ' + n.poster.name}</p>
+        </div>
+      </div>
+      <button onclick="closeNeedModal()" class="text-white hover:text-cyan-200 text-3xl">&times;</button>
+    </div>
+  `;
+  const sc = statusColors[n.status];
+  let body = `
+    <span class="inline-block px-3 py-1 rounded-full text-sm font-bold border ${sc[0]} mb-3">${sc[1]}</span>
+    <p class="text-gray-700">${n.description}</p>
+    ${n.date ? `<p class="text-sm text-gray-500 mt-2">📅 ${n.date} • ${n.timeframe}</p>` : `<p class="text-sm text-gray-500 mt-2">⏰ ${n.timeframe}</p>`}
+    ${n.volunteersNeeded ? `
+    <div class="mt-4 bg-gray-50 p-4 rounded-xl">
+      <h4 class="font-bold mb-2">Volunteers needed: ${n.volunteersNeeded}</h4>
+      <div class="space-y-2">
+        ${n.volunteers.map(v => `<div class="flex items-center gap-2 text-sm"><span>✅</span><span>${v.name}</span><span class="text-xs ${v.confirmed ? 'text-green-600' : 'text-gray-400'}">${v.confirmed ? 'Confirmed' : 'Pending'}</span></div>`).join('')}
+        ${n.status !== 'fulfilled' ? `<button onclick="signUpForNeed(${n.id})" class="mt-3 w-full bg-cyan-600 text-white py-2 rounded-lg font-semibold hover:bg-cyan-700 transition text-sm">🤝 I Can Help!</button>` : ''}
+      </div>
+    </div>` : ''}
+    ${n.suggestedGroups.length > 0 ? `<div class="mt-4"><h4 class="font-bold text-sm mb-2 text-gray-500">Suggested groups to notify:</h4><div class="flex flex-wrap gap-2">${n.suggestedGroups.map(g => `<span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-medium">${g}</span>`).join('')}</div></div>` : ''}
+  `;
+  document.getElementById('needModalBody').innerHTML = body;
+  document.getElementById('needModal').classList.remove('hidden');
+}
+
+function signUpForNeed(id) {
+  needs[id - 1].volunteers.push({ name: 'You!', signedUp: true, confirmed: false });
+  openNeedModal(id);
+}
+
+function closeNeedModal() { document.getElementById('needModal').classList.add('hidden'); }
+
+// Init
+showPage('landing');
+</script>
+</body>
+</html>
