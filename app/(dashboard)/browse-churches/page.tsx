@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { DashboardHeader } from '@/components/layout/dashboard-header';
 import { Search, MapPin, Church as ChurchIcon } from 'lucide-react';
 
 interface Church {
@@ -117,13 +118,10 @@ export default function BrowseChurchesPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
-      {/* Header */}
-      <div className="bg-indigo-600 text-white p-4 shadow-lg">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-xl font-bold">Browse Churches</h1>
-          <p className="text-sm text-indigo-200">Discover church communities</p>
-        </div>
-      </div>
+      <DashboardHeader
+        title="Browse Churches"
+        subtitle="Discover church communities"
+      />
 
       <div className="max-w-7xl mx-auto p-4 space-y-6">
         {/* Info Card */}

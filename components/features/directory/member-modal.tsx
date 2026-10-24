@@ -2,6 +2,9 @@
 
 import { Member } from '@/lib/types';
 import { MapPin, Award, Truck } from 'lucide-react';
+import { ProfileCompletenessGate } from '@/components/features/onboarding/profile-completeness-gate';
+import { shouldShowGateForAction } from '@/hooks/use-contextual-gate';
+import { useState } from 'react';
 import { Modal } from '@/components/ui/modal';
 import { Button } from '@/components/ui/button';
 
@@ -12,10 +15,14 @@ interface MemberModalProps {
 }
 
 export function MemberModal({ member, onClose, onViewAsset }: MemberModalProps) {
+  const [showGate, setShowGate] = useState(false);
+  const [pendingMessage, setPendingMessage] = useState(false);
+
   if (!member) return null;
 
   return (
-    <Modal
+    <>
+      <Modal
       isOpen={!!member}
       onClose={onClose}
       headerColor="from-indigo-600 to-purple-600"
@@ -177,10 +184,39 @@ export function MemberModal({ member, onClose, onViewAsset }: MemberModalProps) 
         </div>
 
         {/* Message Button */}
-        <Button variant="primary" className="w-full">
+        <Button
+          variant="primary"
+          className="w-full"
+          onClick={() => {
+            if (shouldShowGateForAction('contact_member')) {
+              setPendingMessage(true);
+              setShowGate(true);
+            } else {
+              alert(`In the real app, this would open a message to ${member.name}`);
+            }
+          }}
+        >
           💬 Send Message
         </Button>
       </div>
     </Modal>
+
+    {/* Profile Completeness Gate */}
+    <ProfileCompletenessGate
+      isOpen={showGate}
+      onClose={() => {
+        setShowGate(false);
+        if (pendingMessage) {
+          setPendingMessage(false);
+          alert(`In the real app, this would open a message to ${member.name}`);
+        }
+      }}
+      onComplete={() => {
+        setShowGate(false);
+        setPendingMessage(false);
+      }}
+      actionType="contact_member"
+    />
+    </>
   );
 }

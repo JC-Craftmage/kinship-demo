@@ -7,6 +7,7 @@ import { useChurchMembership } from '@/hooks/use-church-membership';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
+import { DashboardHeader } from '@/components/layout/dashboard-header';
 import { UserCheck, UserX, Eye, MapPin, Mail, Calendar, MessageSquare } from 'lucide-react';
 
 interface JoinRequest {
@@ -142,11 +143,10 @@ export default function ManageRequestsPage() {
   if (!canManageRequests) {
     return (
       <div className="min-h-screen bg-gray-50 pb-24">
-        <div className="bg-indigo-600 text-white p-4 shadow-lg">
-          <div className="max-w-7xl mx-auto">
-            <h1 className="text-xl font-bold">Manage Join Requests</h1>
-          </div>
-        </div>
+        <DashboardHeader
+          title="Manage Join Requests"
+          subtitle="Access Denied"
+        />
         <div className="max-w-7xl mx-auto p-4">
           <Card className="p-8 text-center">
             <h2 className="text-xl font-bold text-gray-900 mb-2">Access Denied</h2>
@@ -169,13 +169,10 @@ export default function ManageRequestsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
-      {/* Header */}
-      <div className="bg-indigo-600 text-white p-4 shadow-lg">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-xl font-bold">Manage Join Requests</h1>
-          <p className="text-sm text-indigo-200">{membership?.churchName}</p>
-        </div>
-      </div>
+      <DashboardHeader
+        title="Manage Join Requests"
+        subtitle={membership?.churchName}
+      />
 
       <div className="max-w-7xl mx-auto p-4 space-y-6">
         {/* Stats */}

@@ -2,6 +2,9 @@
 
 import { Need } from '@/lib/types';
 import { MapPin, Calendar, Clock, CheckCircle2, HandHeart, Truck, Heart, Baby, Car, Wrench, Sparkles } from 'lucide-react';
+import { ProfileCompletenessGate } from '@/components/features/onboarding/profile-completeness-gate';
+import { shouldShowGateForAction } from '@/hooks/use-contextual-gate';
+import { useState } from 'react';
 import { Modal } from '@/components/ui/modal';
 import { Button } from '@/components/ui/button';
 
@@ -12,6 +15,9 @@ interface NeedModalProps {
 }
 
 export function NeedModal({ need, onClose, onViewPoster }: NeedModalProps) {
+  const [showGate, setShowGate] = useState(false);
+  const [pendingVolunteer, setPendingVolunteer] = useState(false);
+
   if (!need) return null;
 
   const getCategoryIcon = (iconName: string) => {
@@ -27,11 +33,22 @@ export function NeedModal({ need, onClose, onViewPoster }: NeedModalProps) {
   };
 
   const handleVolunteer = () => {
+    // Check if profile gate should be shown
+    if (shouldShowGateForAction('respond_need')) {
+      setPendingVolunteer(true);
+      setShowGate(true);
+      return;
+    }
+    doVolunteer();
+  };
+
+  const doVolunteer = () => {
     alert(`Thank you for volunteering!\n\nIn the real app, this would:\n• Notify ${need.isAnonymous ? 'the pastor/admin' : need.poster.name}\n• Add you to the volunteer list\n• Send you coordination details\n• Award you kudos after completion`);
   };
 
   return (
-    <Modal
+    <>
+      <Modal
       isOpen={!!need}
       onClose={onClose}
       headerColor="from-teal-500 to-cyan-600"
@@ -200,5 +217,23 @@ export function NeedModal({ need, onClose, onViewPoster }: NeedModalProps) {
         </div>
       </div>
     </Modal>
+
+    {/* Profile Completeness Gate */}
+    <ProfileCompletenessGate
+      isOpen={showGate}
+      onClose={() => {
+        setShowGate(false);
+        if (pendingVolunteer) {
+          setPendingVolunteer(false);
+          doVolunteer();
+        }
+      }}
+      onComplete={() => {
+        setShowGate(false);
+        setPendingVolunteer(false);
+      }}
+      actionType="respond_need"
+    />
+    </>
   );
 }

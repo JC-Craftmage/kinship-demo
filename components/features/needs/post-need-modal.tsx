@@ -7,6 +7,8 @@ import { Modal } from '@/components/ui/modal';
 import { Button } from '@/components/ui/button';
 import { NeedCategory, NeedUrgency } from '@/lib/types';
 import { Truck, Heart, Baby, Car, Wrench, Sparkles, X, Check } from 'lucide-react';
+import { ProfileCompletenessGate } from '@/components/features/onboarding/profile-completeness-gate';
+import { shouldShowGateForAction } from '@/hooks/use-contextual-gate';
 
 interface PostNeedModalProps {
   isOpen: boolean;
@@ -55,6 +57,8 @@ export function PostNeedModal({ isOpen, onClose, onSubmit }: PostNeedModalProps)
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showGate, setShowGate] = useState(false);
+  const [pendingSubmit, setPendingSubmit] = useState(false);
 
   const resetForm = () => {
     setTitle('');
@@ -85,6 +89,17 @@ export function PostNeedModal({ isOpen, onClose, onSubmit }: PostNeedModalProps)
   const handleSubmit = () => {
     if (!validate()) return;
 
+    // Check if profile gate should be shown
+    if (shouldShowGateForAction('post_need')) {
+      setPendingSubmit(true);
+      setShowGate(true);
+      return;
+    }
+
+    doSubmit();
+  };
+
+  const doSubmit = () => {
     const categoryIconMap: Record<NeedCategory, 'truck' | 'heart' | 'baby' | 'car' | 'wrench' | 'sparkles'> = {
       'Moving Help': 'truck',
       'Prayer Request': 'heart',
@@ -135,7 +150,8 @@ export function PostNeedModal({ isOpen, onClose, onSubmit }: PostNeedModalProps)
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} headerColor="from-teal-500 to-cyan-600">
+    <>
+      <Modal isOpen={isOpen} onClose={handleClose} headerColor="from-teal-500 to-cyan-600">
       <div className="space-y-6">
         {/* Header */}
         <div>
@@ -321,5 +337,23 @@ export function PostNeedModal({ isOpen, onClose, onSubmit }: PostNeedModalProps)
         </div>
       </div>
     </Modal>
+
+    {/* Profile Completeness Gate */}
+    <ProfileCompletenessGate
+      isOpen={showGate}
+      onClose={() => {
+        setShowGate(false);
+        if (pendingSubmit) {
+          setPendingSubmit(false);
+          doSubmit();
+        }
+      }}
+      onComplete={() => {
+        setShowGate(false);
+        setPendingSubmit(false);
+      }}
+      actionType="post_need"
+    />
+    </>
   );
 }

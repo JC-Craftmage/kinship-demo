@@ -9,6 +9,8 @@ import { MemberModal } from '@/components/features/directory/member-modal';
 import { Member } from '@/lib/types';
 import { Search, Users } from 'lucide-react';
 import { DashboardHeader } from '@/components/layout/dashboard-header';
+import { SkeletonGrid } from '@/components/ui/skeleton';
+import { ErrorBoundary } from '@/components/ui/error-boundary';
 
 export default function DirectoryPage() {
   const { filteredMembers } = useMembers();
@@ -35,8 +37,8 @@ export default function DirectoryPage() {
           subtitle="Find and connect with church members"
         />
 
-      {/* Content */}
       <div className="max-w-7xl mx-auto p-4">
+        <ErrorBoundary>
         <div className="mb-6">
           <h2 className="text-2xl font-bold mb-2">Member Directory</h2>
           <p className="text-gray-600 text-sm mb-4">{filteredMembers.length} members in your church</p>
@@ -62,31 +64,33 @@ export default function DirectoryPage() {
         </div>
 
         {searchedMembers.length === 0 && !searchQuery ? (
-          <div className="text-center py-12 bg-white rounded-xl border-2 border-gray-100">
-            <Users size={48} className="text-gray-300 mx-auto mb-4" />
+          <div className="text-center py-16 bg-white rounded-xl border-2 border-gray-100">
+            <div className="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Users size={36} className="text-indigo-400" />
+            </div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">No Members Yet</h3>
-            <p className="text-gray-600">Members will appear here once your church grows.</p>
+            <p className="text-gray-500 text-sm max-w-xs mx-auto">Members will appear here once your church grows.</p>
           </div>
         ) : searchedMembers.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-xl border-2 border-gray-100">
-            <Search size={48} className="text-gray-300 mx-auto mb-4" />
+          <div className="text-center py-16 bg-white rounded-xl border-2 border-gray-100">
+            <div className="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Search size={36} className="text-indigo-400" />
+            </div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">No Matches</h3>
-            <p className="text-gray-600">Try different search terms.</p>
+            <p className="text-gray-500 text-sm max-w-xs mx-auto">Try different search terms to find who you&apos;re looking for.</p>
           </div>
         ) : (
           <div className="grid md:grid-cols-2 gap-4">
             {searchedMembers.map(member => (
-            <MemberCard
-              key={member.id}
-              member={member}
-              onSelect={setSelectedMember}
-            />
-          ))}
-        </div>
-      </div>
-
-      )}</div>
+              <MemberCard
+                key={member.id}
+                member={member}
+                onSelect={setSelectedMember}
+              />
+            ))}
+          </div>
         )}
+      </ErrorBoundary>
       </div>
 
       {/* Member Modal */}

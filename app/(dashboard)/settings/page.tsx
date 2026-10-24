@@ -2,19 +2,31 @@
 
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import { useChurchMembership } from '@/hooks/use-church-membership';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
-import { LogOut, AlertTriangle, Church, User as UserIcon } from 'lucide-react';
+import { DashboardHeader } from '@/components/layout/dashboard-header';
+import { useTheme } from 'next-themes';
+import { useEffect, useState } from 'react';
+import { LogOut, AlertTriangle, Church, User as UserIcon, Moon, Sun, Camera, Briefcase, FileText, Package, Check, PartyPopper } from 'lucide-react';
+import { useProfileCompleteness } from '@/hooks/use-profile-completeness';
 
 export default function SettingsPage() {
   const router = useRouter();
   const { user } = useUser();
   const { membership, refetch } = useChurchMembership();
+  const { resolvedTheme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  // Profile completeness data
+  const { completenessPercent, isComplete, hasPhoto, hasSkills, hasBio, missingItems } = useProfileCompleteness();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   const [showLeaveModal, setShowLeaveModal] = useState(false);
   const [confirmText, setConfirmText] = useState('');
   const [leaveReason, setLeaveReason] = useState('');
@@ -58,16 +70,168 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24">
-      {/* Header */}
-      <div className="bg-indigo-600 text-white p-4 shadow-lg">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-xl font-bold">Settings</h1>
-          <p className="text-sm text-indigo-200">Manage your account</p>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24">
+      <DashboardHeader
+        title="Settings"
+        subtitle="Manage your account"
+      />
 
       <div className="max-w-7xl mx-auto p-4 space-y-6">
+        {/* Profile Strength Meter */}
+        <Card className="overflow-hidden">
+          <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                  {isComplete ? <PartyPopper size={20} /> : <UserIcon size={20} />}
+                  {isComplete ? 'Profile Complete!' : 'Profile Strength'}
+                </h2>
+                <p className="text-indigo-100 text-sm mt-1">
+                  {isComplete
+                    ? "You're ready to connect with your church family!"
+                    : `${completenessPercent}% complete — finish these items to build trust`}
+                </p>
+              </div>
+              <div className="text-center">
+                <div className={`text-3xl font-bold ${isComplete ? 'text-yellow-300' : 'text-white'}`}>
+                  {completenessPercent}%
+                </div>
+                {!isComplete && (
+                  <div className="w-16 bg-white/30 rounded-full h-2 mt-1">
+                    <div
+                      className="bg-yellow-300 h-2 rounded-full transition-all"
+                      style={{ width: `${completenessPercent}%` }}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="p-4 grid grid-cols-2 gap-3">
+            {/* Photo */}
+            <div className={`p-3 rounded-xl border-2 ${hasPhoto ? 'border-green-300 bg-green-50' : 'border-gray-200 bg-gray-50'}`}>
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-2">
+                  <Camera size={18} className={hasPhoto ? 'text-green-600' : 'text-gray-400'} />
+                  <span className="font-semibold text-sm text-gray-900">Photo</span>
+                </div>
+                {hasPhoto ? (
+                  <Check size={16} className="text-green-600" />
+                ) : (
+                  <span className="text-xs text-gray-500">25%</span>
+                )}
+              </div>
+              {hasPhoto ? (
+                <p className="text-xs text-green-700">Profile photo added</p>
+              ) : (
+                <a href="/settings" className="text-xs text-indigo-600 hover:text-indigo-800 font-medium">
+                  Add now →
+                </a>
+              )}
+            </div>
+
+            {/* Skills */}
+            <div className={`p-3 rounded-xl border-2 ${hasSkills ? 'border-green-300 bg-green-50' : 'border-gray-200 bg-gray-50'}`}>
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-2">
+                  <Briefcase size={18} className={hasSkills ? 'text-green-600' : 'text-gray-400'} />
+                  <span className="font-semibold text-sm text-gray-900">Skills</span>
+                </div>
+                {hasSkills ? (
+                  <Check size={16} className="text-green-600" />
+                ) : (
+                  <span className="text-xs text-gray-500">25%</span>
+                )}
+              </div>
+              {hasSkills ? (
+                <p className="text-xs text-green-700">Skills listed</p>
+              ) : (
+                <a href="/settings" className="text-xs text-indigo-600 hover:text-indigo-800 font-medium">
+                  Add now →
+                </a>
+              )}
+            </div>
+
+            {/* Bio */}
+            <div className={`p-3 rounded-xl border-2 ${hasBio ? 'border-green-300 bg-green-50' : 'border-gray-200 bg-gray-50'}`}>
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-2">
+                  <FileText size={18} className={hasBio ? 'text-green-600' : 'text-gray-400'} />
+                  <span className="font-semibold text-sm text-gray-900">Bio</span>
+                </div>
+                {hasBio ? (
+                  <Check size={16} className="text-green-600" />
+                ) : (
+                  <span className="text-xs text-gray-500">25%</span>
+                )}
+              </div>
+              {hasBio ? (
+                <p className="text-xs text-green-700">Bio added</p>
+              ) : (
+                <a href="/settings" className="text-xs text-indigo-600 hover:text-indigo-800 font-medium">
+                  Add now →
+                </a>
+              )}
+            </div>
+
+            {/* Assets */}
+            <div className="p-3 rounded-xl border-2 border-gray-200 bg-gray-50">
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-2">
+                  <Package size={18} className="text-gray-400" />
+                  <span className="font-semibold text-sm text-gray-900">Assets</span>
+                </div>
+                <span className="text-xs text-gray-500">25%</span>
+              </div>
+              <a href="/assets" className="text-xs text-indigo-600 hover:text-indigo-800 font-medium">
+                List an asset →
+              </a>
+            </div>
+          </div>
+
+          {isComplete && (
+            <div className="px-4 pb-4">
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4 text-center">
+                <p className="text-green-800 font-semibold">
+                  🎉 Your profile is fully set up! You're ready to connect with your church family.
+                </p>
+              </div>
+            </div>
+          )}
+        </Card>
+
+        {/* Theme Toggle */}
+        <Card className="p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {mounted && resolvedTheme === 'dark' ? (
+                <Moon className="w-6 h-6 text-indigo-600" />
+              ) : (
+                <Sun className="w-6 h-6 text-indigo-600" />
+              )}
+              <div>
+                <h3 className="font-bold text-gray-900 dark:text-gray-100">Appearance</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Toggle between light and dark mode
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+              className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
+                resolvedTheme === 'dark' ? 'bg-indigo-600' : 'bg-gray-300'
+              }`}
+            >
+              <span
+                className={`inline-block h-6 w-6 transform rounded-full bg-white shadow transition-transform ${
+                  resolvedTheme === 'dark' ? 'translate-x-7' : 'translate-x-1'
+                }`}
+              />
+            </button>
+          </div>
+        </Card>
+
         {/* User Info */}
         <Card className="p-6">
           <div className="flex items-center gap-4 mb-4">

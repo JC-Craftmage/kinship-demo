@@ -3,3 +3,5 @@
 export * from './member';
 export * from './meal-train';
 export * from './need';
+export * from './offer';
+export * from './bible-study';

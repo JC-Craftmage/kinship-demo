@@ -6,6 +6,8 @@ import { useState } from 'react';
 import { Modal } from '@/components/ui/modal';
 import { Button } from '@/components/ui/button';
 import { Check, Truck, Wrench, Briefcase } from 'lucide-react';
+import { ProfileCompletenessGate } from '@/components/features/onboarding/profile-completeness-gate';
+import { shouldShowGateForAction } from '@/hooks/use-contextual-gate';
 
 interface AddAssetModalProps {
   isOpen: boolean;
@@ -36,6 +38,8 @@ export function AddAssetModal({ isOpen, onClose, onSubmit }: AddAssetModalProps)
   const [restrictions, setRestrictions] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showGate, setShowGate] = useState(false);
+  const [pendingSubmit, setPendingSubmit] = useState(false);
 
   const resetForm = () => {
     setAssetType('vehicle');
@@ -58,6 +62,17 @@ export function AddAssetModal({ isOpen, onClose, onSubmit }: AddAssetModalProps)
   const handleSubmit = () => {
     if (!validate()) return;
 
+    // Check if profile gate should be shown
+    if (shouldShowGateForAction('post_asset')) {
+      setPendingSubmit(true);
+      setShowGate(true);
+      return;
+    }
+
+    doSubmit();
+  };
+
+  const doSubmit = () => {
     onSubmit({
       name: name.trim(),
       type: assetType,
@@ -95,7 +110,8 @@ export function AddAssetModal({ isOpen, onClose, onSubmit }: AddAssetModalProps)
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} headerColor="from-green-500 to-emerald-600">
+    <>
+      <Modal isOpen={isOpen} onClose={handleClose} headerColor="from-green-500 to-emerald-600">
       <div className="space-y-5">
         {/* Header */}
         <div>
@@ -198,5 +214,23 @@ export function AddAssetModal({ isOpen, onClose, onSubmit }: AddAssetModalProps)
         </div>
       </div>
     </Modal>
+
+    {/* Profile Completeness Gate */}
+    <ProfileCompletenessGate
+      isOpen={showGate}
+      onClose={() => {
+        setShowGate(false);
+        if (pendingSubmit) {
+          setPendingSubmit(false);
+          doSubmit();
+        }
+      }}
+      onComplete={() => {
+        setShowGate(false);
+        setPendingSubmit(false);
+      }}
+      actionType="post_asset"
+    />
+    </>
   );
 }

@@ -5,6 +5,8 @@
 import { useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Navigation } from '@/components/layout/navigation';
+import { AddToHomeScreenBanner } from '@/components/features/add-to-home-screen';
+import { FloatingActionButton } from '@/components/ui/fab';
 
 export default function DashboardLayout({
   children,
@@ -45,12 +47,19 @@ export default function DashboardLayout({
   };
 
   return (
-    <div>
-      {children}
+    <div className="min-h-screen flex flex-col">
+      <AddToHomeScreenBanner />
+      <FloatingActionButton />
+      <div className="flex-1 pb-20">
+        {children}
+      </div>
       <Navigation
         currentView={getCurrentView()}
         onNavigate={handleNavigate}
       />
+      <footer className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 text-center py-2 text-xs text-gray-400 z-40 pointer-events-none">
+        Kinship © 2026 · Built for church communities
+      </footer>
     </div>
   );
 }

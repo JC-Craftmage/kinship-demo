@@ -24,10 +24,10 @@ export default function AssetsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
-        <DashboardHeader
-          title="Community Assets"
-          subtitle="Equipment, vehicles, and resources"
-        />
+      <DashboardHeader
+        title="Community Assets"
+        subtitle="Equipment, vehicles, and resources"
+      />
 
       <div className="max-w-7xl mx-auto p-4">
         <div className="flex items-center justify-between mb-6">
@@ -40,39 +40,38 @@ export default function AssetsPage() {
           </Button>
         </div>
 
-          {/* Filter Buttons */}
-          <div className="flex gap-2 overflow-x-auto pb-2">
+        {/* Filter Buttons */}
+        <div className="flex gap-2 overflow-x-auto pb-2">
+          <Button
+            variant={assetFilter === 'all' ? 'primary' : 'secondary'}
+            size="sm"
+            onClick={() => setAssetFilter('all')}
+          >
+            All Assets ({assetCounts.all})
+          </Button>
+          <Button
+            variant={assetFilter === 'vehicle' ? 'primary' : 'secondary'}
+            size="sm"
+            onClick={() => setAssetFilter('vehicle')}
+          >
+            🚗 Vehicles ({assetCounts.vehicle})
+          </Button>
+          <Button
+            variant={assetFilter === 'equipment' ? 'primary' : 'secondary'}
+            size="sm"
+            onClick={() => setAssetFilter('equipment')}
+          >
+            🚜 Equipment ({assetCounts.equipment})
+          </Button>
+          {assetCounts.business > 0 && (
             <Button
-              variant={assetFilter === 'all' ? 'primary' : 'secondary'}
+              variant={assetFilter === 'business' ? 'primary' : 'secondary'}
               size="sm"
-              onClick={() => setAssetFilter('all')}
+              onClick={() => setAssetFilter('business')}
             >
-              All Assets ({assetCounts.all})
+              💼 Business ({assetCounts.business})
             </Button>
-            <Button
-              variant={assetFilter === 'vehicle' ? 'primary' : 'secondary'}
-              size="sm"
-              onClick={() => setAssetFilter('vehicle')}
-            >
-              🚗 Vehicles ({assetCounts.vehicle})
-            </Button>
-            <Button
-              variant={assetFilter === 'equipment' ? 'primary' : 'secondary'}
-              size="sm"
-              onClick={() => setAssetFilter('equipment')}
-            >
-              🚜 Equipment ({assetCounts.equipment})
-            </Button>
-            {assetCounts.business > 0 && (
-              <Button
-                variant={assetFilter === 'business' ? 'primary' : 'secondary'}
-                size="sm"
-                onClick={() => setAssetFilter('business')}
-              >
-                💼 Business ({assetCounts.business})
-              </Button>
-            )}
-          </div>
+          )}
         </div>
 
         {/* Assets Grid */}

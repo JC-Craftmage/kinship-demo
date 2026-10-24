@@ -256,6 +256,33 @@ need_volunteers (
 
 ---
 
+### 12. support_tickets
+Support tickets for issues and FAQs.
+
+```sql
+support_tickets (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id TEXT NOT NULL, -- Clerk user ID
+  church_id UUID REFERENCES churches(id) ON DELETE SET NULL,
+  category TEXT NOT NULL CHECK (category IN ('faq', 'issue', 'feature', 'other')),
+  subject TEXT NOT NULL,
+  description TEXT NOT NULL,
+  status TEXT DEFAULT 'open' CHECK (status IN ('open', 'in_progress', 'resolved', 'closed')),
+  priority TEXT DEFAULT 'medium' CHECK (priority IN ('low', 'medium', 'high')),
+  assigned_to TEXT, -- Clerk user ID of support assignee
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+)
+```
+
+**Indexes:**
+- `user_id` for user's tickets
+- `church_id` for church-scoped tickets
+- `status` for filtering open tickets
+- `assigned_to` for support queue
+
+---
+
 ## Role Permissions
 
 ### Owner

@@ -12,8 +12,12 @@ import { useMealTrains } from '@/hooks/use-meal-trains';
 import { useChurchMembership } from '@/hooks/use-church-membership';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { UserCheck, HandHeart, Award, Users, Truck, ChefHat, ArrowRight, Calendar, Clock } from 'lucide-react';
+import { SkeletonGrid } from '@/components/ui/skeleton';
+import { ErrorBoundary } from '@/components/ui/error-boundary';
+import { UserCheck, HandHeart, Award, Users, Truck, ChefHat, ArrowRight, Calendar, Clock, PartyPopper, Handshake, BookOpen, Image, HeartHandshake } from 'lucide-react';
 import { PhotoPromptModal } from '@/components/features/onboarding/photo-prompt-modal';
+import { ProfileCompletenessNudge } from '@/components/features/onboarding/profile-completeness-nudge';
+import { useProfileCompleteness } from '@/hooks/use-profile-completeness';
 
 // Mock recent activity
 const RECENT_ACTIVITY = [
@@ -22,6 +26,13 @@ const RECENT_ACTIVITY = [
   { id: 3, type: 'meal_train', text: 'Meal train created for Sarah Johnson', time: '2d ago', icon: '🍲' },
   { id: 4, type: 'new_member', text: 'Emily Davis joined the community', time: '3d ago', icon: '👋' },
   { id: 5, type: 'kudos', text: 'Robert Chen received 5 kudos for "Cooked meals for new mom"', time: '4d ago', icon: '🏆' },
+];
+
+// Mock life events for widget
+const RECENT_LIFE_EVENTS = [
+  { id: 1, type: 'baby', title: 'Baby Elijah Born', member: 'The Thompson Family', date: '2026-04-15', emoji: '👶' },
+  { id: 2, type: 'wedding', title: 'David & Maria Wedding', member: 'David & Maria Reyes', date: '2026-04-10', emoji: '💒' },
+  { id: 3, type: 'graduation', title: 'Joshua Graduated!', member: 'The Martinez Family', date: '2026-04-08', emoji: '🎓' },
 ];
 
 // Upcoming events
@@ -35,13 +46,19 @@ export default function HomePage() {
   const router = useRouter();
   const { user, isLoaded } = useUser();
   const { hasChurch, isLoading, membership, role } = useChurchMembership();
-  const { totalMembers, totalAssets, champions } = useMembers();
+  const { totalMembers, totalAssets, champions, members } = useMembers();
   const { needs } = useNeeds();
   const { mealTrains } = useMealTrains();
+  const { completenessPercent, isComplete } = useProfileCompleteness();
 
   const isAdmin = role && ['moderator', 'overseer', 'owner'].includes(role);
   const firstName = user?.firstName || 'Friend';
   const churchName = membership?.churchName || 'Your Church';
+
+  // Community health stats
+  const membersWithPhotos = members.filter(m => m.avatar && m.avatar !== '👤').length;
+  const needsFulfilledThisMonth = needs.filter(n => n.status === 'fulfilled').length;
+  const familiesActiveThisWeek = Math.min(members.length, Math.floor(members.length * 0.7));
 
   // Get urgent needs
   const urgentNeeds = needs.filter(n => n.isUrgent).slice(0, 3);
@@ -56,7 +73,9 @@ export default function HomePage() {
   if (!isLoaded || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-xl text-gray-600">Loading...</div>
+        <div className="w-full max-w-7xl mx-auto px-4">
+          <SkeletonGrid count={6} />
+        </div>
       </div>
     );
   }
@@ -68,8 +87,10 @@ export default function HomePage() {
   return (
     <>
       <PhotoPromptModal />
+      <ProfileCompletenessNudge />
 
       <div className="min-h-screen bg-gray-50 pb-24">
+        <ErrorBoundary>
         {/* Welcome Hero */}
         <div className="bg-gradient-to-br from-indigo-600 via-purple-600 to-indigo-700 text-white">
           <div className="max-w-7xl mx-auto px-4 pt-6 pb-8">
@@ -149,7 +170,90 @@ export default function HomePage() {
                 </div>
               </Card>
             </Link>
+            <Link href="/offers">
+              <Card className="p-4 hover:shadow-md transition cursor-pointer bg-gradient-to-br from-teal-50 to-cyan-50 border-teal-200">
+                <div className="flex flex-col items-center text-center gap-2">
+                  <div className="w-12 h-12 rounded-full bg-teal-100 flex items-center justify-center">
+                    <Handshake size={24} className="text-teal-600" />
+                  </div>
+                  <span className="text-sm font-semibold text-gray-800">Give Help</span>
+                </div>
+              </Card>
+            </Link>
+            <Link href="/bible-study">
+              <Card className="p-4 hover:shadow-md transition cursor-pointer bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-200">
+                <div className="flex flex-col items-center text-center gap-2">
+                  <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center">
+                    <BookOpen size={24} className="text-indigo-600" />
+                  </div>
+                  <span className="text-sm font-semibold text-gray-800">Bible Study</span>
+                </div>
+              </Card>
+            </Link>
           </div>
+
+          {/* Community Health Stats */}
+          <Card className="overflow-hidden">
+            <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-4">
+              <h3 className="font-bold text-white flex items-center gap-2">
+                <HeartHandshake size={18} />
+                Community Health
+              </h3>
+            </div>
+            <div className="p-4">
+              <div className="grid grid-cols-3 gap-4">
+                <div className="text-center p-3 bg-indigo-50 rounded-xl">
+                  <div className="flex items-center justify-center gap-2 mb-1">
+                    <Image size={20} className="text-indigo-600" />
+                  </div>
+                  <p className="text-2xl font-bold text-indigo-700">{membersWithPhotos}</p>
+                  <p className="text-xs text-gray-600 mt-1">members with photos</p>
+                </div>
+                <div className="text-center p-3 bg-green-50 rounded-xl">
+                  <div className="flex items-center justify-center gap-2 mb-1">
+                    <HeartHandshake size={20} className="text-green-600" />
+                  </div>
+                  <p className="text-2xl font-bold text-green-700">{needsFulfilledThisMonth}</p>
+                  <p className="text-xs text-gray-600 mt-1">needs fulfilled this month</p>
+                </div>
+                <div className="text-center p-3 bg-purple-50 rounded-xl">
+                  <div className="flex items-center justify-center gap-2 mb-1">
+                    <Users size={20} className="text-purple-600" />
+                  </div>
+                  <p className="text-2xl font-bold text-purple-700">{familiesActiveThisWeek}</p>
+                  <p className="text-xs text-gray-600 mt-1">families active this week</p>
+                </div>
+              </div>
+            </div>
+          </Card>
+
+          {/* Profile Completeness Progress (only for logged-in users with incomplete profiles) */}
+          {!isComplete && user && (
+            <Link href="/settings">
+              <Card className="overflow-hidden border-indigo-200 hover:border-indigo-400 transition cursor-pointer">
+                <div className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <h3 className="font-bold text-gray-900 flex items-center gap-2">
+                        <Image size={18} className="text-indigo-600" />
+                        Your Profile is {completenessPercent}% Complete
+                      </h3>
+                      <p className="text-sm text-gray-500 mt-1">
+                        Complete your profile to build trust with your church family
+                      </p>
+                    </div>
+                    <span className="text-indigo-600 text-sm font-medium">Improve →</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-3">
+                    <div
+                      className="bg-gradient-to-r from-indigo-500 to-purple-600 h-3 rounded-full transition-all duration-500"
+                      style={{ width: `${completenessPercent}%` }}
+                    />
+                  </div>
+                </div>
+              </Card>
+            </Link>
+          )}
 
           {/* Two Column Layout */}
           <div className="grid md:grid-cols-2 gap-5">
@@ -217,6 +321,35 @@ export default function HomePage() {
                   </div>
                 </Card>
               )}
+
+              {/* Life Events Widget */}
+              <Card className="overflow-hidden">
+                <div className="bg-gradient-to-r from-purple-500 to-indigo-600 p-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-bold text-white flex items-center gap-2">
+                      <PartyPopper size={18} />
+                      Celebrate
+                    </h3>
+                    <Link href="/life-events" className="text-white/80 text-sm flex items-center gap-1 hover:text-white">
+                      View all <ArrowRight size={14} />
+                    </Link>
+                  </div>
+                </div>
+                <div className="p-3 space-y-2">
+                  {RECENT_LIFE_EVENTS.map(event => (
+                    <Link key={event.id} href="/life-events" className="block">
+                      <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg hover:bg-purple-100 transition">
+                        <div className="text-2xl">{event.emoji}</div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-gray-900 truncate">{event.title}</p>
+                          <p className="text-xs text-gray-500">{event.member}</p>
+                        </div>
+                        <span className="text-xs text-purple-600 font-medium">{formatDate(event.date)}</span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </Card>
             </div>
 
             {/* Right Column */}
@@ -286,6 +419,7 @@ export default function HomePage() {
             </Card>
           )}
         </div>
+        </ErrorBoundary>
       </div>
     </>
   );

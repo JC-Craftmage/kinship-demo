@@ -115,12 +115,19 @@ export default function NeedsPage() {
         </div>
 
         {filteredNeeds.length === 0 && (
-          <div className="text-center py-12 bg-white rounded-xl">
-            <div className="text-6xl mb-4">🔍</div>
-            <h3 className="text-xl font-bold mb-2">No needs found</h3>
-            <p className="text-gray-600">
-              {searchQuery ? 'Try adjusting your search' : 'Be the first to post a need!'}
+          <div className="text-center py-16 bg-white rounded-xl border-2 border-gray-100">
+            <div className="w-20 h-20 bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <HandHeart size={36} className="text-teal-400" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">No needs found</h3>
+            <p className="text-gray-500 text-sm mb-6 max-w-xs mx-auto">
+              {searchQuery ? 'Try adjusting your search or filters to find what you\'re looking for.' : 'Be the first to post a need and let your church family help!'}
             </p>
+            {!searchQuery && (
+              <Button variant="primary" icon={<Plus size={16} />} onClick={() => setShowPostModal(true)}>
+                Post the First Need
+              </Button>
+            )}
           </div>
         )}
       </div>
