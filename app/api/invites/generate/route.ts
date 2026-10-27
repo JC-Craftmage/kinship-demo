@@ -2,7 +2,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { supabase } from '@/lib/supabase/client';
+import { supabase } from '@/lib/supabase/server';
+import { getMembership, campusBelongsToChurch } from '@/lib/supabase/queries';
 import { nanoid } from 'nanoid';
 
 export async function POST(request: NextRequest) {
@@ -29,12 +30,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify user has permission to create invites for this church
-    const { data: membership } = await supabase
-      .from('church_members')
-      .select('role')
-      .eq('user_id', userId)
-      .eq('church_id', churchId)
-      .single();
+    // Membership lookup is scoped by BOTH user_id and church_id.
+    const membership = await getMembership(userId, churchId);
 
     if (!membership) {
       return NextResponse.json(
@@ -49,6 +46,17 @@ export async function POST(request: NextRequest) {
         { error: 'You do not have permission to create invites' },
         { status: 403 }
       );
+    }
+
+    // A campus id must belong to the same church as the invite
+    if (campusId) {
+      const campusIsInChurch = await campusBelongsToChurch(campusId, churchId);
+      if (!campusIsInChurch) {
+        return NextResponse.json(
+          { error: 'Campus does not belong to this church' },
+          { status: 400 }
+        );
+      }
     }
 
     // Generate unique invite code (8 characters, URL-safe)

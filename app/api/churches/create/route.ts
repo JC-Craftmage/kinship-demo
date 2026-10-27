@@ -2,7 +2,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { supabase } from '@/lib/supabase/client';
+import { supabase } from '@/lib/supabase/server';
+import { getAnyMembership } from '@/lib/supabase/queries';
 
 export async function POST(request: NextRequest) {
   try {
@@ -37,11 +38,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user already belongs to a church
-    const { data: existingMembership } = await supabase
-      .from('church_members')
-      .select('id')
-      .eq('user_id', userId)
-      .single();
+    const existingMembership = await getAnyMembership(userId);
 
     if (existingMembership) {
       return NextResponse.json(

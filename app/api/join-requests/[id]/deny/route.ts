@@ -2,7 +2,16 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { supabase } from '@/lib/supabase/client';
+import { supabase } from '@/lib/supabase/server';
+import { getMembership, REQUEST_REVIEW_ROLES } from '@/lib/supabase/queries';
+
+interface JoinRequestRow {
+  id: string;
+  church_id: string;
+  campus_id: string | null;
+  user_id: string;
+  status: string;
+}
 
 export async function POST(
   request: NextRequest,
@@ -30,28 +39,30 @@ export async function POST(
     }
 
     // Fetch the join request
-    const { data: joinRequest, error: fetchError } = await supabase
+    const { data: joinRequests, error: fetchError } = await supabase
       .from('join_requests')
       .select('*')
       .eq('id', requestId)
-      .single();
+      .limit(1);
 
-    if (fetchError || !joinRequest) {
+    if (fetchError) {
+      console.error('Error fetching join request:', fetchError);
+    }
+
+    const joinRequest = (joinRequests as JoinRequestRow[] | null)?.[0];
+
+    if (!joinRequest) {
       return NextResponse.json(
         { error: 'Join request not found' },
         { status: 404 }
       );
     }
 
-    // Verify user has permission (must be Moderator or higher)
-    const { data: membership } = await supabase
-      .from('church_members')
-      .select('role')
-      .eq('church_id', joinRequest.church_id)
-      .eq('user_id', userId)
-      .single();
+    // Verify user has permission (must be Moderator or higher).
+    // Membership lookup is scoped by BOTH user_id and the request's church_id.
+    const membership = await getMembership(userId, joinRequest.church_id);
 
-    if (!membership || !['moderator', 'overseer', 'owner'].includes(membership.role)) {
+    if (!membership || !REQUEST_REVIEW_ROLES.includes(membership.role)) {
       return NextResponse.json(
         { error: 'You do not have permission to deny requests' },
         { status: 403 }

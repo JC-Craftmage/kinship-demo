@@ -2,7 +2,19 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { supabase } from '@/lib/supabase/client';
+import { supabase } from '@/lib/supabase/server';
+import { getAnyMembership, campusBelongsToChurch } from '@/lib/supabase/queries';
+
+interface InviteRow {
+  id: string;
+  church_id: string;
+  campus_id: string | null;
+  expires_at: string | null;
+  max_uses: number | null;
+  current_uses: number;
+  churches: { id: string; name: string } | null;
+  campuses: { id: string; name: string } | null;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,11 +40,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user already belongs to a church
-    const { data: existingMembership } = await supabase
-      .from('church_members')
-      .select('id')
-      .eq('user_id', userId)
-      .single();
+    // Membership lookup is scoped by user_id, so a user can only hold one
+    // church membership regardless of which church the invite points at.
+    const existingMembership = await getAnyMembership(userId);
 
     if (existingMembership) {
       return NextResponse.json(
@@ -42,7 +52,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Find and validate invite code
-    const { data: invite, error: inviteError } = await supabase
+    const { data: invites, error: inviteError } = await supabase
       .from('invite_codes')
       .select(`
         *,
@@ -57,9 +67,19 @@ export async function POST(request: NextRequest) {
       `)
       .eq('code', code)
       .eq('is_active', true)
-      .single();
+      .limit(1);
 
-    if (inviteError || !invite) {
+    if (inviteError) {
+      console.error('Error fetching invite code:', inviteError);
+      return NextResponse.json(
+        { error: 'Invalid or expired invite code' },
+        { status: 404 }
+      );
+    }
+
+    const invite = (invites as InviteRow[] | null)?.[0];
+
+    if (!invite) {
       return NextResponse.json(
         { error: 'Invalid or expired invite code' },
         { status: 404 }
@@ -80,6 +100,18 @@ export async function POST(request: NextRequest) {
         { error: 'This invite code has reached its maximum uses' },
         { status: 400 }
       );
+    }
+
+    // The invite's campus must belong to the invite's own church
+    if (invite.campus_id) {
+      const campusIsInChurch = await campusBelongsToChurch(invite.campus_id, invite.church_id);
+      if (!campusIsInChurch) {
+        console.error('Invite code references a campus outside its church:', invite.id);
+        return NextResponse.json(
+          { error: 'Invalid or expired invite code' },
+          { status: 404 }
+        );
+      }
     }
 
     // Add user to church
@@ -112,11 +144,11 @@ export async function POST(request: NextRequest) {
       success: true,
       church: {
         id: invite.church_id,
-        name: (invite.churches as any).name,
+        name: invite.churches?.name ?? null,
       },
       campus: invite.campus_id ? {
         id: invite.campus_id,
-        name: (invite.campuses as any).name,
+        name: invite.campuses?.name ?? null,
       } : null,
     });
 

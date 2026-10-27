@@ -2,7 +2,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { supabase } from '@/lib/supabase/client';
+import { supabase } from '@/lib/supabase/server';
 
 export async function GET(
   request: NextRequest,
@@ -27,7 +27,8 @@ export async function GET(
       );
     }
 
-    // Fetch church with all campus details
+    // Fetch church with all campus details. Public directory view: only
+    // listing-safe fields are selected (no owner id, no member data).
     const { data: church, error } = await supabase
       .from('churches')
       .select(`

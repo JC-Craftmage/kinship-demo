@@ -2,7 +2,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { supabase } from '@/lib/supabase/client';
+import { supabase } from '@/lib/supabase/server';
+import { getMembership, campusBelongsToChurch } from '@/lib/supabase/queries';
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,13 +26,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if user is already a member of this church
-    const { data: existingMembership } = await supabase
-      .from('church_members')
-      .select('id')
-      .eq('church_id', churchId)
-      .eq('user_id', userId)
-      .single();
+    // A campus id must belong to the church being requested
+    if (campusId) {
+      const campusIsInChurch = await campusBelongsToChurch(campusId, churchId);
+      if (!campusIsInChurch) {
+        return NextResponse.json(
+          { error: 'Campus does not belong to this church' },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Check if user is already a member of this church.
+    // Membership lookup is scoped by BOTH user_id and church_id.
+    const existingMembership = await getMembership(userId, churchId);
 
     if (existingMembership) {
       return NextResponse.json(
@@ -41,13 +49,15 @@ export async function POST(request: NextRequest) {
     }
 
     // Check for existing pending request
-    const { data: existingRequest } = await supabase
+    const { data: existingRequests } = await supabase
       .from('join_requests')
       .select('id, status')
       .eq('church_id', churchId)
       .eq('user_id', userId)
       .eq('status', 'pending')
-      .single();
+      .limit(1);
+
+    const existingRequest = (existingRequests as { id: string; status: string }[] | null)?.[0];
 
     if (existingRequest) {
       return NextResponse.json(
@@ -92,11 +102,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Get user info from members table or Clerk
-    const { data: memberData } = await supabase
+    const { data: memberRows } = await supabase
       .from('members')
       .select('name, email, avatar')
       .eq('user_id', userId)
-      .single();
+      .limit(1);
+
+    const memberData = (memberRows as { name: string; email: string; avatar: string | null }[] | null)?.[0];
 
     // If not in members table, we'll need to get from Clerk (or use default)
     const userName = memberData?.name || 'Unknown User';
@@ -129,12 +141,15 @@ export async function POST(request: NextRequest) {
 
     // Save questionnaire responses
     if (questionnaireResponses && questionnaireResponses.length > 0) {
-      const responses = questionnaireResponses
-        .filter((r: any) => r.answer && r.answer.trim())
-        .map((r: any) => ({
+      const responses = (questionnaireResponses as {
+        answer?: string | null;
+        questionnaireId: string;
+      }[])
+        .filter(r => r.answer && r.answer.trim())
+        .map(r => ({
           join_request_id: joinRequest.id,
           questionnaire_id: r.questionnaireId,
-          answer: r.answer.trim(),
+          answer: (r.answer as string).trim(),
         }));
 
       if (responses.length > 0) {

@@ -17,6 +17,9 @@ export type NeedUrgency = 'low' | 'medium' | 'high';
 export type NeedStatus = 'open' | 'in_progress' | 'fulfilled' | 'cancelled';
 export type MealSignupStatus = 'pending' | 'confirmed' | 'delivered' | 'cancelled';
 export type VolunteerStatus = 'pending' | 'accepted' | 'completed' | 'declined';
+export type SupportTicketCategory = 'faq' | 'issue' | 'feature' | 'other';
+export type SupportTicketStatus = 'open' | 'in_progress' | 'resolved' | 'closed';
+export type SupportTicketPriority = 'low' | 'medium' | 'high';
 
 export interface Database {
   public: {
@@ -582,6 +585,47 @@ export interface Database {
           role?: ChurchRole;
           reason?: string | null;
           departed_at?: string;
+        };
+      };
+      support_tickets: {
+        Row: {
+          id: string;
+          user_id: string;
+          church_id: string | null;
+          category: SupportTicketCategory;
+          subject: string;
+          description: string;
+          status: SupportTicketStatus;
+          priority: SupportTicketPriority;
+          assigned_to: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          church_id?: string | null;
+          category: SupportTicketCategory;
+          subject: string;
+          description: string;
+          status?: SupportTicketStatus;
+          priority?: SupportTicketPriority;
+          assigned_to?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          church_id?: string | null;
+          category?: SupportTicketCategory;
+          subject?: string;
+          description?: string;
+          status?: SupportTicketStatus;
+          priority?: SupportTicketPriority;
+          assigned_to?: string | null;
+          created_at?: string;
+          updated_at?: string;
         };
       };
     };

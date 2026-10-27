@@ -2,7 +2,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { supabase } from '@/lib/supabase/client';
+import { supabase } from '@/lib/supabase/server';
 
 export async function POST(request: NextRequest) {
   try {
@@ -26,14 +26,20 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify the membership belongs to this user
-    const { data: membership, error: fetchError } = await supabase
+    const { data: memberships, error: fetchError } = await supabase
       .from('church_members')
       .select('id, user_id, church_id, role')
       .eq('id', membershipId)
       .eq('user_id', userId)
-      .single();
+      .limit(1);
 
-    if (fetchError || !membership) {
+    if (fetchError) {
+      console.error('Error fetching membership:', fetchError);
+    }
+
+    const membership = (memberships as { id: string; user_id: string; church_id: string; role: string }[] | null)?.[0];
+
+    if (!membership) {
       return NextResponse.json(
         { error: 'Membership not found' },
         { status: 404 }
@@ -59,9 +65,9 @@ export async function POST(request: NextRequest) {
       .from('members')
       .select('name')
       .eq('user_id', userId)
-      .single();
+      .limit(1);
 
-    const userName = userData?.name || 'Unknown User';
+    const userName = (userData as { name: string }[] | null)?.[0]?.name || 'Unknown User';
 
     // Log the departure for admin visibility
     const { error: logError } = await supabase
@@ -79,11 +85,12 @@ export async function POST(request: NextRequest) {
       // Continue anyway - logging failure shouldn't block departure
     }
 
-    // Delete the membership
+    // Delete the membership (scoped to this user)
     const { error: deleteError } = await supabase
       .from('church_members')
       .delete()
-      .eq('id', membershipId);
+      .eq('id', membershipId)
+      .eq('user_id', userId);
 
     if (deleteError) {
       console.error('Error deleting membership:', deleteError);

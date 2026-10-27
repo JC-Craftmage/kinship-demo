@@ -2,7 +2,26 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { supabase } from '@/lib/supabase/client';
+import { supabase } from '@/lib/supabase/server';
+
+interface CampusResult {
+  id: string;
+  name: string | null;
+  location: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  zip_code: string | null;
+}
+
+interface ChurchResult {
+  id: string;
+  name: string;
+  description: string | null;
+  created_at: string;
+  campuses: CampusResult[] | null;
+  distance?: number | null;
+  nearestCampus?: CampusResult | null;
+}
 
 // Haversine formula to calculate distance between two points in miles
 function calculateDistance(
@@ -48,7 +67,8 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Build base query
+    // Build base query. Church discovery is an intentional public directory:
+    // only listing-safe fields are selected (no owner, no membership data).
     let supabaseQuery = supabase
       .from('churches')
       .select(`
@@ -82,13 +102,13 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    let results = churches || [];
+    let results = (churches || []) as ChurchResult[];
 
     // Filter by ZIP code if provided (client-side filtering due to nested relationship)
     if (zipCode && zipCode.trim()) {
       results = results.filter(church =>
         church.campuses && Array.isArray(church.campuses) &&
-        church.campuses.some((campus: any) => campus.zip_code === zipCode.trim())
+        church.campuses.some(campus => campus.zip_code === zipCode.trim())
       );
     }
 
@@ -101,10 +121,10 @@ export async function GET(request: NextRequest) {
         results = results.map(church => {
           // Calculate distance to nearest campus
           let minDistance = Infinity;
-          let nearestCampus = null;
+          let nearestCampus: CampusResult | null = null;
 
           if (church.campuses && Array.isArray(church.campuses)) {
-            church.campuses.forEach((campus: any) => {
+            church.campuses.forEach(campus => {
               if (campus.latitude && campus.longitude) {
                 const distance = calculateDistance(
                   userLat,
@@ -128,10 +148,10 @@ export async function GET(request: NextRequest) {
         });
 
         // Sort by distance (closest first), then by name
-        results.sort((a: any, b: any) => {
-          if (a.distance === null && b.distance === null) return 0;
-          if (a.distance === null) return 1;
-          if (b.distance === null) return -1;
+        results.sort((a: ChurchResult, b: ChurchResult) => {
+          if (a.distance == null && b.distance == null) return 0;
+          if (a.distance == null) return 1;
+          if (b.distance == null) return -1;
           return a.distance - b.distance;
         });
       }

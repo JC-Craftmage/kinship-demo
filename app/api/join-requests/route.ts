@@ -2,7 +2,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { supabase } from '@/lib/supabase/client';
+import { supabase } from '@/lib/supabase/server';
+import { getMembership, REQUEST_REVIEW_ROLES } from '@/lib/supabase/queries';
 
 export async function GET(request: NextRequest) {
   try {
@@ -26,15 +27,11 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Verify user has permission (must be Moderator or higher)
-    const { data: membership } = await supabase
-      .from('church_members')
-      .select('role')
-      .eq('church_id', churchId)
-      .eq('user_id', userId)
-      .single();
+    // Verify user has permission (must be Moderator or higher).
+    // Membership lookup is scoped by BOTH user_id and church_id.
+    const membership = await getMembership(userId, churchId);
 
-    if (!membership || !['moderator', 'overseer', 'owner'].includes(membership.role)) {
+    if (!membership || !REQUEST_REVIEW_ROLES.includes(membership.role)) {
       return NextResponse.json(
         { error: 'You do not have permission to view join requests' },
         { status: 403 }
@@ -91,7 +88,7 @@ export async function GET(request: NextRequest) {
         return {
           ...request,
           campus: request.campuses || null,
-          responses: (responses || []).map((r: any) => ({
+          responses: (responses || []).map(r => ({
             question: r.church_questionnaires?.question || 'Unknown Question',
             answer: r.answer,
           })),

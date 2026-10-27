@@ -1,8 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase/client';
-import { useRouter } from 'next/navigation';
 
 interface SupportTicket {
   id: string;
@@ -29,7 +27,6 @@ export default function SupportAdmin({ churchId }: SupportAdminProps) {
   const [tickets, setTickets] = useState<SupportTicket[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'open' | 'resolved'>('open');
-  const router = useRouter();
 
   useEffect(() => {
     fetchTickets();
@@ -38,22 +35,22 @@ export default function SupportAdmin({ churchId }: SupportAdminProps) {
   const fetchTickets = async () => {
     setIsLoading(true);
     try {
-      let query = supabase
-        .from('support_tickets')
-        .select('*')
-        .eq('church_id', churchId)
-        .order('created_at', { ascending: false });
+      // Tickets are loaded through the server API, which verifies the caller
+      // is an owner or overseer of this church before returning anything.
+      const response = await fetch(
+        `/api/support/admin/tickets?churchId=${encodeURIComponent(churchId)}&filter=${filter}`,
+        {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
 
-      if (filter === 'open') {
-        query = query.in('status', ['open', 'in_progress']);
-      } else if (filter === 'resolved') {
-        query = query.in('status', ['resolved', 'closed']);
+      if (!response.ok) {
+        throw new Error('Failed to fetch tickets');
       }
 
-      const { data, error } = await query;
-
-      if (error) throw error;
-      setTickets(data || []);
+      const payload = await response.json();
+      setTickets(payload.tickets || []);
     } catch (error) {
       console.error('Error fetching tickets:', error);
     } finally {
@@ -63,12 +60,19 @@ export default function SupportAdmin({ churchId }: SupportAdminProps) {
 
   const updateTicketStatus = async (ticketId: string, status: string) => {
     try {
-      const { error } = await supabase
-        .from('support_tickets')
-        .update({ status, updated_at: new Date().toISOString() })
-        .eq('id', ticketId);
+      const response = await fetch(
+        `/api/support/admin/tickets/${encodeURIComponent(ticketId)}`,
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status }),
+        }
+      );
 
-      if (error) throw error;
+      if (!response.ok) {
+        throw new Error('Failed to update ticket');
+      }
+
       fetchTickets();
     } catch (error) {
       console.error('Error updating ticket:', error);

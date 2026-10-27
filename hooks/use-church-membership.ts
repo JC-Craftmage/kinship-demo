@@ -4,7 +4,6 @@
 
 import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
-import { supabase } from '@/lib/supabase/client';
 import type { ChurchRole } from '@/lib/supabase/types';
 
 export interface ChurchMembership {
@@ -43,48 +42,24 @@ export function useChurchMembership(): UseChurchMembershipReturn {
       setIsLoading(true);
       setError(null);
 
-      // Fetch user's church membership with church and campus details
-      const { data, error: fetchError } = await supabase
-        .from('church_members')
-        .select(`
-          id,
-          role,
-          joined_at,
-          church_id,
-          campus_id,
-          churches!inner (
-            id,
-            name
-          ),
-          campuses (
-            id,
-            name
-          )
-        `)
-        .eq('user_id', user.id)
-        .single();
+      // Ask the server for the signed-in user's own membership. The browser
+      // never talks to Supabase directly, so no database credentials are
+      // exposed to the client.
+      const response = await fetch('/api/me/church', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
 
-      if (fetchError) {
-        if (fetchError.code === 'PGRST116') {
-          // No membership found - this is okay, user hasn't joined a church yet
-          setMembership(null);
-          setIsLoading(false);
-          return;
-        }
-        throw fetchError;
+      if (!response.ok) {
+        throw new Error('Failed to fetch church membership');
       }
 
-      if (data) {
-        setMembership({
-          id: data.id,
-          churchId: data.church_id,
-          churchName: (data.churches as any).name,
-          campusId: data.campus_id,
-          campusName: data.campuses ? (data.campuses as any).name : null,
-          role: data.role,
-          joinedAt: data.joined_at,
-        });
+      const payload = await response.json();
+
+      if (payload.membership) {
+        setMembership(payload.membership as ChurchMembership);
       } else {
+        // No membership found - this is okay, user hasn't joined a church yet
         setMembership(null);
       }
     } catch (err) {

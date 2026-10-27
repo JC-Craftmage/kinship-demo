@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { supabase } from '@/lib/supabase/client';
+import { supabase } from '@/lib/supabase/server';
+import { getMembership } from '@/lib/supabase/queries';
 
 // Support ticket categories
 type TicketCategory = 'faq' | 'issue' | 'feature' | 'other';
@@ -144,6 +145,19 @@ export async function POST(request: NextRequest) {
         { error: 'Authentication required to submit a support ticket' },
         { status: 401 }
       );
+    }
+
+    // A ticket may only be filed against a church the caller belongs to.
+    // Membership lookup is scoped by BOTH user_id and church_id.
+    if (churchId) {
+      const membership = await getMembership(userId, churchId);
+
+      if (!membership) {
+        return NextResponse.json(
+          { error: 'You do not have permission to create a ticket for this church' },
+          { status: 403 }
+        );
+      }
     }
 
     // Create support ticket
