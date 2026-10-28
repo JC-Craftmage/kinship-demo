@@ -2,11 +2,11 @@
 
 // Meal Trains — loads the meal calendars of the caller's church.
 
-import { useBoardData } from './use-board-data';
+import { useBoardData, BoardEnvelope } from './use-board-data';
 import { MealTrain } from '@/lib/types';
 
 export function useMealTrains() {
-  const { data, loading, error, refresh } = useBoardData<{ mealTrains: MealTrain[] }>('/api/meal-trains');
+  const { data, loading, error, refresh } = useBoardData<{ mealTrains: MealTrain[] } & BoardEnvelope>('/api/meal-trains');
 
   const calculateProgress = (train: MealTrain) => {
     const totalSlots = train.signups.length;
@@ -24,6 +24,7 @@ export function useMealTrains() {
   return {
     mealTrains: data?.mealTrains ?? [],
     calculateProgress,
+    demo: data?.demo ?? false,
     loading,
     error,
     refresh,

@@ -5,6 +5,8 @@
 
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase/server';
+import { isDemoMode } from '@/lib/demo/mode';
+import { demoNeeds } from '@/lib/demo/loader';
 import { getUserId, getAnyMembership, getMembership } from '@/lib/supabase/queries';
 import { loadCampusNames, loadAvatars, campusLabel } from '@/lib/supabase/lookups';
 import { mapNeed } from '@/lib/board-mappers';
@@ -20,6 +22,12 @@ export async function GET() {
     const userId = await getUserId();
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Demo mode serves the fixtures instead of the database. The switch is
+    // explicit and server-side; the response is flagged so the UI labels it.
+    if (isDemoMode()) {
+      return NextResponse.json({ needs: demoNeeds(), demo: true });
     }
 
     const first = await getAnyMembership(userId);
@@ -94,7 +102,7 @@ export async function GET() {
       console.warn(`GET /api/needs dropped ${dropped} row(s) with an unmapped category or status`);
     }
 
-    return NextResponse.json({ needs });
+    return NextResponse.json({ needs, demo: false });
   } catch (error) {
     console.error('GET /api/needs threw:', error);
     return NextResponse.json({ error: 'Failed to load needs' }, { status: 500 });

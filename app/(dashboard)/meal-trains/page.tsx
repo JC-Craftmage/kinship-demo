@@ -12,9 +12,10 @@ import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DashboardHeader } from '@/components/layout/dashboard-header';
 import { BoardError, BoardLoading } from '@/components/ui/board-status';
+import { DemoBanner } from '@/components/ui/demo-banner';
 
 export default function MealTrainsPage() {
-  const { mealTrains, loading, error, refresh } = useMealTrains();
+  const { mealTrains, demo, loading, error, refresh } = useMealTrains();
   const [selectedMealTrain, setSelectedMealTrain] = useState<MealTrain | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
 
@@ -25,6 +26,11 @@ export default function MealTrainsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
+      {demo && (
+        <div className="max-w-7xl mx-auto px-4 pt-4">
+          <DemoBanner />
+        </div>
+      )}
       <DashboardHeader
         title="Meal Trains"
         subtitle="Supporting our church family"

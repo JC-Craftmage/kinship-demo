@@ -12,9 +12,10 @@ import { BookOpen, Plus, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
 import { BoardError, BoardLoading } from '@/components/ui/board-status';
+import { DemoBanner } from '@/components/ui/demo-banner';
 
 export default function BibleStudyPage() {
-  const { groups, filteredGroups, searchQuery, setSearchQuery, loading, error, refresh } = useBibleStudy();
+  const { groups, filteredGroups, searchQuery, setSearchQuery, demo, loading, error, refresh } = useBibleStudy();
   const [selectedGroup, setSelectedGroup] = useState<BibleStudyGroup | null>(null);
   const [showPostModal, setShowPostModal] = useState(false);
 
@@ -27,6 +28,11 @@ export default function BibleStudyPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
+      {demo && (
+        <div className="max-w-7xl mx-auto px-4 pt-4">
+          <DemoBanner />
+        </div>
+      )}
       <ErrorBoundary>
       {/* Header */}
       <div className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-6 shadow-lg">

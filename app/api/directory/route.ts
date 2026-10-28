@@ -5,6 +5,8 @@
 import { NextResponse } from 'next/server';
 import { getUserId, getAnyMembership, getMembership } from '@/lib/supabase/queries';
 import { loadChurchMembers } from '@/lib/supabase/members';
+import { isDemoMode } from '@/lib/demo/mode';
+import { demoMembers } from '@/lib/demo/loader';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,6 +15,12 @@ export async function GET() {
     const userId = await getUserId();
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Demo mode serves the fixtures instead of the database. The switch is
+    // explicit and server-side; the response is flagged so the UI labels it.
+    if (isDemoMode()) {
+      return NextResponse.json({ members: demoMembers(), demo: true });
     }
 
     const first = await getAnyMembership(userId);
@@ -27,7 +35,7 @@ export async function GET() {
 
     const { members } = await loadChurchMembers(churchId);
 
-    return NextResponse.json({ members });
+    return NextResponse.json({ members, demo: false });
   } catch (error) {
     console.error('GET /api/directory threw:', error);
     return NextResponse.json({ error: 'Failed to load members' }, { status: 500 });

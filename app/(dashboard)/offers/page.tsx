@@ -12,9 +12,10 @@ import { Handshake, Plus, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
 import { BoardError, BoardLoading } from '@/components/ui/board-status';
+import { DemoBanner } from '@/components/ui/demo-banner';
 
 export default function OffersPage() {
-  const { offers, loading, error, refresh } = useOffers();
+  const { offers, demo, loading, error, refresh } = useOffers();
   const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
   const [showPostModal, setShowPostModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -42,6 +43,11 @@ export default function OffersPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
+      {demo && (
+        <div className="max-w-7xl mx-auto px-4 pt-4">
+          <DemoBanner />
+        </div>
+      )}
       <ErrorBoundary>
       {/* Header */}
       <div className="bg-gradient-to-r from-teal-500 to-cyan-600 text-white p-6 shadow-lg">

@@ -4,6 +4,8 @@
 
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase/server';
+import { isDemoMode } from '@/lib/demo/mode';
+import { demoBibleStudyGroups } from '@/lib/demo/loader';
 import { getUserId, getAnyMembership, getMembership } from '@/lib/supabase/queries';
 import { loadCampusNames, loadAvatars, campusLabel } from '@/lib/supabase/lookups';
 import { mapBibleStudyGroup } from '@/lib/board-mappers';
@@ -15,6 +17,12 @@ export async function GET() {
     const userId = await getUserId();
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Demo mode serves the fixtures instead of the database. The switch is
+    // explicit and server-side; the response is flagged so the UI labels it.
+    if (isDemoMode()) {
+      return NextResponse.json({ groups: demoBibleStudyGroups(), demo: true });
     }
 
     const first = await getAnyMembership(userId);
@@ -71,7 +79,7 @@ export async function GET() {
       }),
     );
 
-    return NextResponse.json({ groups });
+    return NextResponse.json({ groups, demo: false });
   } catch (error) {
     console.error('GET /api/bible-study threw:', error);
     return NextResponse.json({ error: 'Failed to load Bible Study groups' }, { status: 500 });

@@ -12,9 +12,10 @@ import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { DashboardHeader } from '@/components/layout/dashboard-header';
 import { BoardError, BoardLoading } from '@/components/ui/board-status';
+import { DemoBanner } from '@/components/ui/demo-banner';
 
 export default function AssetsPage() {
-  const { filteredAssets, assetFilter, setAssetFilter, assetCounts, loading, error, refresh } = useAssets();
+  const { filteredAssets, assetFilter, setAssetFilter, assetCounts, demo, loading, error, refresh } = useAssets();
   const [selectedAsset, setSelectedAsset] = useState<AssetWithOwner | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
 
@@ -25,6 +26,11 @@ export default function AssetsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
+      {demo && (
+        <div className="max-w-7xl mx-auto px-4 pt-4">
+          <DemoBanner />
+        </div>
+      )}
       <DashboardHeader
         title="Community Assets"
         subtitle="Equipment, vehicles, and resources"

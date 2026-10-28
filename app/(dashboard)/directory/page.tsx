@@ -11,6 +11,7 @@ import { Search, Users } from 'lucide-react';
 import { DashboardHeader } from '@/components/layout/dashboard-header';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
 import { BoardError, BoardLoading } from '@/components/ui/board-status';
+import { DemoBanner } from '@/components/ui/demo-banner';
 
 export default function DirectoryPage() {
   const {
@@ -20,6 +21,7 @@ export default function DirectoryPage() {
     setCampusFilter,
     searchQuery,
     setSearchQuery,
+    demo,
     loading,
     error,
     refresh,
@@ -28,6 +30,11 @@ export default function DirectoryPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
+      {demo && (
+        <div className="max-w-7xl mx-auto px-4 pt-4">
+          <DemoBanner />
+        </div>
+      )}
         <DashboardHeader
           title="Member Directory"
           subtitle="Find and connect with church members"

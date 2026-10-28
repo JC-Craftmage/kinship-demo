@@ -3,13 +3,13 @@
 // Member Directory — loads the members of the caller's church.
 
 import { useMemo, useState } from 'react';
-import { useBoardData } from './use-board-data';
+import { useBoardData, BoardEnvelope } from './use-board-data';
 import { Member } from '@/lib/types';
 
 type CampusFilter = 'all' | string;
 
 export function useMembers() {
-  const { data, loading, error, refresh } = useBoardData<{ members: Member[] }>('/api/directory');
+  const { data, loading, error, refresh } = useBoardData<{ members: Member[] } & BoardEnvelope>('/api/directory');
   const [campusFilter, setCampusFilter] = useState<CampusFilter>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -86,6 +86,7 @@ export function useMembers() {
     setCampusFilter,
     searchQuery,
     setSearchQuery,
+    demo: data?.demo ?? false,
     loading,
     error,
     refresh,

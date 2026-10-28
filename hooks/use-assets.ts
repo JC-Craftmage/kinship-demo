@@ -3,13 +3,13 @@
 // Assets Board — loads the assets shared by the caller's church members.
 
 import { useMemo, useState } from 'react';
-import { useBoardData } from './use-board-data';
+import { useBoardData, BoardEnvelope } from './use-board-data';
 import { AssetWithOwner } from '@/lib/types';
 
 type AssetFilter = 'all' | 'vehicle' | 'equipment' | 'tools' | 'business';
 
 export function useAssets() {
-  const { data, loading, error, refresh } = useBoardData<{ assets: AssetWithOwner[] }>('/api/assets');
+  const { data, loading, error, refresh } = useBoardData<{ assets: AssetWithOwner[] } & BoardEnvelope>('/api/assets');
   const [assetFilter, setAssetFilter] = useState<AssetFilter>('all');
 
   const allAssets = useMemo(() => data?.assets ?? [], [data]);
@@ -35,6 +35,7 @@ export function useAssets() {
     assetFilter,
     setAssetFilter,
     assetCounts,
+    demo: data?.demo ?? false,
     loading,
     error,
     refresh,

@@ -11,9 +11,10 @@ import { Need } from '@/lib/types';
 import { HandHeart, Plus, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { BoardError, BoardLoading } from '@/components/ui/board-status';
+import { DemoBanner } from '@/components/ui/demo-banner';
 
 export default function NeedsPage() {
-  const { needs, loading, error, refresh } = useNeeds();
+  const { needs, demo, loading, error, refresh } = useNeeds();
   const [selectedNeed, setSelectedNeed] = useState<Need | null>(null);
   const [showPostModal, setShowPostModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -40,6 +41,11 @@ export default function NeedsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
+      {demo && (
+        <div className="max-w-7xl mx-auto px-4 pt-4">
+          <DemoBanner />
+        </div>
+      )}
       {/* Header */}
       <div className="bg-gradient-to-r from-teal-500 to-cyan-600 text-white p-6 shadow-lg">
         <div className="max-w-7xl mx-auto">

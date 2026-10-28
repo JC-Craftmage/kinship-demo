@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { demoWriteBlocked } from '@/lib/demo/mode';
 import { auth } from '@clerk/nextjs/server';
 import { supabase } from '@/lib/supabase/server';
 import { getMembership } from '@/lib/supabase/queries';
@@ -103,6 +104,11 @@ function matchFAQ(message: string): { question: string; answer: string; escalati
 // Create a support ticket
 export async function POST(request: NextRequest) {
   try {
+    // Demo mode is read-only: refuse the write so fixture data can never
+    // land in a real church's database.
+    const demoBlocked = demoWriteBlocked();
+    if (demoBlocked) return demoBlocked;
+
     const { userId } = await auth();
     
     const body = await request.json();

@@ -1,6 +1,7 @@
 // API route for denying join requests
 
 import { NextRequest, NextResponse } from 'next/server';
+import { demoWriteBlocked } from '@/lib/demo/mode';
 import { auth } from '@clerk/nextjs/server';
 import { supabase } from '@/lib/supabase/server';
 import { getMembership, REQUEST_REVIEW_ROLES } from '@/lib/supabase/queries';
@@ -18,6 +19,10 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Demo mode is read-only: refuse the write so fixture data can never
+    // land in a real church's database.
+    const demoBlocked = demoWriteBlocked();
+    if (demoBlocked) return demoBlocked;
     // Verify user is authenticated
     const { userId } = await auth();
     if (!userId) {

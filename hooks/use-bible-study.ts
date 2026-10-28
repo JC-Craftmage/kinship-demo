@@ -3,11 +3,11 @@
 // Bible Study Board — loads the study groups of the caller's church.
 
 import { useState } from 'react';
-import { useBoardData } from './use-board-data';
+import { useBoardData, BoardEnvelope } from './use-board-data';
 import { BibleStudyGroup } from '@/lib/types';
 
 export function useBibleStudy() {
-  const { data, loading, error, refresh } = useBoardData<{ groups: BibleStudyGroup[] }>('/api/bible-study');
+  const { data, loading, error, refresh } = useBoardData<{ groups: BibleStudyGroup[] } & BoardEnvelope>('/api/bible-study');
   const [filter, setFilter] = useState<'all' | 'open' | 'campus'>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -32,6 +32,7 @@ export function useBibleStudy() {
     setFilter,
     searchQuery,
     setSearchQuery,
+    demo: data?.demo ?? false,
     loading,
     error,
     refresh,

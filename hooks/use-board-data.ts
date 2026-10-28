@@ -15,6 +15,15 @@ export interface BoardState<T> {
   refresh: () => Promise<void>;
 }
 
+/**
+ * Every board response carries a `demo` flag. The server sets it when it is
+ * serving fixture data instead of the database, and the UI uses it to show
+ * the "Demo data" banner. The client never guesses.
+ */
+export interface BoardEnvelope {
+  demo?: boolean;
+}
+
 export function useBoardData<T>(path: string): BoardState<T> {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);

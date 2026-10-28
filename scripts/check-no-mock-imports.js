@@ -15,8 +15,9 @@
  *
  * Rules:
  *   app/, components/, hooks/  -> may NOT import @/data/* at all
- *   lib/                       -> may import it ONLY from a 'server-only'
- *                                  module (the explicit demo loader)
+ *   lib/                       -> may import it ONLY from the explicit demo
+ *                                  loader (lib/demo/loader.ts), which must be
+ *                                  a 'server-only' module
  *
  * Run:  node scripts/check-no-mock-imports.js
  */
@@ -26,6 +27,8 @@ const path = require("path");
 const ROOT = path.resolve(__dirname, "..");
 const CLIENT_ROOTS = ["app", "components", "hooks"];
 const SERVER_ALLOWED_ROOT = "lib";
+/** The one module allowed to reach the fixtures. */
+const DEMO_LOADER = "lib/demo/loader.ts";
 
 let FAILURES = 0;
 const fail = (m) => { console.log(`  [FAIL] ${m}`); FAILURES++; };
@@ -60,7 +63,10 @@ for (const root of [...CLIENT_ROOTS, SERVER_ALLOWED_ROOT]) {
     const relp = rel(f);
     if (root === SERVER_ALLOWED_ROOT) {
       const serverOnly = /import\s+['"]server-only['"]/.test(src);
-      libHits.push(`${relp}${serverOnly ? "" : " (NOT server-only)"}`);
+      const notes = [];
+      if (!serverOnly) notes.push("NOT server-only");
+      if (relp !== DEMO_LOADER) notes.push(`not the demo loader (${DEMO_LOADER})`);
+      libHits.push(`${relp}${notes.length ? ` (${notes.join(", ")})` : ""}`);
     } else {
       clientHits.push(`${relp} -> ${[...new Set(m)].join(", ")}`);
     }
@@ -74,11 +80,11 @@ if (clientHits.length) {
   pass("no client file imports @/data/*");
 }
 
-console.log(`\n[2] lib/ may import demo fixtures only from a 'server-only' module`);
+console.log(`\n[2] only ${DEMO_LOADER} may import demo fixtures, and it must be 'server-only'`);
 if (libHits.length) {
-  const bad = libHits.filter((h) => h.includes("NOT server-only"));
-  if (bad.length) bad.forEach((h) => fail(`lib module imports demo fixtures without 'server-only': ${h}`));
-  else pass(`demo fixtures are reachable only through server-only module(s): ${libHits.join(", ")}`);
+  const bad = libHits.filter((h) => h.includes("NOT server-only") || h.includes("not the demo loader"));
+  if (bad.length) bad.forEach((h) => fail(`unauthorized demo-fixture import: ${h}`));
+  else pass(`demo fixtures are reachable only through ${DEMO_LOADER}`);
 } else {
   pass("no lib module imports @/data/* (the boards read from the API routes)");
 }
