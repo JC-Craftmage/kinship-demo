@@ -12,7 +12,26 @@ export type Json =
 export type ChurchRole = 'owner' | 'overseer' | 'moderator' | 'member';
 export type JoinRequestStatus = 'pending' | 'approved' | 'denied' | 'withdrawn';
 
-export type NeedCategory = 'practical' | 'spiritual' | 'financial' | 'emotional' | 'other';
+// The UI's category labels, NOT the retired `need_category` enum. Migration
+// 005 changed `needs.category` from that enum to TEXT + CHECK so that the
+// database and `lib/types/need.ts` speak the same language.
+export type NeedCategory =
+  | 'Moving Help'
+  | 'Prayer Request'
+  | 'Childcare'
+  | 'Transportation'
+  | 'Home Repair'
+  | 'Event Help';
+export type OfferCategory =
+  | 'Moving Help'
+  | 'Childcare'
+  | 'Transportation'
+  | 'Home Repair'
+  | 'Event Help'
+  | 'Skilled Labor'
+  | 'Equipment Rental'
+  | 'Other';
+export type OfferAvailability = 'available' | 'limited' | 'unavailable';
 export type NeedUrgency = 'low' | 'medium' | 'high';
 export type NeedStatus = 'open' | 'in_progress' | 'fulfilled' | 'cancelled';
 export type MealSignupStatus = 'pending' | 'confirmed' | 'delivered' | 'cancelled';
@@ -821,6 +840,258 @@ export interface Database {
           },
         ]
       };
+      offers: {
+        Row: {
+          id: string;
+          church_id: string;
+          campus_id: string | null;
+          title: string;
+          description: string;
+          category: OfferCategory;
+          availability: OfferAvailability;
+          availability_note: string | null;
+          provided_by: string;
+          provided_by_name: string;
+          is_verified: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          church_id: string;
+          campus_id?: string | null;
+          title: string;
+          description: string;
+          category?: OfferCategory;
+          availability?: OfferAvailability;
+          availability_note?: string | null;
+          provided_by: string;
+          provided_by_name: string;
+          is_verified?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          church_id?: string;
+          campus_id?: string | null;
+          title?: string;
+          description?: string;
+          category?: OfferCategory;
+          availability?: OfferAvailability;
+          availability_note?: string | null;
+          provided_by?: string;
+          provided_by_name?: string;
+          is_verified?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'offers_church_id_fkey',
+            columns: ['church_id'],
+            isOneToOne: false,
+            referencedRelation: 'churches',
+            referencedColumns: ['id'],
+          },
+          {
+            foreignKeyName: 'offers_campus_id_fkey',
+            columns: ['campus_id'],
+            isOneToOne: false,
+            referencedRelation: 'campuses',
+            referencedColumns: ['id'],
+          },
+        ]
+      };
+      bible_study_groups: {
+        Row: {
+          id: string;
+          church_id: string;
+          campus_id: string | null;
+          name: string;
+          description: string;
+          leader_id: string;
+          leader_name: string;
+          leader_email: string | null;
+          leader_phone: string | null;
+          schedule: string | null;
+          location: string | null;
+          current_book: string | null;
+          current_chapter: string | null;
+          next_study_date: string | null;
+          max_members: number | null;
+          is_open: boolean;
+          tags: string[];
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          church_id: string;
+          campus_id?: string | null;
+          name: string;
+          description?: string;
+          leader_id: string;
+          leader_name: string;
+          leader_email?: string | null;
+          leader_phone?: string | null;
+          schedule?: string | null;
+          location?: string | null;
+          current_book?: string | null;
+          current_chapter?: string | null;
+          next_study_date?: string | null;
+          max_members?: number | null;
+          is_open?: boolean;
+          tags?: string[];
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          church_id?: string;
+          campus_id?: string | null;
+          name?: string;
+          description?: string;
+          leader_id?: string;
+          leader_name?: string;
+          leader_email?: string | null;
+          leader_phone?: string | null;
+          schedule?: string | null;
+          location?: string | null;
+          current_book?: string | null;
+          current_chapter?: string | null;
+          next_study_date?: string | null;
+          max_members?: number | null;
+          is_open?: boolean;
+          tags?: string[];
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'bible_study_groups_church_id_fkey',
+            columns: ['church_id'],
+            isOneToOne: false,
+            referencedRelation: 'churches',
+            referencedColumns: ['id'],
+          },
+          {
+            foreignKeyName: 'bible_study_groups_campus_id_fkey',
+            columns: ['campus_id'],
+            isOneToOne: false,
+            referencedRelation: 'campuses',
+            referencedColumns: ['id'],
+          },
+        ]
+      };
+      bible_study_signups: {
+        Row: {
+          id: string;
+          group_id: string;
+          user_id: string;
+          user_name: string;
+          signed_up_at: string;
+        };
+        Insert: {
+          id?: string;
+          group_id: string;
+          user_id: string;
+          user_name: string;
+          signed_up_at?: string;
+        };
+        Update: {
+          id?: string;
+          group_id?: string;
+          user_id?: string;
+          user_name?: string;
+          signed_up_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'bible_study_signups_group_id_fkey',
+            columns: ['group_id'],
+            isOneToOne: false,
+            referencedRelation: 'bible_study_groups',
+            referencedColumns: ['id'],
+          },
+        ]
+      };
+      bible_study_sessions: {
+        Row: {
+          id: string;
+          group_id: string;
+          session_date: string;
+          topic: string;
+          notes: string | null;
+          attendance: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          group_id: string;
+          session_date: string;
+          topic: string;
+          notes?: string | null;
+          attendance?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          group_id?: string;
+          session_date?: string;
+          topic?: string;
+          notes?: string | null;
+          attendance?: number;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'bible_study_sessions_group_id_fkey',
+            columns: ['group_id'],
+            isOneToOne: false,
+            referencedRelation: 'bible_study_groups',
+            referencedColumns: ['id'],
+          },
+        ]
+      };
+      bible_study_posts: {
+        Row: {
+          id: string;
+          group_id: string;
+          author_id: string;
+          author_name: string;
+          content: string;
+          likes: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          group_id: string;
+          author_id: string;
+          author_name: string;
+          content: string;
+          likes?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          group_id?: string;
+          author_id?: string;
+          author_name?: string;
+          content?: string;
+          likes?: number;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'bible_study_posts_group_id_fkey',
+            columns: ['group_id'],
+            isOneToOne: false,
+            referencedRelation: 'bible_study_groups',
+            referencedColumns: ['id'],
+          },
+        ]
+      };
     };
     Views: {
       [_ in never]: never;
@@ -831,7 +1102,6 @@ export interface Database {
     Enums: {
       church_role: ChurchRole;
       join_request_status: JoinRequestStatus;
-      need_category: NeedCategory;
       need_urgency: NeedUrgency;
       need_status: NeedStatus;
       meal_signup_status: MealSignupStatus;
