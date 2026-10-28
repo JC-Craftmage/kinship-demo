@@ -8,7 +8,7 @@ import { MealTrainCard } from '@/components/features/meal-trains/meal-train-card
 import { MealTrainModal } from '@/components/features/meal-trains/meal-train-modal';
 import { CreateMealTrainModal, type MealTrainData } from '@/components/features/meal-trains/create-meal-train-modal';
 import { MealTrain } from '@/lib/types';
-import { ChefHat, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DashboardHeader } from '@/components/layout/dashboard-header';
 

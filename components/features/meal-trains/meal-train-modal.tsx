@@ -13,7 +13,7 @@ interface MealTrainModalProps {
 export function MealTrainModal({ train, onClose }: MealTrainModalProps) {
   if (!train) return null;
 
-  const handleSignup = (signupIndex: number) => {
+  const handleSignup = () => {
     alert(`Great! You've signed up to provide a meal!\n\nIn the real app, this would:\n• Send you a confirmation\n• Add it to your calendar\n• Send a reminder 24hrs before\n• Let you coordinate with ${train.recipient.name}`);
   };
 
@@ -71,7 +71,7 @@ export function MealTrainModal({ train, onClose }: MealTrainModalProps) {
                       : 'bg-gray-50 border-gray-300'
                     : 'bg-white border-rose-200 hover:border-rose-400 hover:bg-rose-50 cursor-pointer'
                 }`}
-                onClick={() => !signup.signedUp && handleSignup(index)}
+                onClick={() => !signup.signedUp && handleSignup()}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">

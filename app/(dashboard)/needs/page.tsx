@@ -24,14 +24,14 @@ export default function NeedsPage() {
         need.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         need.description.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesFilter = filter === 'all' ||
-        (filter === 'urgent' && need.isUrgent) ||
-        (filter === 'ongoing' && !need.isUrgent);
+        (filter === 'urgent' && need.urgency === 'high') ||
+        (filter === 'ongoing' && need.status !== 'fulfilled');
       return matchesSearch && matchesFilter;
     });
   }, [needs, searchQuery, filter]);
 
-  const urgentCount = needs.filter(n => n.isUrgent).length;
-  const ongoingCount = needs.filter(n => !n.isUrgent).length;
+  const urgentCount = needs.filter(n => n.urgency === 'high').length;
+  const ongoingCount = needs.filter(n => n.status !== 'fulfilled').length;
 
   const handlePostNeed = (data: PostNeedData) => {
     console.log('New need posted:', data);

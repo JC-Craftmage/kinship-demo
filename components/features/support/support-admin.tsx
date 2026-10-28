@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 interface SupportTicket {
   id: string;
@@ -28,11 +28,7 @@ export default function SupportAdmin({ churchId }: SupportAdminProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'open' | 'resolved'>('open');
 
-  useEffect(() => {
-    fetchTickets();
-  }, [churchId, filter]);
-
-  const fetchTickets = async () => {
+  const fetchTickets = useCallback(async () => {
     setIsLoading(true);
     try {
       // Tickets are loaded through the server API, which verifies the caller
@@ -56,7 +52,11 @@ export default function SupportAdmin({ churchId }: SupportAdminProps) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [churchId, filter]);
+
+  useEffect(() => {
+    fetchTickets();
+  }, [fetchTickets]);
 
   const updateTicketStatus = async (ticketId: string, status: string) => {
     try {

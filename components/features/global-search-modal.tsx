@@ -50,13 +50,15 @@ function CategorySection({
   label,
   results,
   onResultClick,
+  onSeeAll,
   icon: Icon,
   color,
   seeAllHref,
 }: {
   label: string;
   results: SearchResult[];
-  onResultClick: () => void;
+  onResultClick: (result: SearchResult) => void;
+  onSeeAll: (href: string) => void;
   icon: React.ComponentType<{ size: number }>;
   color: string;
   seeAllHref: string;
@@ -76,7 +78,7 @@ function CategorySection({
         </div>
         {results.length > 3 && (
           <button
-            onClick={onResultClick}
+            onClick={() => onSeeAll(seeAllHref)}
             className="text-xs text-indigo-600 hover:text-indigo-700 font-medium"
           >
             See all {results.length} →
@@ -88,7 +90,7 @@ function CategorySection({
           <ResultItem
             key={result.id}
             result={result}
-            onClick={onResultClick}
+            onClick={() => onResultClick(result)}
           />
         ))}
       </div>
@@ -109,8 +111,8 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
     }
   }, [isOpen]);
 
-  const handleResultClick = (result: SearchResult, seeAllHref?: string) => {
-    router.push(seeAllHref || result.href);
+  const handleResultClick = (result: SearchResult) => {
+    router.push(result.href);
     onClose();
   };
 
@@ -166,7 +168,8 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
               <CategorySection
                 label="Members"
                 results={results.members}
-                onResultClick={() => handleSeeAll('/directory')}
+                onResultClick={handleResultClick}
+                onSeeAll={handleSeeAll}
                 icon={Users}
                 color="bg-blue-100 text-blue-600"
                 seeAllHref="/directory"
@@ -174,7 +177,8 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
               <CategorySection
                 label="Needs"
                 results={results.needs}
-                onResultClick={() => handleSeeAll('/needs')}
+                onResultClick={handleResultClick}
+                onSeeAll={handleSeeAll}
                 icon={Heart}
                 color="bg-red-100 text-red-600"
                 seeAllHref="/needs"
@@ -182,7 +186,8 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
               <CategorySection
                 label="Offers"
                 results={results.offers}
-                onResultClick={() => handleSeeAll('/offers')}
+                onResultClick={handleResultClick}
+                onSeeAll={handleSeeAll}
                 icon={Handshake}
                 color="bg-teal-100 text-teal-600"
                 seeAllHref="/offers"
@@ -190,7 +195,8 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
               <CategorySection
                 label="Assets"
                 results={results.assets}
-                onResultClick={() => handleSeeAll('/assets')}
+                onResultClick={handleResultClick}
+                onSeeAll={handleSeeAll}
                 icon={Truck}
                 color="bg-green-100 text-green-600"
                 seeAllHref="/assets"
@@ -198,7 +204,8 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
               <CategorySection
                 label="Bible Studies"
                 results={results.bibleStudies}
-                onResultClick={() => handleSeeAll('/bible-study')}
+                onResultClick={handleResultClick}
+                onSeeAll={handleSeeAll}
                 icon={BookOpen}
                 color="bg-indigo-100 text-indigo-600"
                 seeAllHref="/bible-study"

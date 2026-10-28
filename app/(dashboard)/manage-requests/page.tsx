@@ -2,6 +2,7 @@
 
 'use client';
 
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { useChurchMembership } from '@/hooks/use-church-membership';
 import { Card } from '@/components/ui/card';
@@ -189,9 +190,12 @@ export default function ManageRequestsPage() {
               <Card key={request.id} className="p-4 hover:shadow-lg transition-shadow">
                 <div className="flex items-start gap-4">
                   {request.user_photo ? (
-                    <img
+                    <Image
                       src={request.user_photo}
                       alt={request.user_name}
+                      width={48}
+                      height={48}
+                      unoptimized
                       className="w-12 h-12 rounded-full object-cover"
                     />
                   ) : (
@@ -256,9 +260,12 @@ export default function ManageRequestsPage() {
             {/* User Info */}
             <div className="flex items-center gap-4 pb-4 border-b">
               {selectedRequest.user_photo ? (
-                <img
+                <Image
                   src={selectedRequest.user_photo}
                   alt={selectedRequest.user_name}
+                  width={64}
+                  height={64}
+                  unoptimized
                   className="w-16 h-16 rounded-full object-cover"
                 />
               ) : (

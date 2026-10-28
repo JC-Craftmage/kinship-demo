@@ -9,7 +9,6 @@ import { MemberModal } from '@/components/features/directory/member-modal';
 import { Member } from '@/lib/types';
 import { Search, Users } from 'lucide-react';
 import { DashboardHeader } from '@/components/layout/dashboard-header';
-import { SkeletonGrid } from '@/components/ui/skeleton';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
 
 export default function DirectoryPage() {

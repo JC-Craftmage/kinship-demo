@@ -14,7 +14,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { SkeletonGrid } from '@/components/ui/skeleton';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
-import { UserCheck, HandHeart, Award, Users, Truck, ChefHat, ArrowRight, Calendar, Clock, PartyPopper, Handshake, BookOpen, Image, HeartHandshake } from 'lucide-react';
+import { UserCheck, HandHeart, Award, Users, Truck, ChefHat, ArrowRight, Calendar, PartyPopper, Handshake, BookOpen, Image as ImageIcon, HeartHandshake } from 'lucide-react';
 import { PhotoPromptModal } from '@/components/features/onboarding/photo-prompt-modal';
 import { ProfileCompletenessNudge } from '@/components/features/onboarding/profile-completeness-nudge';
 import { useProfileCompleteness } from '@/hooks/use-profile-completeness';
@@ -61,8 +61,8 @@ export default function HomePage() {
   const familiesActiveThisWeek = Math.min(members.length, Math.floor(members.length * 0.7));
 
   // Get urgent needs
-  const urgentNeeds = needs.filter(n => n.isUrgent).slice(0, 3);
-  const activeMealTrains = mealTrains.filter(t => t.status === 'active').slice(0, 2);
+  const urgentNeeds = needs.filter(n => n.urgency === 'high').slice(0, 3);
+  const activeMealTrains = mealTrains.filter(t => t.signups.length > 0).slice(0, 2);
 
   useEffect(() => {
     if (isLoaded && !isLoading && !hasChurch) {
@@ -204,7 +204,7 @@ export default function HomePage() {
               <div className="grid grid-cols-3 gap-4">
                 <div className="text-center p-3 bg-indigo-50 rounded-xl">
                   <div className="flex items-center justify-center gap-2 mb-1">
-                    <Image size={20} className="text-indigo-600" />
+                    <ImageIcon size={20} className="text-indigo-600" />
                   </div>
                   <p className="text-2xl font-bold text-indigo-700">{membersWithPhotos}</p>
                   <p className="text-xs text-gray-600 mt-1">members with photos</p>
@@ -235,7 +235,7 @@ export default function HomePage() {
                   <div className="flex items-center justify-between mb-3">
                     <div>
                       <h3 className="font-bold text-gray-900 flex items-center gap-2">
-                        <Image size={18} className="text-indigo-600" />
+                        <ImageIcon size={18} className="text-indigo-600" />
                         Your Profile is {completenessPercent}% Complete
                       </h3>
                       <p className="text-sm text-gray-500 mt-1">
@@ -276,7 +276,7 @@ export default function HomePage() {
                     {urgentNeeds.map(need => (
                       <Link key={need.id} href="/needs" className="block">
                         <div className="flex items-center gap-3 p-3 bg-red-50 rounded-lg hover:bg-red-100 transition">
-                          <div className="text-2xl">{need.isUrgent ? '🚨' : '📌'}</div>
+                          <div className="text-2xl">{need.urgency === 'high' ? '🚨' : '📌'}</div>
                           <div className="flex-1 min-w-0">
                             <p className="font-semibold text-gray-900 truncate">{need.title}</p>
                             <p className="text-xs text-gray-500">{need.status === 'open' ? ' Volunteers needed' : need.status}</p>
@@ -309,12 +309,12 @@ export default function HomePage() {
                         <div className="flex items-center gap-3 p-3 bg-rose-50 rounded-lg hover:bg-rose-100 transition">
                           <div className="text-2xl">🍲</div>
                           <div className="flex-1 min-w-0">
-                            <p className="font-semibold text-gray-900 truncate">{train.title}</p>
+                            <p className="font-semibold text-gray-900 truncate">{train.recipient.name}</p>
                             <p className="text-xs text-gray-500">
-                              {train.signups?.length || 0} of {train.coordinator.goalMeals} meals covered
+                              {train.signups.filter(s => s.signedUp).length} of {train.signups.length} meals covered
                             </p>
                           </div>
-                          <span className="text-xs text-gray-400">{formatDate(train.deliveryDate)}</span>
+                          <span className="text-xs text-gray-400">{formatDate(train.startDate)}</span>
                         </div>
                       </Link>
                     ))}

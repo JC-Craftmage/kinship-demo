@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase/server';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Verify user is authenticated
@@ -18,7 +18,7 @@ export async function GET(
       );
     }
 
-    const churchId = params.id;
+    const { id: churchId } = await params;
 
     if (!churchId) {
       return NextResponse.json(

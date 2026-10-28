@@ -1,6 +1,6 @@
 // Member details modal component
 
-import { Member } from '@/lib/types';
+import { AssetWithOwner, Member } from '@/lib/types';
 import { MapPin, Award, Truck } from 'lucide-react';
 import { ProfileCompletenessGate } from '@/components/features/onboarding/profile-completeness-gate';
 import { shouldShowGateForAction } from '@/hooks/use-contextual-gate';
@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 interface MemberModalProps {
   member: Member | null;
   onClose: () => void;
-  onViewAsset?: (asset: any) => void;
+  onViewAsset?: (asset: AssetWithOwner) => void;
 }
 
 export function MemberModal({ member, onClose, onViewAsset }: MemberModalProps) {

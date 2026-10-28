@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
-import { Baby, Heart, Home, GraduationCap, Plane, Cake, Plus, X } from 'lucide-react';
+import { Baby, Heart, Home, GraduationCap, Plane, Cake, Plus } from 'lucide-react';
 
 const LIFE_EVENT_TYPES = [
   { id: 'baby', label: 'Baby Arrived', icon: Baby, color: 'from-pink-400 to-rose-500', emoji: '👶' },

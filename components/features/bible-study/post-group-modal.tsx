@@ -5,7 +5,7 @@
 import { useState } from 'react';
 import { Modal } from '@/components/ui/modal';
 import { Button } from '@/components/ui/button';
-import { BookOpen, X, Check } from 'lucide-react';
+import { BookOpen, Check } from 'lucide-react';
 
 interface PostGroupModalProps {
   isOpen: boolean;

@@ -119,7 +119,7 @@ export function CreateMealTrainModal({ isOpen, onClose, onSubmit }: CreateMealTr
 
         {/* Recipient Name */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">Recipient's Name</label>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">Recipient&#39;s Name</label>
           <input
             type="text"
             value={recipientName}
@@ -135,7 +135,7 @@ export function CreateMealTrainModal({ isOpen, onClose, onSubmit }: CreateMealTr
 
         {/* Situation */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">What's happening?</label>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">What&#39;s happening?</label>
           <textarea
             value={situation}
             onChange={e => setSituation(e.target.value)}

@@ -128,7 +128,7 @@ export default function BrowseChurchesPage() {
         <Card className="p-4 bg-blue-50 border-blue-200">
           <p className="text-sm text-blue-900">
             <strong>Note:</strong> Browsing churches allows you to learn about different communities.
-            To join a church, you'll need to submit a request which will be reviewed by church admins.
+            To join a church, you&#39;ll need to submit a request which will be reviewed by church admins.
           </p>
         </Card>
 

@@ -3,6 +3,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { supabase } from '@/lib/supabase/server';
+import type { JoinRequestStatus } from '@/lib/supabase/types';
 import { getMembership, REQUEST_REVIEW_ROLES } from '@/lib/supabase/queries';
 
 export async function GET(request: NextRequest) {
@@ -59,7 +60,7 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: false });
 
     if (status) {
-      query = query.eq('status', status);
+      query = query.eq('status', status as JoinRequestStatus);
     }
 
     const { data: requests, error } = await query;

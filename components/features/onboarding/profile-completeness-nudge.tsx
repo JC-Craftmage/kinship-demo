@@ -16,17 +16,10 @@ const ITEM_ICONS: Record<string, React.ReactElement> = {
   post: <PlusCircle size={18} className="text-indigo-600" />,
 };
 
-const ITEM_STATUS: Record<string, { filled: boolean; label: string }> = {
-  photo: { filled: false, label: 'Add a photo ✓' },
-  skills: { filled: false, label: 'List your skills ✗' },
-  bio: { filled: false, label: 'Add a bio ✗' },
-  post: { filled: false, label: 'Add an asset ✗' },
-};
-
 const DISMISSAL_KEY = 'kinship_profile_nudge_dismissed_home';
 
 export function ProfileCompletenessNudge() {
-  const { missingItems, completenessPercent, shouldNudge, hasPostedSomething } = useProfileCompleteness();
+  const { missingItems, completenessPercent, shouldNudge } = useProfileCompleteness();
   const [isDismissed, setIsDismissed] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
 

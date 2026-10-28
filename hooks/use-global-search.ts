@@ -1,6 +1,6 @@
 // Global search hook - searches across all data sources
 
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useMembers } from './use-members';
 import { useNeeds } from './use-needs';
 import { useOffers } from './use-offers';
@@ -46,7 +46,7 @@ export function useGlobalSearch(query: string) {
       )
       .slice(0, 10)
       .map(m => ({
-        id: m.id,
+        id: String(m.id),
         title: m.name,
         subtitle: m.jobTitle || m.skills.slice(0, 2).join(', '),
         type: 'member' as const,
@@ -61,7 +61,7 @@ export function useGlobalSearch(query: string) {
       )
       .slice(0, 10)
       .map(n => ({
-        id: n.id,
+        id: String(n.id),
         title: n.title,
         subtitle: n.category,
         type: 'need' as const,
@@ -76,7 +76,7 @@ export function useGlobalSearch(query: string) {
       )
       .slice(0, 10)
       .map(o => ({
-        id: o.id,
+        id: String(o.id),
         title: o.title,
         subtitle: o.category,
         type: 'offer' as const,
@@ -91,7 +91,7 @@ export function useGlobalSearch(query: string) {
       )
       .slice(0, 10)
       .map(a => ({
-        id: a.id,
+        id: `${a.owner.id}-${a.name}`,
         title: a.name,
         subtitle: a.type,
         type: 'asset' as const,
@@ -106,7 +106,7 @@ export function useGlobalSearch(query: string) {
       )
       .slice(0, 10)
       .map(g => ({
-        id: g.id,
+        id: String(g.id),
         title: g.name,
         subtitle: g.currentBook,
         type: 'bible-study' as const,

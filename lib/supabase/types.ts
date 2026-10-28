@@ -49,6 +49,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: []
       };
       campuses: {
         Row: {
@@ -87,6 +88,15 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: 'campuses_church_id_fkey',
+            columns: ['church_id'],
+            isOneToOne: false,
+            referencedRelation: 'churches',
+            referencedColumns: ['id'],
+          },
+        ]
       };
       church_members: {
         Row: {
@@ -116,6 +126,22 @@ export interface Database {
           joined_at?: string;
           updated_at?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: 'church_members_church_id_fkey',
+            columns: ['church_id'],
+            isOneToOne: false,
+            referencedRelation: 'churches',
+            referencedColumns: ['id'],
+          },
+          {
+            foreignKeyName: 'church_members_campus_id_fkey',
+            columns: ['campus_id'],
+            isOneToOne: false,
+            referencedRelation: 'campuses',
+            referencedColumns: ['id'],
+          },
+        ]
       };
       campus_overseers: {
         Row: {
@@ -136,6 +162,22 @@ export interface Database {
           campus_id?: string;
           assigned_at?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: 'campus_overseers_church_member_id_fkey',
+            columns: ['church_member_id'],
+            isOneToOne: false,
+            referencedRelation: 'church_members',
+            referencedColumns: ['id'],
+          },
+          {
+            foreignKeyName: 'campus_overseers_campus_id_fkey',
+            columns: ['campus_id'],
+            isOneToOne: false,
+            referencedRelation: 'campuses',
+            referencedColumns: ['id'],
+          },
+        ]
       };
       invite_codes: {
         Row: {
@@ -174,6 +216,22 @@ export interface Database {
           is_active?: boolean;
           created_at?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: 'invite_codes_church_id_fkey',
+            columns: ['church_id'],
+            isOneToOne: false,
+            referencedRelation: 'churches',
+            referencedColumns: ['id'],
+          },
+          {
+            foreignKeyName: 'invite_codes_campus_id_fkey',
+            columns: ['campus_id'],
+            isOneToOne: false,
+            referencedRelation: 'campuses',
+            referencedColumns: ['id'],
+          },
+        ]
       };
       members: {
         Row: {
@@ -227,6 +285,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: []
       };
       assets: {
         Row: {
@@ -268,6 +327,22 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: 'assets_church_id_fkey',
+            columns: ['church_id'],
+            isOneToOne: false,
+            referencedRelation: 'churches',
+            referencedColumns: ['id'],
+          },
+          {
+            foreignKeyName: 'assets_campus_id_fkey',
+            columns: ['campus_id'],
+            isOneToOne: false,
+            referencedRelation: 'campuses',
+            referencedColumns: ['id'],
+          },
+        ]
       };
       meal_trains: {
         Row: {
@@ -312,6 +387,22 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: 'meal_trains_church_id_fkey',
+            columns: ['church_id'],
+            isOneToOne: false,
+            referencedRelation: 'churches',
+            referencedColumns: ['id'],
+          },
+          {
+            foreignKeyName: 'meal_trains_campus_id_fkey',
+            columns: ['campus_id'],
+            isOneToOne: false,
+            referencedRelation: 'campuses',
+            referencedColumns: ['id'],
+          },
+        ]
       };
       meal_signups: {
         Row: {
@@ -347,6 +438,15 @@ export interface Database {
           notes?: string | null;
           created_at?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: 'meal_signups_meal_train_id_fkey',
+            columns: ['meal_train_id'],
+            isOneToOne: false,
+            referencedRelation: 'meal_trains',
+            referencedColumns: ['id'],
+          },
+        ]
       };
       needs: {
         Row: {
@@ -397,6 +497,22 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: 'needs_church_id_fkey',
+            columns: ['church_id'],
+            isOneToOne: false,
+            referencedRelation: 'churches',
+            referencedColumns: ['id'],
+          },
+          {
+            foreignKeyName: 'needs_campus_id_fkey',
+            columns: ['campus_id'],
+            isOneToOne: false,
+            referencedRelation: 'campuses',
+            referencedColumns: ['id'],
+          },
+        ]
       };
       need_volunteers: {
         Row: {
@@ -426,6 +542,15 @@ export interface Database {
           status?: VolunteerStatus;
           volunteered_at?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: 'need_volunteers_need_id_fkey',
+            columns: ['need_id'],
+            isOneToOne: false,
+            referencedRelation: 'needs',
+            referencedColumns: ['id'],
+          },
+        ]
       };
       join_requests: {
         Row: {
@@ -476,6 +601,22 @@ export interface Database {
           reviewed_at?: string | null;
           review_note?: string | null;
         };
+        Relationships: [
+          {
+            foreignKeyName: 'join_requests_church_id_fkey',
+            columns: ['church_id'],
+            isOneToOne: false,
+            referencedRelation: 'churches',
+            referencedColumns: ['id'],
+          },
+          {
+            foreignKeyName: 'join_requests_campus_id_fkey',
+            columns: ['campus_id'],
+            isOneToOne: false,
+            referencedRelation: 'campuses',
+            referencedColumns: ['id'],
+          },
+        ]
       };
       church_questionnaires: {
         Row: {
@@ -508,6 +649,15 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: 'church_questionnaires_church_id_fkey',
+            columns: ['church_id'],
+            isOneToOne: false,
+            referencedRelation: 'churches',
+            referencedColumns: ['id'],
+          },
+        ]
       };
       join_request_responses: {
         Row: {
@@ -531,6 +681,22 @@ export interface Database {
           answer?: string;
           created_at?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: 'join_request_responses_join_request_id_fkey',
+            columns: ['join_request_id'],
+            isOneToOne: false,
+            referencedRelation: 'join_requests',
+            referencedColumns: ['id'],
+          },
+          {
+            foreignKeyName: 'join_request_responses_questionnaire_id_fkey',
+            columns: ['questionnaire_id'],
+            isOneToOne: false,
+            referencedRelation: 'church_questionnaires',
+            referencedColumns: ['id'],
+          },
+        ]
       };
       join_request_denials: {
         Row: {
@@ -557,6 +723,15 @@ export interface Database {
           denied_by?: string;
           reason?: string | null;
         };
+        Relationships: [
+          {
+            foreignKeyName: 'join_request_denials_church_id_fkey',
+            columns: ['church_id'],
+            isOneToOne: false,
+            referencedRelation: 'churches',
+            referencedColumns: ['id'],
+          },
+        ]
       };
       member_departures: {
         Row: {
@@ -586,6 +761,15 @@ export interface Database {
           reason?: string | null;
           departed_at?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: 'member_departures_church_id_fkey',
+            columns: ['church_id'],
+            isOneToOne: false,
+            referencedRelation: 'churches',
+            referencedColumns: ['id'],
+          },
+        ]
       };
       support_tickets: {
         Row: {
@@ -627,6 +811,15 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: 'support_tickets_church_id_fkey',
+            columns: ['church_id'],
+            isOneToOne: false,
+            referencedRelation: 'churches',
+            referencedColumns: ['id'],
+          },
+        ]
       };
     };
     Views: {

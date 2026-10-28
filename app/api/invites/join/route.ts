@@ -115,7 +115,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Add user to church
-    const { data: newMember, error: memberError } = await supabase
+    const { error: memberError } = await supabase
       .from('church_members')
       .insert({
         church_id: invite.church_id,

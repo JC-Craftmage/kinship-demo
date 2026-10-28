@@ -2,6 +2,7 @@
 
 'use client';
 
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import { useChurchMembership } from '@/hooks/use-church-membership';
@@ -22,7 +23,7 @@ export default function SettingsPage() {
   const [mounted, setMounted] = useState(false);
 
   // Profile completeness data
-  const { completenessPercent, isComplete, hasPhoto, hasSkills, hasBio, missingItems } = useProfileCompleteness();
+  const { completenessPercent, isComplete, hasPhoto, hasSkills, hasBio } = useProfileCompleteness();
 
   useEffect(() => {
     setMounted(true);
@@ -194,7 +195,7 @@ export default function SettingsPage() {
             <div className="px-4 pb-4">
               <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4 text-center">
                 <p className="text-green-800 font-semibold">
-                  🎉 Your profile is fully set up! You're ready to connect with your church family.
+                  🎉 Your profile is fully set up! You&#39;re ready to connect with your church family.
                 </p>
               </div>
             </div>
@@ -237,9 +238,12 @@ export default function SettingsPage() {
           <div className="flex items-center gap-4 mb-4">
             <div className="relative">
               {user?.imageUrl ? (
-                <img
+                <Image
                   src={user.imageUrl}
                   alt="Profile"
+                  width={64}
+                  height={64}
+                  unoptimized
                   className="w-16 h-16 rounded-full object-cover border-2 border-indigo-200"
                 />
               ) : (
@@ -389,7 +393,7 @@ export default function SettingsPage() {
                     <li>Transitioning to a different ministry calling</li>
                   </ul>
                   <p className="text-sm text-yellow-800 mt-2">
-                    If you're experiencing difficulties, please consider speaking with a church
+                    If you&#39;re experiencing difficulties, please consider speaking with a church
                     leader before leaving.
                   </p>
                 </div>

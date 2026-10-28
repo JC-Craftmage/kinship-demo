@@ -10,7 +10,6 @@ import { PostOfferModal, type PostOfferData } from '@/components/features/offers
 import { Offer } from '@/lib/types';
 import { Handshake, Plus, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { SkeletonGrid } from '@/components/ui/skeleton';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
 
 export default function OffersPage() {

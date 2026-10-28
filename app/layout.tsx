@@ -8,9 +8,11 @@ export const metadata: Metadata = {
   description: "Your church family, connected. Automated coordination, frictionless engagement, meaningful community.",
   manifest: "/manifest.json",
   viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no",
-  appleMobileWebAppCapable: "yes",
-  appleMobileWebAppStatusBarStyle: "default",
-  appleMobileWebAppTitle: "Kinship",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Kinship",
+  },
 };
 
 export default function RootLayout({

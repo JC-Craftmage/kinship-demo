@@ -3,7 +3,6 @@
 import { useUser } from '@clerk/nextjs';
 import { useNeeds } from '@/hooks/use-needs';
 import { useOffers } from '@/hooks/use-offers';
-import { useAssets } from '@/hooks/use-assets';
 import { useState, useEffect, useMemo } from 'react';
 
 export interface ProfileCompletenessResult {
@@ -27,9 +26,7 @@ export function useProfileCompleteness(): ProfileCompletenessResult {
   const { user, isLoaded } = useUser();
   const { needs } = useNeeds();
   const { offers } = useOffers();
-  const { allAssets } = useAssets();
   const [hasInteracted, setHasInteracted] = useState(false);
-  const [sessionStart] = useState(Date.now());
 
   // Check if user has had a meaningful interaction (posted something or browsed >2 min)
   useEffect(() => {

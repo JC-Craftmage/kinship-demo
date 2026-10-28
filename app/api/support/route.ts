@@ -7,20 +7,6 @@ import { getMembership } from '@/lib/supabase/queries';
 type TicketCategory = 'faq' | 'issue' | 'feature' | 'other';
 type TicketStatus = 'open' | 'in_progress' | 'resolved' | 'closed';
 
-interface SupportTicket {
-  id: string;
-  user_id: string;
-  church_id?: string;
-  category: TicketCategory;
-  subject: string;
-  description: string;
-  status: TicketStatus;
-  priority: 'low' | 'medium' | 'high';
-  assigned_to?: string;
-  created_at: string;
-  updated_at: string;
-}
-
 // FAQ knowledge base for the support bot
 const FAQ_KB = [
   {
@@ -161,15 +147,18 @@ export async function POST(request: NextRequest) {
     }
 
     // Create support ticket
+    const ticketCategory: TicketCategory = 'issue';
+    const ticketStatus: TicketStatus = 'open';
+
     const { data: ticket, error: ticketError } = await supabase
       .from('support_tickets')
       .insert({
         user_id: userId,
         church_id: churchId || null,
-        category: 'issue',
+        category: ticketCategory,
         subject: message.slice(0, 100),
         description: message,
-        status: 'open',
+        status: ticketStatus,
         priority: 'medium',
       })
       .select()
@@ -205,7 +194,7 @@ export async function POST(request: NextRequest) {
 }
 
 // Get user's support tickets
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const { userId } = await auth();
     

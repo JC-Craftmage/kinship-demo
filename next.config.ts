@@ -7,11 +7,13 @@ const withPWA = withPWAInit({
 });
 
 const nextConfig: NextConfig = {
+  // The build now enforces type-checking and linting. Both are clean as of
+  // 2026-10-27, so a red build means a real regression — not a suppressed one.
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false,
   },
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
 };
 

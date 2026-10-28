@@ -2,7 +2,7 @@
 
 'use client';
 
-import { Home, Users, HandHeart, ChefHat, Truck, Settings, Search, Award, PartyPopper, Handshake, BookOpen } from 'lucide-react';
+import { Home, Users, HandHeart, ChefHat, Settings, Award, Handshake, BookOpen } from 'lucide-react';
 import { UserButton, useUser } from '@clerk/nextjs';
 
 interface NavigationProps {

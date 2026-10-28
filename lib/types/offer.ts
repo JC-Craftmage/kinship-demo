@@ -20,6 +20,8 @@ export type OfferAvailability = 'available' | 'limited' | 'unavailable';
 
 export interface Offer {
   id: number;
+  /** Clerk user id of the person who posted the offer. Absent on mock rows. */
+  providerId?: string;
   poster: OfferPoster;
   category: OfferCategory;
   categoryIcon: 'truck' | 'baby' | 'car' | 'wrench' | 'sparkles' | 'hammer' | 'package' | 'circle';

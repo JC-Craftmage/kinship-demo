@@ -2,7 +2,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useUser } from '@clerk/nextjs';
 import type { ChurchRole } from '@/lib/supabase/types';
 
@@ -31,7 +31,7 @@ export function useChurchMembership(): UseChurchMembershipReturn {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const fetchMembership = async () => {
+  const fetchMembership = useCallback(async () => {
     if (!user?.id) {
       setMembership(null);
       setIsLoading(false);
@@ -68,13 +68,13 @@ export function useChurchMembership(): UseChurchMembershipReturn {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user?.id]);
 
   useEffect(() => {
     if (isLoaded) {
       fetchMembership();
     }
-  }, [user?.id, isLoaded]);
+  }, [isLoaded, fetchMembership]);
 
   return {
     membership,

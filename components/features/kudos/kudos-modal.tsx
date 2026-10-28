@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { Modal } from '@/components/ui/modal';
 import { Button } from '@/components/ui/button';
 import { Member } from '@/lib/types';
-import { Award, Heart, Star, ThumbsUp, Check } from 'lucide-react';
+import { Award } from 'lucide-react';
 
 interface KudosModalProps {
   isOpen: boolean;
@@ -104,7 +104,7 @@ export function KudosModal({ isOpen, onClose, member, onGiveKudos }: KudosModalP
           </div>
           {amount > 1 && (
             <p className="text-center text-sm text-yellow-700 mt-2 font-medium">
-              You're giving {amount} kudos — that's a big deal! 💛
+              You&#39;re giving {amount} kudos — that&#39;s a big deal! 💛
             </p>
           )}
         </div>

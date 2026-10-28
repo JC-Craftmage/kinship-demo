@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { Modal } from '@/components/ui/modal';
 import { Button } from '@/components/ui/button';
 import { OfferCategory, OfferAvailability } from '@/lib/types';
-import { Truck, Baby, Car, Wrench, Sparkles, Hammer, Package, Circle, X, Check } from 'lucide-react';
+import { Truck, Baby, Car, Wrench, Sparkles, Hammer, Package, Circle, Check } from 'lucide-react';
 import { ProfileCompletenessGate } from '@/components/features/onboarding/profile-completeness-gate';
 import { shouldShowGateForAction } from '@/hooks/use-contextual-gate';
 
@@ -92,17 +92,6 @@ export function PostOfferModal({ isOpen, onClose, onSubmit }: PostOfferModalProp
   };
 
   const doSubmit = () => {
-    const categoryIconMap: Record<OfferCategory, 'truck' | 'baby' | 'car' | 'wrench' | 'sparkles' | 'hammer' | 'package' | 'circle'> = {
-      'Moving Help': 'truck',
-      'Childcare': 'baby',
-      'Transportation': 'car',
-      'Home Repair': 'wrench',
-      'Event Help': 'sparkles',
-      'Skilled Labor': 'hammer',
-      'Equipment Rental': 'package',
-      'Other': 'circle',
-    };
-
     onSubmit({
       title: title.trim(),
       description: description.trim(),

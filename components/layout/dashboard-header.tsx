@@ -4,7 +4,7 @@
 
 import { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
-import { Bell, Search, Moon, Sun } from 'lucide-react';
+import { Search, Moon, Sun } from 'lucide-react';
 import { Notifications } from '@/components/features/notifications/notifications';
 import { GlobalSearchModal } from '@/components/features/global-search-modal';
 

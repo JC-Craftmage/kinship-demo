@@ -3,6 +3,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { supabase } from '@/lib/supabase/server';
+import type { ChurchRole } from '@/lib/supabase/types';
 
 export async function POST(request: NextRequest) {
   try {
@@ -37,7 +38,7 @@ export async function POST(request: NextRequest) {
       console.error('Error fetching membership:', fetchError);
     }
 
-    const membership = (memberships as { id: string; user_id: string; church_id: string; role: string }[] | null)?.[0];
+    const membership = (memberships as { id: string; user_id: string; church_id: string; role: ChurchRole }[] | null)?.[0];
 
     if (!membership) {
       return NextResponse.json(

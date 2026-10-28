@@ -1,6 +1,6 @@
 // Asset details modal
 
-import { AssetWithOwner } from '@/lib/types';
+import { AssetWithOwner, Member } from '@/lib/types';
 import { MapPin, Award } from 'lucide-react';
 import { Modal } from '@/components/ui/modal';
 import { Button } from '@/components/ui/button';
@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 interface AssetModalProps {
   asset: AssetWithOwner | null;
   onClose: () => void;
-  onViewOwner?: (owner: any) => void;
+  onViewOwner?: (owner: Member) => void;
 }
 
 export function AssetModal({ asset, onClose, onViewOwner }: AssetModalProps) {

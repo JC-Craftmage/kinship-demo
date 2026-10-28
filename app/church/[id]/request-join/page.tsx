@@ -4,7 +4,6 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { useUser } from '@clerk/nextjs';
 import { useChurchMembership } from '@/hooks/use-church-membership';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -31,7 +30,6 @@ export default function RequestJoinPage() {
   const router = useRouter();
   const params = useParams();
   const churchId = params.id as string;
-  const { user } = useUser();
   const { membership } = useChurchMembership();
 
   const [church, setChurch] = useState<Church | null>(null);
@@ -248,7 +246,7 @@ export default function RequestJoinPage() {
           <Card className="p-6">
             <h3 className="text-lg font-bold text-gray-900 mb-2">Personal Note (Optional)</h3>
             <p className="text-sm text-gray-600 mb-4">
-              Tell the church leadership why you'd like to join their community.
+              Tell the church leadership why you&#39;d like to join their community.
             </p>
             <textarea
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"

@@ -2,7 +2,6 @@
 
 import { useState, useMemo } from 'react';
 import { members } from '@/data/members';
-import { AssetWithOwner } from '@/lib/types';
 
 type AssetFilter = 'all' | 'vehicle' | 'equipment' | 'tools' | 'business';
 

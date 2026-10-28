@@ -53,7 +53,7 @@ export default function WelcomePage() {
             <div className="text-center mb-8">
               <div className="text-8xl mb-6">👥</div>
               <h1 className="text-5xl font-bold mb-4">
-                Let's Find Your Church!
+                Let&#39;s Find Your Church!
               </h1>
               <p className="text-xl text-indigo-100 max-w-2xl mx-auto">
                 Join your church community on Kinship. Get your invite code from your church leader or scan their QR code.

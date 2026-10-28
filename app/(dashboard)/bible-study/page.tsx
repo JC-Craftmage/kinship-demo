@@ -2,15 +2,14 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useBibleStudy } from '@/hooks/use-bible-study';
 import { BibleStudyCard } from '@/components/features/bible-study/bible-study-card';
 import { BibleStudyModal } from '@/components/features/bible-study/bible-study-modal';
 import { PostGroupModal, type PostGroupData } from '@/components/features/bible-study/post-group-modal';
 import { BibleStudyGroup } from '@/lib/types';
-import { BookOpen, Plus, Search, Users } from 'lucide-react';
+import { BookOpen, Plus, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { SkeletonGrid } from '@/components/ui/skeleton';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
 
 export default function BibleStudyPage() {
@@ -36,7 +35,7 @@ export default function BibleStudyPage() {
               <BookOpen size={36} />
               <div>
                 <h1 className="text-3xl font-bold">Bible Study Groups</h1>
-                <p className="text-indigo-100 text-sm">Find your community in God's Word</p>
+                <p className="text-indigo-100 text-sm">Find your community in God&#39;s Word</p>
               </div>
             </div>
             <Button variant="secondary" icon={<Plus size={20} />} onClick={() => setShowPostModal(true)}>

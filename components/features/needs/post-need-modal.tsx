@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { Modal } from '@/components/ui/modal';
 import { Button } from '@/components/ui/button';
 import { NeedCategory, NeedUrgency } from '@/lib/types';
-import { Truck, Heart, Baby, Car, Wrench, Sparkles, X, Check } from 'lucide-react';
+import { Truck, Heart, Baby, Car, Wrench, Sparkles, Check } from 'lucide-react';
 import { ProfileCompletenessGate } from '@/components/features/onboarding/profile-completeness-gate';
 import { shouldShowGateForAction } from '@/hooks/use-contextual-gate';
 
@@ -24,7 +24,7 @@ export interface PostNeedData {
   date: string | null;
   timeframe: string;
   campus: string;
-  volunteersNeeded: number;
+  volunteersNeeded: number | null;
   isAnonymous: boolean;
 }
 
@@ -100,15 +100,6 @@ export function PostNeedModal({ isOpen, onClose, onSubmit }: PostNeedModalProps)
   };
 
   const doSubmit = () => {
-    const categoryIconMap: Record<NeedCategory, 'truck' | 'heart' | 'baby' | 'car' | 'wrench' | 'sparkles'> = {
-      'Moving Help': 'truck',
-      'Prayer Request': 'heart',
-      'Childcare': 'baby',
-      'Transportation': 'car',
-      'Home Repair': 'wrench',
-      'Event Help': 'sparkles',
-    };
-
     onSubmit({
       title: title.trim(),
       description: description.trim(),
@@ -156,12 +147,12 @@ export function PostNeedModal({ isOpen, onClose, onSubmit }: PostNeedModalProps)
         {/* Header */}
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Post a Need</h2>
-          <p className="text-gray-600 mt-1">Ask your church family for help — that's what we're here for.</p>
+          <p className="text-gray-600 mt-1">Ask your church family for help — that&#39;s what we&#39;re here for.</p>
         </div>
 
         {/* Title */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">What's needed?</label>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">What&#39;s needed?</label>
           <input
             type="text"
             value={title}

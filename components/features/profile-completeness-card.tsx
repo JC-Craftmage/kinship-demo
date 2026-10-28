@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { useNeeds } from '@/hooks/use-needs';
 import { useOffers } from '@/hooks/use-offers';
-import { Settings, Camera, Briefcase, PlusCircle, X } from 'lucide-react';
+import { Settings, Camera, PlusCircle, X } from 'lucide-react';
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
 
@@ -36,14 +36,13 @@ export function ProfileCompletenessCard({ onDismiss }: ProfileCompletenessProps)
 
     // Check profile completeness
     const hasImage = user?.imageUrl && !user.imageUrl.includes('placeholder');
-    const hasSkillsOrBusiness = true; // We can't easily check Clerk metadata here, so assume true unless no image
     const userId = user?.id;
     const hasPosted = needs.some(n => n.requesterId === userId) || offers.some(o => o.providerId === userId);
 
     const isComplete = hasImage && hasPosted;
 
     setIsVisible(!isComplete && !isDismissed);
-  }, [isLoaded, user, needs, offers]);
+  }, [isLoaded, user, needs, offers, isDismissed]);
 
   const handleDismiss = () => {
     setIsVisible(false);

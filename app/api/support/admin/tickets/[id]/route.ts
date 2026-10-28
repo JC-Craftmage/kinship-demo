@@ -11,7 +11,7 @@ const VALID_STATUSES = ['open', 'in_progress', 'resolved', 'closed'];
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const userId = await getUserId();
@@ -23,7 +23,7 @@ export async function PATCH(
       );
     }
 
-    const ticketId = params.id;
+    const { id: ticketId } = await params;
     const body = await request.json();
     const { status } = body;
 

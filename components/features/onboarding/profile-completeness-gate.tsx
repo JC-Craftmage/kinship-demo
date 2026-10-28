@@ -3,6 +3,7 @@
 
 'use client';
 
+import Image from 'next/image';
 import { useUser } from '@clerk/nextjs';
 import { Modal } from '@/components/ui/modal';
 import { Button } from '@/components/ui/button';
@@ -71,9 +72,12 @@ export function ProfileCompletenessGate({
         <div className="flex justify-center">
           <div className="relative">
             {user?.imageUrl && !user.imageUrl.includes('placeholder') ? (
-              <img
+              <Image
                 src={user.imageUrl}
                 alt="Your profile"
+                width={96}
+                height={96}
+                unoptimized
                 className="w-24 h-24 rounded-full object-cover border-4 border-indigo-200"
               />
             ) : (

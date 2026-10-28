@@ -1,6 +1,6 @@
 // Need details modal
 
-import { Need } from '@/lib/types';
+import { Need, NeedPoster } from '@/lib/types';
 import { MapPin, Calendar, Clock, CheckCircle2, HandHeart, Truck, Heart, Baby, Car, Wrench, Sparkles } from 'lucide-react';
 import { ProfileCompletenessGate } from '@/components/features/onboarding/profile-completeness-gate';
 import { shouldShowGateForAction } from '@/hooks/use-contextual-gate';
@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 interface NeedModalProps {
   need: Need | null;
   onClose: () => void;
-  onViewPoster?: (poster: any) => void;
+  onViewPoster?: (poster: NeedPoster) => void;
 }
 
 export function NeedModal({ need, onClose, onViewPoster }: NeedModalProps) {
@@ -139,7 +139,7 @@ export function NeedModal({ need, onClose, onViewPoster }: NeedModalProps) {
               🙏 Anonymous Request
             </h3>
             <p className="text-sm text-purple-800">
-              This request was posted anonymously. The poster's identity is only visible to pastoral staff.
+              This request was posted anonymously. The poster&#39;s identity is only visible to pastoral staff.
               Your help and prayers are still deeply appreciated!
             </p>
           </div>

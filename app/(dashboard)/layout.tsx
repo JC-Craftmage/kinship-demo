@@ -2,7 +2,6 @@
 
 'use client';
 
-import { useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Navigation } from '@/components/layout/navigation';
 import { AddToHomeScreenBanner } from '@/components/features/add-to-home-screen';

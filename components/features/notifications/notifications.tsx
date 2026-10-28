@@ -3,7 +3,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Bell, Check, CheckCheck, X, MessageCircle, Heart, Award, Truck, UserPlus } from 'lucide-react';
+import { Bell, CheckCheck, X, MessageCircle, Heart, Award, Truck, UserPlus } from 'lucide-react';
 
 interface Notification {
   id: number;

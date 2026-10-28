@@ -6,9 +6,8 @@ import { useState, useMemo } from 'react';
 import { useMembers } from '@/hooks/use-members';
 import { KudosModal } from '@/components/features/kudos/kudos-modal';
 import { Member } from '@/lib/types';
-import { Award, Search, ChevronDown } from 'lucide-react';
+import { Award, Search } from 'lucide-react';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 
 // Mock kudos leaderboard data
 const MOCK_KUDOS_FEED = [
@@ -124,7 +123,7 @@ export default function KudosPage() {
         {/* Give Kudos */}
         <Card className="p-6">
           <h2 className="font-bold text-xl text-gray-900 mb-1">Give Kudos</h2>
-          <p className="text-gray-600 text-sm mb-4">Recognize someone who's been a blessing</p>
+          <p className="text-gray-600 text-sm mb-4">Recognize someone who&#39;s been a blessing</p>
 
           {/* Search */}
           <div className="relative mb-4">

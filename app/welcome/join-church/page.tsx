@@ -146,7 +146,7 @@ function JoinChurchContent() {
         </Card>
 
         <div className="mt-6 text-center text-sm text-gray-600">
-          <p>Don't have an invite code?</p>
+          <p>Don&#39;t have an invite code?</p>
           <p className="mt-1">Contact your church leadership for access.</p>
         </div>
       </div>

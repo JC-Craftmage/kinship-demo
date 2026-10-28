@@ -3,10 +3,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, X, Heart, Handshake, Truck } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 interface FabMenuItem {
   label: string;
-  icon: React.ComponentType<{ size: number }>;
+  icon: LucideIcon;
   href: string;
   description: string;
 }

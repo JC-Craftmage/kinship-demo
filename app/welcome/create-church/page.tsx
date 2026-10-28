@@ -219,7 +219,7 @@ export default function CreateChurchPage() {
             <div className="text-center mb-8">
               <div className="text-6xl mb-4">🔍</div>
               <h1 className="text-4xl font-bold text-gray-900 mb-2">
-                First, Let's Check
+                First, Let&#39;s Check
               </h1>
               <p className="text-lg text-gray-600">
                 Search to see if your church already exists on Kinship
@@ -365,10 +365,10 @@ export default function CreateChurchPage() {
                   ) : (
                     <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
                       <p className="text-gray-700 mb-2">
-                        <strong>No churches found matching "{searchQuery}"</strong>
+                        <strong>No churches found matching &quot;{searchQuery}&quot;</strong>
                       </p>
                       <p className="text-sm text-gray-600 mb-4">
-                        Looks like your church isn't on Kinship yet. You can set it up!
+                        Looks like your church isn&#39;t on Kinship yet. You can set it up!
                       </p>
                     </div>
                   )}
@@ -533,7 +533,7 @@ export default function CreateChurchPage() {
                         </div>
                       ) : (
                         <p className="text-xs text-gray-500">
-                          Click "Use My Location" to automatically set coordinates for better search accuracy
+                          Click &quot;Use My Location&quot; to automatically set coordinates for better search accuracy
                         </p>
                       )}
                     </div>
@@ -571,7 +571,7 @@ export default function CreateChurchPage() {
 
             <div className="mt-6 text-center text-sm text-gray-600">
               <p>
-                By creating a church, you'll become the Church Owner with full administrative access.
+                By creating a church, you&#39;ll become the Church Owner with full administrative access.
               </p>
             </div>
           </>

@@ -2,6 +2,7 @@
 
 'use client';
 
+import Image from 'next/image';
 import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -100,7 +101,7 @@ function AddLeadershipContent() {
             Add Leadership (Recommended)
           </h1>
           <p className="text-lg text-gray-600">
-            It's strongly recommended to add 1-3 co-leaders to help manage your church
+            It&#39;s strongly recommended to add 1-3 co-leaders to help manage your church
           </p>
         </div>
 
@@ -115,7 +116,7 @@ function AddLeadershipContent() {
                 <ul className="text-sm text-yellow-800 space-y-1">
                   <li>• Prevents single point of failure</li>
                   <li>• Protects against accidental changes</li>
-                  <li>• Provides backup access if you're unavailable</li>
+                  <li>• Provides backup access if you&#39;re unavailable</li>
                   <li>• Distributes administrative workload</li>
                 </ul>
               </div>
@@ -148,7 +149,13 @@ function AddLeadershipContent() {
               {/* QR Code */}
               {qrCodeUrl && (
                 <div className="text-center">
-                  <img src={qrCodeUrl} alt="Invite QR Code" className="mx-auto rounded-lg shadow-md" />
+                  <Image
+                    src={qrCodeUrl}
+                    alt="Invite QR Code"
+                    width={300}
+                    height={300}
+                    className="mx-auto rounded-lg shadow-md"
+                  />
                   <p className="text-sm text-gray-600 mt-2">
                     Scan this QR code with your phone to join
                   </p>
