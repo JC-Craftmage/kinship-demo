@@ -90,6 +90,36 @@ const MANIFEST = {
     guards: [["getUserId", "await auth()"], ["getMembership", "requireChurchRole"], ["REQUEST_REVIEW_ROLES"]],
     note: "Derives the target church from the request row, never from client input.",
   },
+  "app/api/assets/route.ts": {
+    verbs: ["GET"], scope: "tenant",
+    guards: [["getUserId", "await auth()"], ["getMembership", "requireChurchRole"]],
+    note: "Assets shared by the caller's own church members. Church id comes from the caller's membership.",
+  },
+  "app/api/bible-study/route.ts": {
+    verbs: ["GET"], scope: "tenant",
+    guards: [["getUserId", "await auth()"], ["getMembership", "requireChurchRole"]],
+    note: "Bible Study groups of the caller's own church.",
+  },
+  "app/api/directory/route.ts": {
+    verbs: ["GET"], scope: "tenant",
+    guards: [["getUserId", "await auth()"], ["getMembership", "requireChurchRole"]],
+    note: "Member directory of the caller's own church.",
+  },
+  "app/api/meal-trains/route.ts": {
+    verbs: ["GET"], scope: "tenant",
+    guards: [["getUserId", "await auth()"], ["getMembership", "requireChurchRole"]],
+    note: "Meal trains of the caller's own church, with their signups.",
+  },
+  "app/api/needs/route.ts": {
+    verbs: ["GET"], scope: "tenant",
+    guards: [["getUserId", "await auth()"], ["getMembership", "requireChurchRole"]],
+    note: "Needs posted by the caller's own church, with their volunteers.",
+  },
+  "app/api/offers/route.ts": {
+    verbs: ["GET"], scope: "tenant",
+    guards: [["getUserId", "await auth()"], ["getMembership", "requireChurchRole"]],
+    note: "Offers shared by the caller's own church.",
+  },
   "app/api/me/church/route.ts": {
     verbs: ["GET"], scope: "own",
     guards: [["getUserId", "await auth()"], ["getAnyMembership"]],
@@ -117,7 +147,8 @@ const TENANT_TABLES = [
   "church_members", "campus_overseers", "members", "assets", "meal_trains",
   "meal_signups", "needs", "need_volunteers", "join_requests",
   "join_request_responses", "join_request_denials", "member_departures",
-  "support_tickets", "invite_codes",
+  "support_tickets", "invite_codes", "offers", "bible_study_groups",
+  "bible_study_signups", "bible_study_sessions", "bible_study_posts",
 ];
 
 let FAILURES = 0;
@@ -130,6 +161,17 @@ function walk(dir, out = []) {
     const p = path.join(dir, e.name);
     if (e.isDirectory()) walk(p, out);
     else if (e.name === "route.ts") out.push(p);
+  }
+  return out;
+}
+
+/** Every file under a directory (not just route.ts). */
+function walkAll(dir, out = []) {
+  if (!fs.existsSync(dir)) return out;
+  for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+    const p = path.join(dir, e.name);
+    if (e.isDirectory()) walkAll(p, out);
+    else out.push(p);
   }
   return out;
 }
@@ -265,6 +307,45 @@ for (const r of routeFiles) {
   } else {
     pass(`${r.replace("app/api/", "")}: touches ${touched.join(", ")} with scope '${m.scope}'`);
   }
+}
+
+// ------------------------------------------- 5. tenant-table module containment
+// A tenant table can be reached from a helper module instead of the route
+// itself. That is fine ONLY if the helper is server-only (so it can never be
+// pulled into a browser bundle) and the route that uses it is classified.
+console.log(`\n[5] Tenant-table access is contained to server-only modules`);
+const containmentRoots = ["app", "components", "hooks", "lib"];
+const offenders = [];
+for (const root of containmentRoots) {
+  const base = path.join(ROOT, root);
+  if (!fs.existsSync(base)) continue;
+  for (const f of walkAll(base)) {
+    const relp = rel(f);
+    if (relp.includes("node_modules") || relp.includes(".next") || relp.includes(".git")) continue;
+    if (!/\.(ts|tsx|js|jsx)$/.test(f)) continue;
+    const src = fs.readFileSync(f, "utf8");
+    const touched = TENANT_TABLES.filter((t) => new RegExp(`from\\('${t}'\\)`).test(src));
+    if (!touched.length) continue;
+
+    const isRoute = relp.startsWith("app/api/");
+    const serverOnly = /import\s+['"]server-only['"]/.test(src);
+
+    if (isRoute) {
+      const m = MANIFEST[relp];
+      if (!m) {
+        offenders.push(`${relp}: reaches tenant table(s) ${touched.join(", ")} but is unclassified`);
+      } else if (m.scope === "public") {
+        offenders.push(`${relp}: public route reaches tenant table(s) ${touched.join(", ")}`);
+      }
+    } else if (!serverOnly) {
+      offenders.push(`${relp}: reaches tenant table(s) ${touched.join(", ")} but is not marked 'server-only'`);
+    }
+  }
+}
+if (offenders.length) {
+  offenders.forEach((o) => fail(`tenant-table containment: ${o}`));
+} else {
+  pass("every tenant-table read lives in a server-only module or a classified tenant route");
 }
 
 console.log("\n" + "=".repeat(72));

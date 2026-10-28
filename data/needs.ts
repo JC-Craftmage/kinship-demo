@@ -1,10 +1,18 @@
+// ============================================================================
+// DEMO FIXTURES ONLY — NOT PRODUCTION DATA.
+// These records are fake. They exist so a demo build has something to show.
+// They must only ever reach the app through the explicit, env-gated demo
+// mode. The boards themselves read from the authenticated API routes.
+// Guarded by scripts/check-no-mock-imports.js — do not import from a client.
+// ============================================================================
+
 // Mock needs data - will be replaced with API calls later
 
 import { Need } from '@/lib/types';
 
 export const needs: Need[] = [
   {
-    id: 1,
+    id: '1',
     poster: { name: 'Sarah Johnson', avatar: '👩', campus: 'Downtown' },
     category: 'Moving Help',
     categoryIcon: 'truck',
@@ -22,7 +30,7 @@ export const needs: Need[] = [
     adminNotes: 'Consider notifying teen parents - good service opportunity'
   },
   {
-    id: 2,
+    id: '2',
     poster: { name: 'Anonymous', avatar: '🙏', campus: 'Downtown' },
     category: 'Prayer Request',
     categoryIcon: 'heart',
@@ -40,7 +48,7 @@ export const needs: Need[] = [
     adminNotes: 'Pastoral follow-up requested'
   },
   {
-    id: 3,
+    id: '3',
     poster: { name: 'Emily Rodriguez', avatar: '👩‍🦱', campus: 'Westside' },
     category: 'Childcare',
     categoryIcon: 'baby',
@@ -60,7 +68,7 @@ export const needs: Need[] = [
     adminNotes: 'Lisa Thompson confirmed - all set!'
   },
   {
-    id: 4,
+    id: '4',
     poster: { name: 'Robert Chen', avatar: '👴', campus: 'Downtown' },
     category: 'Transportation',
     categoryIcon: 'car',
@@ -81,7 +89,7 @@ export const needs: Need[] = [
     adminNotes: 'Could use a coordinator to schedule the rides'
   },
   {
-    id: 5,
+    id: '5',
     poster: { name: 'Mike Chen', avatar: '👨', campus: 'Downtown' },
     category: 'Home Repair',
     categoryIcon: 'wrench',
@@ -101,7 +109,7 @@ export const needs: Need[] = [
     adminNotes: 'James Wilson helped - roof is fixed! Award kudos.'
   },
   {
-    id: 6,
+    id: '6',
     poster: { name: 'Lisa Thompson', avatar: '👩‍🎨', campus: 'Westside' },
     category: 'Event Help',
     categoryIcon: 'sparkles',

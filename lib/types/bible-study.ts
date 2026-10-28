@@ -1,7 +1,8 @@
 // Bible Study related TypeScript types
 
 export interface BibleStudyGroup {
-  id: number;
+  /** `bible_study_groups.id` — a uuid. Mock rows used to use numbers. */
+  id: string;
   name: string;
   description: string;
   leader: GroupLeader;
@@ -26,8 +27,8 @@ export interface GroupLeader {
 }
 
 export interface StudySession {
-  id: number;
-  groupId: number;
+  id: string;
+  groupId: string;
   date: string;
   topic: string;
   notes: string;
@@ -35,8 +36,8 @@ export interface StudySession {
 }
 
 export interface GroupPost {
-  id: number;
-  groupId: number;
+  id: string;
+  groupId: string;
   author: {
     name: string;
     avatar: string;

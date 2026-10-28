@@ -2,7 +2,7 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useMembers } from '@/hooks/use-members';
 import { MemberCard } from '@/components/features/directory/member-card';
 import { MemberModal } from '@/components/features/directory/member-modal';
@@ -10,24 +10,21 @@ import { Member } from '@/lib/types';
 import { Search, Users } from 'lucide-react';
 import { DashboardHeader } from '@/components/layout/dashboard-header';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
+import { BoardError, BoardLoading } from '@/components/ui/board-status';
 
 export default function DirectoryPage() {
-  const { filteredMembers } = useMembers();
+  const {
+    filteredMembers,
+    campuses,
+    campusFilter,
+    setCampusFilter,
+    searchQuery,
+    setSearchQuery,
+    loading,
+    error,
+    refresh,
+  } = useMembers();
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-
-  const searchedMembers = useMemo(() => {
-    if (!searchQuery.trim()) return filteredMembers;
-    const q = searchQuery.toLowerCase();
-    return filteredMembers.filter(member =>
-      member.name.toLowerCase().includes(q) ||
-      member.skills.some(s => s.toLowerCase().includes(q)) ||
-      member.interests.some(i => i.toLowerCase().includes(q)) ||
-      member.campus.toLowerCase().includes(q) ||
-      (member.jobTitle && member.jobTitle.toLowerCase().includes(q)) ||
-      (member.company && member.company.toLowerCase().includes(q))
-    );
-  }, [filteredMembers, searchQuery]);
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
@@ -55,14 +52,49 @@ export default function DirectoryPage() {
           </div>
           {searchQuery && (
             <p className="text-sm text-gray-500 mt-2">
-              {searchedMembers.length === 0
+              {filteredMembers.length === 0
                 ? 'No members found'
-                : `${searchedMembers.length} member${searchedMembers.length !== 1 ? 's' : ''} found`}
+                : `${filteredMembers.length} member${filteredMembers.length !== 1 ? 's' : ''} found`}
             </p>
+          )}
+
+          {/* Campus filters — derived from the campuses that actually have members */}
+          {campuses.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-4">
+              <button
+                type="button"
+                onClick={() => setCampusFilter('all')}
+                className={`px-3 py-1.5 rounded-full text-sm font-medium border-2 transition ${
+                  campusFilter === 'all'
+                    ? 'bg-indigo-500 border-indigo-500 text-white'
+                    : 'bg-white border-gray-200 text-gray-700 hover:border-indigo-300'
+                }`}
+              >
+                All Campuses
+              </button>
+              {campuses.map(campus => (
+                <button
+                  key={campus}
+                  type="button"
+                  onClick={() => setCampusFilter(campus)}
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium border-2 transition ${
+                    campusFilter === campus
+                      ? 'bg-indigo-500 border-indigo-500 text-white'
+                      : 'bg-white border-gray-200 text-gray-700 hover:border-indigo-300'
+                  }`}
+                >
+                  {campus}
+                </button>
+              ))}
+            </div>
           )}
         </div>
 
-        {searchedMembers.length === 0 && !searchQuery ? (
+        {error ? (
+          <BoardError message={error} onRetry={() => void refresh()} />
+        ) : loading ? (
+          <BoardLoading label="Loading members" />
+        ) : filteredMembers.length === 0 && !searchQuery ? (
           <div className="text-center py-16 bg-white rounded-xl border-2 border-gray-100">
             <div className="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-4">
               <Users size={36} className="text-indigo-400" />
@@ -70,7 +102,7 @@ export default function DirectoryPage() {
             <h3 className="text-xl font-bold text-gray-900 mb-2">No Members Yet</h3>
             <p className="text-gray-500 text-sm max-w-xs mx-auto">Members will appear here once your church grows.</p>
           </div>
-        ) : searchedMembers.length === 0 ? (
+        ) : filteredMembers.length === 0 ? (
           <div className="text-center py-16 bg-white rounded-xl border-2 border-gray-100">
             <div className="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-4">
               <Search size={36} className="text-indigo-400" />
@@ -80,7 +112,7 @@ export default function DirectoryPage() {
           </div>
         ) : (
           <div className="grid md:grid-cols-2 gap-4">
-            {searchedMembers.map(member => (
+            {filteredMembers.map(member => (
               <MemberCard
                 key={member.id}
                 member={member}

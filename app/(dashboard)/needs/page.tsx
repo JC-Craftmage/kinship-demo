@@ -10,9 +10,10 @@ import { PostNeedModal, PostNeedData } from '@/components/features/needs/post-ne
 import { Need } from '@/lib/types';
 import { HandHeart, Plus, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { BoardError, BoardLoading } from '@/components/ui/board-status';
 
 export default function NeedsPage() {
-  const { needs } = useNeeds();
+  const { needs, loading, error, refresh } = useNeeds();
   const [selectedNeed, setSelectedNeed] = useState<Need | null>(null);
   const [showPostModal, setShowPostModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -103,32 +104,40 @@ export default function NeedsPage() {
           </div>
         </div>
 
-        {/* Needs Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredNeeds.map((need) => (
-            <NeedCard
-              key={need.id}
-              need={need}
-              onSelect={setSelectedNeed}
-            />
-          ))}
-        </div>
-
-        {filteredNeeds.length === 0 && (
-          <div className="text-center py-16 bg-white rounded-xl border-2 border-gray-100">
-            <div className="w-20 h-20 bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-4">
-              <HandHeart size={36} className="text-teal-400" />
+        {error ? (
+          <BoardError message={error} onRetry={() => void refresh()} />
+        ) : loading ? (
+          <BoardLoading label="Loading needs" />
+        ) : (
+          <>
+            {/* Needs Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredNeeds.map((need) => (
+                <NeedCard
+                  key={need.id}
+                  need={need}
+                  onSelect={setSelectedNeed}
+                />
+              ))}
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">No needs found</h3>
-            <p className="text-gray-500 text-sm mb-6 max-w-xs mx-auto">
-              {searchQuery ? 'Try adjusting your search or filters to find what you\'re looking for.' : 'Be the first to post a need and let your church family help!'}
-            </p>
-            {!searchQuery && (
-              <Button variant="primary" icon={<Plus size={16} />} onClick={() => setShowPostModal(true)}>
-                Post the First Need
-              </Button>
+
+            {filteredNeeds.length === 0 && (
+              <div className="text-center py-16 bg-white rounded-xl border-2 border-gray-100">
+                <div className="w-20 h-20 bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <HandHeart size={36} className="text-teal-400" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">No needs found</h3>
+                <p className="text-gray-500 text-sm mb-6 max-w-xs mx-auto">
+                  {searchQuery ? 'Try adjusting your search or filters to find what you\'re looking for.' : 'Be the first to post a need and let your church family help!'}
+                </p>
+                {!searchQuery && (
+                  <Button variant="primary" icon={<Plus size={16} />} onClick={() => setShowPostModal(true)}>
+                    Post the First Need
+                  </Button>
+                )}
+              </div>
             )}
-          </div>
+          </>
         )}
       </div>
 

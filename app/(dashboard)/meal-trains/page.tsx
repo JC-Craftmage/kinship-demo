@@ -11,9 +11,10 @@ import { MealTrain } from '@/lib/types';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DashboardHeader } from '@/components/layout/dashboard-header';
+import { BoardError, BoardLoading } from '@/components/ui/board-status';
 
 export default function MealTrainsPage() {
-  const { mealTrains } = useMealTrains();
+  const { mealTrains, loading, error, refresh } = useMealTrains();
   const [selectedMealTrain, setSelectedMealTrain] = useState<MealTrain | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
 
@@ -41,13 +42,27 @@ export default function MealTrainsPage() {
         </div>
       </div>
       <div className="max-w-7xl mx-auto px-4 py-6 space-y-4">
-        {mealTrains.map((train) => (
-          <MealTrainCard
-            key={train.id}
-            train={train}
-            onSelect={setSelectedMealTrain}
-          />
-        ))}
+        {error ? (
+          <BoardError message={error} onRetry={() => void refresh()} />
+        ) : loading ? (
+          <BoardLoading label="Loading meal trains" />
+        ) : mealTrains.length === 0 ? (
+          <div className="text-center py-16 bg-white rounded-xl border-2 border-gray-100">
+            <div className="text-6xl mb-4">🍲</div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">No meal trains yet</h3>
+            <p className="text-gray-500 text-sm max-w-xs mx-auto">
+              Start a meal train to support a family in your church family.
+            </p>
+          </div>
+        ) : (
+          mealTrains.map((train) => (
+            <MealTrainCard
+              key={train.id}
+              train={train}
+              onSelect={setSelectedMealTrain}
+            />
+          ))
+        )}
       </div>
 
       {/* Meal Train Modal */}

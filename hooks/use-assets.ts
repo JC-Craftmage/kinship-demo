@@ -1,22 +1,18 @@
-// Custom hook for assets management and filtering
+'use client';
 
-import { useState, useMemo } from 'react';
-import { members } from '@/data/members';
+// Assets Board — loads the assets shared by the caller's church members.
+
+import { useMemo, useState } from 'react';
+import { useBoardData } from './use-board-data';
+import { AssetWithOwner } from '@/lib/types';
 
 type AssetFilter = 'all' | 'vehicle' | 'equipment' | 'tools' | 'business';
 
 export function useAssets() {
+  const { data, loading, error, refresh } = useBoardData<{ assets: AssetWithOwner[] }>('/api/assets');
   const [assetFilter, setAssetFilter] = useState<AssetFilter>('all');
 
-  // Flatten all assets from all members with owner information
-  const allAssets = useMemo(() => {
-    return members.flatMap(member =>
-      member.assets.map(asset => ({
-        ...asset,
-        owner: member
-      }))
-    );
-  }, []);
+  const allAssets = useMemo(() => data?.assets ?? [], [data]);
 
   // Filter assets by type
   const filteredAssets = useMemo(() => {
@@ -39,5 +35,8 @@ export function useAssets() {
     assetFilter,
     setAssetFilter,
     assetCounts,
+    loading,
+    error,
+    refresh,
   };
 }

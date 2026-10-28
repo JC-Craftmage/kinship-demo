@@ -1,13 +1,17 @@
-// Custom hook for needs management
+'use client';
 
-import { useState } from 'react';
-import { needs as mockNeeds } from '@/data/needs';
+// Needs Board — loads the caller's church needs from the API.
+
+import { useBoardData } from './use-board-data';
 import { Need } from '@/lib/types';
 
 export function useNeeds() {
-  const [needs] = useState<Need[]>(mockNeeds);
+  const { data, loading, error, refresh } = useBoardData<{ needs: Need[] }>('/api/needs');
 
   return {
-    needs,
+    needs: data?.needs ?? [],
+    loading,
+    error,
+    refresh,
   };
 }

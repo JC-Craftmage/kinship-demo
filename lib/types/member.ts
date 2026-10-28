@@ -8,9 +8,11 @@ export interface Asset {
 }
 
 export interface Member {
-  id: number;
+  /** `members.id` — a uuid. Mock rows used to use numbers. */
+  id: string;
   name: string;
-  campus: 'Downtown' | 'Westside';
+  /** Campus name from the `campuses` table. Mock rows hardcoded two values. */
+  campus: string;
   skills: string[];
   interests: string[];
   avatar: string;

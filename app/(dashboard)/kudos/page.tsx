@@ -41,7 +41,7 @@ export default function KudosPage() {
       .slice(0, 10);
   }, [filteredMembers]);
 
-  const handleGiveKudos = (memberId: number, reason: string, amount: number) => {
+  const handleGiveKudos = (memberId: string, reason: string, amount: number) => {
     console.log(`Gave ${amount} kudos to member ${memberId} for: ${reason}`);
     // In production: POST to API, update local state
   };

@@ -6,6 +6,7 @@
 // enforce role checks. Every lookup is scoped by BOTH user and church so a
 // request can never reach another tenant's data by guessing an id.
 
+import 'server-only';
 import { auth } from '@clerk/nextjs/server';
 import { supabase } from './server';
 import type { ChurchRole } from './types';

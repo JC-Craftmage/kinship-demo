@@ -1,10 +1,18 @@
+// ============================================================================
+// DEMO FIXTURES ONLY — NOT PRODUCTION DATA.
+// These records are fake. They exist so a demo build has something to show.
+// They must only ever reach the app through the explicit, env-gated demo
+// mode. The boards themselves read from the authenticated API routes.
+// Guarded by scripts/check-no-mock-imports.js — do not import from a client.
+// ============================================================================
+
 // Mock offers data - will be replaced with API calls later
 
 import { Offer } from '@/lib/types';
 
 export const offers: Offer[] = [
   {
-    id: 1,
+    id: '1',
     poster: { name: 'Mike Chen', avatar: '👨', campus: 'Downtown' },
     category: 'Transportation',
     categoryIcon: 'car',
@@ -17,7 +25,7 @@ export const offers: Offer[] = [
     isVerified: true
   },
   {
-    id: 2,
+    id: '2',
     poster: { name: 'Robert Chen', avatar: '👴', campus: 'Downtown' },
     category: 'Skilled Labor',
     categoryIcon: 'wrench',
@@ -30,7 +38,7 @@ export const offers: Offer[] = [
     isVerified: true
   },
   {
-    id: 3,
+    id: '3',
     poster: { name: 'Emily Rodriguez', avatar: '👩‍🦱', campus: 'Westside' },
     category: 'Childcare',
     categoryIcon: 'baby',
@@ -43,7 +51,7 @@ export const offers: Offer[] = [
     isVerified: true
   },
   {
-    id: 4,
+    id: '4',
     poster: { name: 'James Wilson', avatar: '👨‍🔧', campus: 'Eastside' },
     category: 'Home Repair',
     categoryIcon: 'wrench',
@@ -56,7 +64,7 @@ export const offers: Offer[] = [
     isVerified: true
   },
   {
-    id: 5,
+    id: '5',
     poster: { name: 'David Martinez', avatar: '👨‍💼', campus: 'Downtown' },
     category: 'Transportation',
     categoryIcon: 'car',
@@ -69,7 +77,7 @@ export const offers: Offer[] = [
     isVerified: true
   },
   {
-    id: 6,
+    id: '6',
     poster: { name: 'Lisa Thompson', avatar: '👩‍🎨', campus: 'Westside' },
     category: 'Equipment Rental',
     categoryIcon: 'package',

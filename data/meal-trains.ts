@@ -1,10 +1,18 @@
+// ============================================================================
+// DEMO FIXTURES ONLY — NOT PRODUCTION DATA.
+// These records are fake. They exist so a demo build has something to show.
+// They must only ever reach the app through the explicit, env-gated demo
+// mode. The boards themselves read from the authenticated API routes.
+// Guarded by scripts/check-no-mock-imports.js — do not import from a client.
+// ============================================================================
+
 // Mock meal train data - will be replaced with API calls later
 
 import { MealTrain } from '@/lib/types';
 
 export const mealTrains: MealTrain[] = [
   {
-    id: 1,
+    id: '1',
     recipient: { name: 'Sarah Johnson', avatar: '👩', campus: 'Downtown' },
     reason: 'New Baby',
     description: 'Baby Emma arrived! Meals for a family of 4 (including two picky eaters ages 5 and 3).',
@@ -31,7 +39,7 @@ export const mealTrains: MealTrain[] = [
     kudosAwarded: false
   },
   {
-    id: 2,
+    id: '2',
     recipient: { name: 'Robert Chen', avatar: '👴', campus: 'Downtown' },
     reason: 'Recovery - Hip Surgery',
     description: 'Robert is recovering from hip surgery. Meals for 1 person.',
@@ -60,7 +68,7 @@ export const mealTrains: MealTrain[] = [
     kudosAwarded: false
   },
   {
-    id: 3,
+    id: '3',
     recipient: { name: 'Martinez Family', avatar: '👨‍👩‍👧‍👦', campus: 'Westside' },
     reason: 'House Fire Recovery',
     description: 'The Martinez family lost their home in a fire. Meals for 5 people while they rebuild.',

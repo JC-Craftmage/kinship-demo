@@ -1,13 +1,17 @@
-// Custom hook for Bible Study groups management
+'use client';
+
+// Bible Study Board — loads the study groups of the caller's church.
 
 import { useState } from 'react';
-import { bibleStudyGroups as mockGroups } from '@/data/bible-study';
+import { useBoardData } from './use-board-data';
 import { BibleStudyGroup } from '@/lib/types';
 
 export function useBibleStudy() {
-  const [groups] = useState<BibleStudyGroup[]>(mockGroups);
+  const { data, loading, error, refresh } = useBoardData<{ groups: BibleStudyGroup[] }>('/api/bible-study');
   const [filter, setFilter] = useState<'all' | 'open' | 'campus'>('all');
   const [searchQuery, setSearchQuery] = useState('');
+
+  const groups = data?.groups ?? [];
 
   const filteredGroups = groups.filter(group => {
     const matchesSearch = searchQuery === '' ||
@@ -28,5 +32,8 @@ export function useBibleStudy() {
     setFilter,
     searchQuery,
     setSearchQuery,
+    loading,
+    error,
+    refresh,
   };
 }

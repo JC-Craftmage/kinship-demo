@@ -26,7 +26,8 @@ export type NeedStatus = 'open' | 'in-progress' | 'fulfilled';
 export type NeedUrgency = 'low' | 'medium' | 'high';
 
 export interface Need {
-  id: number;
+  /** `needs.id` — a uuid. Mock rows used to use numbers. */
+  id: string;
   /** Clerk user id of the person who posted the need. Absent on mock rows. */
   requesterId?: string;
   poster: NeedPoster;

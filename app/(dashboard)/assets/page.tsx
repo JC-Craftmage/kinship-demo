@@ -11,9 +11,10 @@ import { AssetWithOwner } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { DashboardHeader } from '@/components/layout/dashboard-header';
+import { BoardError, BoardLoading } from '@/components/ui/board-status';
 
 export default function AssetsPage() {
-  const { filteredAssets, assetFilter, setAssetFilter, assetCounts } = useAssets();
+  const { filteredAssets, assetFilter, setAssetFilter, assetCounts, loading, error, refresh } = useAssets();
   const [selectedAsset, setSelectedAsset] = useState<AssetWithOwner | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
 
@@ -74,24 +75,32 @@ export default function AssetsPage() {
           )}
         </div>
 
-        {/* Assets Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredAssets.map((asset, i) => (
-            <AssetCard
-              key={i}
-              asset={asset}
-              onSelect={setSelectedAsset}
-            />
-          ))}
-        </div>
+        {error ? (
+          <BoardError message={error} onRetry={() => void refresh()} />
+        ) : loading ? (
+          <BoardLoading label="Loading assets" />
+        ) : (
+          <>
+            {/* Assets Grid */}
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredAssets.map((asset, i) => (
+                <AssetCard
+                  key={i}
+                  asset={asset}
+                  onSelect={setSelectedAsset}
+                />
+              ))}
+            </div>
 
-        {/* Empty State */}
-        {filteredAssets.length === 0 && (
-          <div className="text-center py-12 bg-white rounded-xl">
-            <div className="text-6xl mb-4">📦</div>
-            <h3 className="text-xl font-bold mb-2">No assets in this category</h3>
-            <p className="text-gray-600">Try selecting a different filter</p>
-          </div>
+            {/* Empty State */}
+            {filteredAssets.length === 0 && (
+              <div className="text-center py-12 bg-white rounded-xl">
+                <div className="text-6xl mb-4">📦</div>
+                <h3 className="text-xl font-bold mb-2">No assets in this category</h3>
+                <p className="text-gray-600">Try selecting a different filter</p>
+              </div>
+            )}
+          </>
         )}
       </div>
 

@@ -1,13 +1,17 @@
-// Custom hook for offers management
+'use client';
 
-import { useState } from 'react';
-import { offers as mockOffers } from '@/data/offers';
+// Offers Board — loads the caller's church offers from the API.
+
+import { useBoardData } from './use-board-data';
 import { Offer } from '@/lib/types';
 
 export function useOffers() {
-  const [offers] = useState<Offer[]>(mockOffers);
+  const { data, loading, error, refresh } = useBoardData<{ offers: Offer[] }>('/api/offers');
 
   return {
-    offers,
+    offers: data?.offers ?? [],
+    loading,
+    error,
+    refresh,
   };
 }

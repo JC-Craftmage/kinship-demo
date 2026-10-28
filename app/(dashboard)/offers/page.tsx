@@ -11,9 +11,10 @@ import { Offer } from '@/lib/types';
 import { Handshake, Plus, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
+import { BoardError, BoardLoading } from '@/components/ui/board-status';
 
 export default function OffersPage() {
-  const { offers } = useOffers();
+  const { offers, loading, error, refresh } = useOffers();
   const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
   const [showPostModal, setShowPostModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -107,32 +108,40 @@ export default function OffersPage() {
           </div>
         </div>
 
-        {/* Offers Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredOffers.map((offer) => (
-            <OfferCard
-              key={offer.id}
-              offer={offer}
-              onSelect={setSelectedOffer}
-            />
-          ))}
-        </div>
-
-        {filteredOffers.length === 0 && (
-          <div className="text-center py-16 bg-white rounded-xl border-2 border-gray-100">
-            <div className="w-20 h-20 bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Handshake size={36} className="text-teal-400" />
+        {error ? (
+          <BoardError message={error} onRetry={() => void refresh()} />
+        ) : loading ? (
+          <BoardLoading label="Loading offers" />
+        ) : (
+          <>
+            {/* Offers Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredOffers.map((offer) => (
+                <OfferCard
+                  key={offer.id}
+                  offer={offer}
+                  onSelect={setSelectedOffer}
+                />
+              ))}
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">No offers found</h3>
-            <p className="text-gray-500 text-sm mb-6 max-w-xs mx-auto">
-              {searchQuery ? 'Try adjusting your search or filters to find what you\'re looking for.' : 'Be the first to share what you can offer your church family!'}
-            </p>
-            {!searchQuery && (
-              <Button variant="primary" icon={<Plus size={16} />} onClick={() => setShowPostModal(true)}>
-                Post the First Offer
-              </Button>
+
+            {filteredOffers.length === 0 && (
+              <div className="text-center py-16 bg-white rounded-xl border-2 border-gray-100">
+                <div className="w-20 h-20 bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Handshake size={36} className="text-teal-400" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">No offers found</h3>
+                <p className="text-gray-500 text-sm mb-6 max-w-xs mx-auto">
+                  {searchQuery ? 'Try adjusting your search or filters to find what you\'re looking for.' : 'Be the first to share what you can offer your church family!'}
+                </p>
+                {!searchQuery && (
+                  <Button variant="primary" icon={<Plus size={16} />} onClick={() => setShowPostModal(true)}>
+                    Post the First Offer
+                  </Button>
+                )}
+              </div>
             )}
-          </div>
+          </>
         )}
       </div>
 

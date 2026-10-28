@@ -1,10 +1,18 @@
+// ============================================================================
+// DEMO FIXTURES ONLY — NOT PRODUCTION DATA.
+// These records are fake. They exist so a demo build has something to show.
+// They must only ever reach the app through the explicit, env-gated demo
+// mode. The boards themselves read from the authenticated API routes.
+// Guarded by scripts/check-no-mock-imports.js — do not import from a client.
+// ============================================================================
+
 // Mock member data - will be replaced with API calls later
 
 import { Member } from '@/lib/types';
 
 export const members: Member[] = [
   {
-    id: 2,
+    id: '2',
     name: 'Mike Chen',
     campus: 'Downtown',
     skills: ['Carpenter', 'Home Repair', 'Woodworking'],
@@ -24,7 +32,7 @@ export const members: Member[] = [
     memberSince: '2015'
   },
   {
-    id: 1,
+    id: '1',
     name: 'Sarah Johnson',
     campus: 'Downtown',
     skills: ['Real Estate Agent', 'Photography'],
@@ -42,7 +50,7 @@ export const members: Member[] = [
     memberSince: '2017'
   },
   {
-    id: 8,
+    id: '8',
     name: 'Robert Chen',
     campus: 'Downtown',
     skills: ['Retired Teacher', 'Mentoring', 'Tutoring'],
@@ -58,7 +66,7 @@ export const members: Member[] = [
     memberSince: '1998'
   },
   {
-    id: 7,
+    id: '7',
     name: 'Rachel Kim',
     campus: 'Downtown',
     skills: ['Software Engineer', 'Web Development', 'React'],
@@ -74,7 +82,7 @@ export const members: Member[] = [
     memberSince: '2023'
   },
   {
-    id: 3,
+    id: '3',
     name: 'Emily Rodriguez',
     campus: 'Westside',
     skills: ['Teacher', 'Piano', 'Childcare'],
@@ -90,7 +98,7 @@ export const members: Member[] = [
     memberSince: '2020'
   },
   {
-    id: 4,
+    id: '4',
     name: 'David Martinez',
     campus: 'Downtown',
     skills: ['Accountant', 'Financial Advisor', 'Tax Prep'],
@@ -108,7 +116,7 @@ export const members: Member[] = [
     memberSince: '2018'
   },
   {
-    id: 5,
+    id: '5',
     name: 'Lisa Thompson',
     campus: 'Westside',
     skills: ['Graphic Designer', 'Event Planning', 'Social Media'],
@@ -126,7 +134,7 @@ export const members: Member[] = [
     memberSince: '2016'
   },
   {
-    id: 6,
+    id: '6',
     name: 'James Wilson',
     campus: 'Downtown',
     skills: ['Plumber', 'Home Repair', 'HVAC'],

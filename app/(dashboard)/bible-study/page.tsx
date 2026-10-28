@@ -11,9 +11,10 @@ import { BibleStudyGroup } from '@/lib/types';
 import { BookOpen, Plus, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
+import { BoardError, BoardLoading } from '@/components/ui/board-status';
 
 export default function BibleStudyPage() {
-  const { groups, filteredGroups, searchQuery, setSearchQuery } = useBibleStudy();
+  const { groups, filteredGroups, searchQuery, setSearchQuery, loading, error, refresh } = useBibleStudy();
   const [selectedGroup, setSelectedGroup] = useState<BibleStudyGroup | null>(null);
   const [showPostModal, setShowPostModal] = useState(false);
 
@@ -75,32 +76,40 @@ export default function BibleStudyPage() {
           />
         </div>
 
-        {/* Groups Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredGroups.map((group) => (
-            <BibleStudyCard
-              key={group.id}
-              group={group}
-              onSelect={setSelectedGroup}
-            />
-          ))}
-        </div>
-
-        {filteredGroups.length === 0 && (
-          <div className="text-center py-16 bg-white rounded-xl border-2 border-gray-100">
-            <div className="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-4">
-              <BookOpen size={36} className="text-indigo-400" />
+        {error ? (
+          <BoardError message={error} onRetry={() => void refresh()} />
+        ) : loading ? (
+          <BoardLoading label="Loading Bible study groups" />
+        ) : (
+          <>
+            {/* Groups Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredGroups.map((group) => (
+                <BibleStudyCard
+                  key={group.id}
+                  group={group}
+                  onSelect={setSelectedGroup}
+                />
+              ))}
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">No groups found</h3>
-            <p className="text-gray-500 text-sm mb-6 max-w-xs mx-auto">
-              {searchQuery ? 'Try adjusting your search to find a Bible study group.' : 'Start the first Bible study group and gather in God\'s Word together!'}
-            </p>
-            {!searchQuery && (
-              <Button variant="primary" icon={<Plus size={16} />} onClick={() => setShowPostModal(true)}>
-                Start a Group
-              </Button>
+
+            {filteredGroups.length === 0 && (
+              <div className="text-center py-16 bg-white rounded-xl border-2 border-gray-100">
+                <div className="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <BookOpen size={36} className="text-indigo-400" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">No groups found</h3>
+                <p className="text-gray-500 text-sm mb-6 max-w-xs mx-auto">
+                  {searchQuery ? 'Try adjusting your search to find a Bible study group.' : 'Start the first Bible study group and gather in God\'s Word together!'}
+                </p>
+                {!searchQuery && (
+                  <Button variant="primary" icon={<Plus size={16} />} onClick={() => setShowPostModal(true)}>
+                    Start a Group
+                  </Button>
+                )}
+              </div>
             )}
-          </div>
+          </>
         )}
       </div>
 

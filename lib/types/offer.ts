@@ -19,7 +19,8 @@ export type OfferCategory =
 export type OfferAvailability = 'available' | 'limited' | 'unavailable';
 
 export interface Offer {
-  id: number;
+  /** `offers.id` — a uuid. Mock rows used to use numbers. */
+  id: string;
   /** Clerk user id of the person who posted the offer. Absent on mock rows. */
   providerId?: string;
   poster: OfferPoster;

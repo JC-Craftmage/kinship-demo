@@ -1,16 +1,17 @@
-// Custom hook for meal trains management
+'use client';
 
-import { useState } from 'react';
-import { mealTrains as mockMealTrains } from '@/data/meal-trains';
+// Meal Trains — loads the meal calendars of the caller's church.
+
+import { useBoardData } from './use-board-data';
 import { MealTrain } from '@/lib/types';
 
 export function useMealTrains() {
-  const [mealTrains] = useState<MealTrain[]>(mockMealTrains);
+  const { data, loading, error, refresh } = useBoardData<{ mealTrains: MealTrain[] }>('/api/meal-trains');
 
   const calculateProgress = (train: MealTrain) => {
     const totalSlots = train.signups.length;
     const filledSlots = train.signups.filter(s => s.signedUp).length;
-    const percentFilled = Math.round((filledSlots / totalSlots) * 100);
+    const percentFilled = totalSlots === 0 ? 0 : Math.round((filledSlots / totalSlots) * 100);
 
     return {
       totalSlots,
@@ -21,7 +22,10 @@ export function useMealTrains() {
   };
 
   return {
-    mealTrains,
+    mealTrains: data?.mealTrains ?? [],
     calculateProgress,
+    loading,
+    error,
+    refresh,
   };
 }

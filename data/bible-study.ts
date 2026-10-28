@@ -1,3 +1,11 @@
+// ============================================================================
+// DEMO FIXTURES ONLY — NOT PRODUCTION DATA.
+// These records are fake. They exist so a demo build has something to show.
+// They must only ever reach the app through the explicit, env-gated demo
+// mode. The boards themselves read from the authenticated API routes.
+// Guarded by scripts/check-no-mock-imports.js — do not import from a client.
+// ============================================================================
+
 // Mock Bible Study data - will be replaced with API calls later
 
 // Featured Verse
@@ -8,7 +16,7 @@ import { BibleStudyGroup } from '@/lib/types';
 
 export const bibleStudyGroups: BibleStudyGroup[] = [
   {
-    id: 1,
+    id: '1',
     name: 'Gospel of John',
     description: 'Diving deep into the book of John, verse by verse. All levels welcome, come as you are.',
     leader: { name: 'Pastor Tim', avatar: '👨‍🦱' },
@@ -25,7 +33,7 @@ export const bibleStudyGroups: BibleStudyGroup[] = [
     createdAt: '2025-08-15'
   },
   {
-    id: 2,
+    id: '2',
     name: 'Romans Study',
     description: 'Working through Paul\'s letter to the Romans. Great for those who want to understand salvation and grace.',
     leader: { name: 'Mike Chen', avatar: '👨' },
@@ -42,7 +50,7 @@ export const bibleStudyGroups: BibleStudyGroup[] = [
     createdAt: '2025-06-01'
   },
   {
-    id: 3,
+    id: '3',
     name: 'Women\'s Bible Study',
     description: 'Ladies gathering to study God\'s Word together. Coffee, fellowship, and honest conversation.',
     leader: { name: 'Sarah Johnson', avatar: '👩' },
@@ -59,7 +67,7 @@ export const bibleStudyGroups: BibleStudyGroup[] = [
     createdAt: '2025-01-10'
   },
   {
-    id: 4,
+    id: '4',
     name: 'Young Adults Study',
     description: '20s and 30s group tackling relevant topics and deep Bible study. Bring your questions.',
     leader: { name: 'David Martinez', avatar: '👨‍💼' },
@@ -76,7 +84,7 @@ export const bibleStudyGroups: BibleStudyGroup[] = [
     createdAt: '2025-03-20'
   },
   {
-    id: 5,
+    id: '5',
     name: 'Genesis Study',
     description: 'From the beginning — tracing God\'s story from Genesis through Revelation.',
     leader: { name: 'Robert Chen', avatar: '👴' },
@@ -93,7 +101,7 @@ export const bibleStudyGroups: BibleStudyGroup[] = [
     createdAt: '2024-09-01'
   },
   {
-    id: 6,
+    id: '6',
     name: 'Prayer & Proverbs',
     description: 'Short, focused study through Proverbs with strong emphasis on prayer life.',
     leader: { name: 'Lisa Thompson', avatar: '👩‍🎨' },

@@ -12,10 +12,13 @@ export interface MealSignup {
   signedUp: boolean;
   volunteer: string | null;
   delivered: boolean;
+  /** True when this slot was signed up for by the signed-in member. */
+  isMine?: boolean;
 }
 
 export interface MealTrain {
-  id: number;
+  /** `meal_trains.id` — a uuid. Mock rows used to use numbers. */
+  id: string;
   recipient: MealRecipient;
   reason: string;
   description: string;

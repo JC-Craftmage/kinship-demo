@@ -1,15 +1,25 @@
-// Custom hook for member management and filtering
+'use client';
 
-import { useState, useMemo } from 'react';
-import { members as mockMembers } from '@/data/members';
+// Member Directory — loads the members of the caller's church.
+
+import { useMemo, useState } from 'react';
+import { useBoardData } from './use-board-data';
 import { Member } from '@/lib/types';
 
-type CampusFilter = 'all' | 'Downtown' | 'Westside';
+type CampusFilter = 'all' | string;
 
 export function useMembers() {
-  const [members] = useState<Member[]>(mockMembers);
+  const { data, loading, error, refresh } = useBoardData<{ members: Member[] }>('/api/directory');
   const [campusFilter, setCampusFilter] = useState<CampusFilter>('all');
   const [searchQuery, setSearchQuery] = useState('');
+
+  const members = useMemo(() => data?.members ?? [], [data]);
+
+  // The campuses that actually have members, so the filter is not hardcoded.
+  const campuses = useMemo(
+    () => [...new Set(members.map(member => member.campus))].sort(),
+    [members]
+  );
 
   // Filter members by campus
   const filteredMembers = useMemo(() => {
@@ -27,7 +37,9 @@ export function useMembers() {
         m.name.toLowerCase().includes(query) ||
         m.skills.some(s => s.toLowerCase().includes(query)) ||
         m.interests.some(i => i.toLowerCase().includes(query)) ||
-        m.jobTitle.toLowerCase().includes(query)
+        m.campus.toLowerCase().includes(query) ||
+        (m.jobTitle && m.jobTitle.toLowerCase().includes(query)) ||
+        (m.company && m.company.toLowerCase().includes(query))
       );
     }
 
@@ -69,9 +81,13 @@ export function useMembers() {
     withAssets,
     totalMembers,
     totalAssets,
+    campuses,
     campusFilter,
     setCampusFilter,
     searchQuery,
     setSearchQuery,
+    loading,
+    error,
+    refresh,
   };
 }

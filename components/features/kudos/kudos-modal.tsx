@@ -12,7 +12,7 @@ interface KudosModalProps {
   isOpen: boolean;
   onClose: () => void;
   member: Member;
-  onGiveKudos: (memberId: number, reason: string, amount: number) => void;
+  onGiveKudos: (memberId: string, reason: string, amount: number) => void;
 }
 
 const KUDOS_REASONS = [

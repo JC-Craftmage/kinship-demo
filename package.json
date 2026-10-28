@@ -9,7 +9,8 @@
     "lint": "eslint",
     "verify:db": "node scripts/verify-migrations.js",
     "audit:auth": "node scripts/audit-api-auth.js",
-    "verify": "npm run audit:auth && npm run verify:db"
+    "verify": "npm run check:no-mock && npm run audit:auth && npm run verify:db",
+    "check:no-mock": "node scripts/check-no-mock-imports.js"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.34.1",
