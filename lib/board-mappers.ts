@@ -14,6 +14,9 @@ import type {
   Asset,
   BibleStudyGroup,
   KudosEntry,
+  LifeEvent,
+  LifeEventComment,
+  LifeEventType,
   MealSignup,
   MealTrain,
   Member,
@@ -25,6 +28,7 @@ import type {
   OfferCategory,
 } from '@/lib/types';
 import type { Database } from '@/lib/supabase/types';
+import { LIFE_EVENT_TYPES } from '@/lib/types/life-events';
 
 type Tables = Database['public']['Tables'];
 type MemberRow = Tables['members']['Row'];
@@ -35,6 +39,8 @@ type MealTrainRow = Tables['meal_trains']['Row'];
 type MealSignupRow = Tables['meal_signups']['Row'];
 type StudyGroupRow = Tables['bible_study_groups']['Row'];
 type KudosRow = Tables['kudos']['Row'];
+type LifeEventRow = Tables['life_events']['Row'];
+type LifeEventCommentRow = Tables['life_event_comments']['Row'];
 
 // ---------------------------------------------------------------- categories
 
@@ -261,6 +267,64 @@ export function mapKudos(row: KudosRow, ctx: KudosContext): KudosEntry | null {
     amount: row.amount,
     createdAt: row.created_at,
     campus: ctx.campusName,
+  };
+}
+
+// --------------------------------------------------------------- life events
+
+/** The UI's event types, mirrored so an unknown type is detectable. */
+export const LIFE_EVENT_TYPE_VALUES: readonly string[] = LIFE_EVENT_TYPES;
+
+export interface LifeEventContext {
+  /** Name of the member the event is about, when it is about a member. */
+  memberName: string;
+  memberAvatar: string;
+  /** Campus the event belongs to. */
+  campusName: string;
+  /** Comments on this event, oldest first. */
+  comments: LifeEventComment[];
+}
+
+function isLifeEventType(value: string): value is LifeEventType {
+  return (LIFE_EVENT_TYPES as readonly string[]).includes(value);
+}
+
+/**
+ * A life event with a type the UI does not know is a corrupt row, not a
+ * value: the page has no icon, color or label for it, so it is dropped
+ * rather than rendered as something it is not.
+ */
+export function mapLifeEvent(row: LifeEventRow, ctx: LifeEventContext): LifeEvent | null {
+  if (!isLifeEventType(row.event_type)) return null;
+  if (!row.title || !row.title.trim()) return null;
+  if (!row.event_date) return null;
+
+  return {
+    id: row.id,
+    type: row.event_type,
+    title: row.title.trim(),
+    description: row.description ?? '',
+    date: row.event_date,
+    memberName: ctx.memberName,
+    memberAvatar: ctx.memberAvatar,
+    campus: ctx.campusName,
+    postedBy: row.created_by_name?.trim() ? row.created_by_name : 'A member',
+    postedAt: row.created_at,
+    comments: ctx.comments,
+  };
+}
+
+export function mapLifeEventComment(
+  row: LifeEventCommentRow,
+  authorAvatar: string,
+): LifeEventComment | null {
+  if (!row.body || !row.body.trim()) return null;
+  return {
+    id: row.id,
+    authorName: row.author_name?.trim() ? row.author_name : 'A member',
+    authorAvatar,
+    text: row.body.trim(),
+    time: row.created_at,
   };
 }
 

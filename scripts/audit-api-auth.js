@@ -125,6 +125,16 @@ const MANIFEST = {
     guards: [["getUserId", "await auth()"], ["getMembership", "requireChurchRole"]],
     note: "Kudos of the caller's own church. The church comes from the caller's membership, the recipient must belong to that church, and self-kudos are refused.",
   },
+  "app/api/life-events/route.ts": {
+    verbs: ["GET", "POST"], scope: "tenant",
+    guards: [["getUserId", "await auth()"], ["getMembership", "requireChurchRole"]],
+    note: "Life events of the caller's own church. The church comes from the caller's membership; a named member or campus must belong to that church.",
+  },
+  "app/api/life-events/[id]/comments/route.ts": {
+    verbs: ["GET", "POST"], scope: "tenant",
+    guards: [["getUserId", "await auth()"], ["getMembership", "requireChurchRole"]],
+    note: "Comments on a life event. The event is loaded by BOTH id and church id, so an event from another church is not visible here.",
+  },
   "app/api/me/church/route.ts": {
     verbs: ["GET"], scope: "own",
     guards: [["getUserId", "await auth()"], ["getAnyMembership"]],
@@ -154,6 +164,7 @@ const TENANT_TABLES = [
   "join_request_responses", "join_request_denials", "member_departures",
   "support_tickets", "invite_codes", "offers", "bible_study_groups",
   "bible_study_signups", "bible_study_sessions", "bible_study_posts", "kudos",
+  "life_events", "life_event_comments",
 ];
 
 let FAILURES = 0;

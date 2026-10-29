@@ -1140,6 +1140,108 @@ export interface Database {
           },
         ]
       };
+      life_events: {
+        Row: {
+          id: string;
+          church_id: string;
+          created_by_user_id: string;
+          created_by_name: string;
+          to_member_id: string | null;
+          event_type: string;
+          title: string;
+          description: string;
+          event_date: string;
+          campus_id: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          church_id: string;
+          created_by_user_id: string;
+          created_by_name?: string;
+          to_member_id?: string | null;
+          event_type: string;
+          title: string;
+          description?: string;
+          event_date: string;
+          campus_id?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          church_id?: string;
+          created_by_user_id?: string;
+          created_by_name?: string;
+          to_member_id?: string | null;
+          event_type?: string;
+          title?: string;
+          description?: string;
+          event_date?: string;
+          campus_id?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'life_events_church_id_fkey';
+            columns: ['church_id'];
+            isOneToOne: false;
+            referencedRelation: 'churches';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'life_events_to_member_id_fkey';
+            columns: ['to_member_id'];
+            isOneToOne: false;
+            referencedRelation: 'members';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'life_events_campus_id_fkey';
+            columns: ['campus_id'];
+            isOneToOne: false;
+            referencedRelation: 'campuses';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      life_event_comments: {
+        Row: {
+          id: string;
+          life_event_id: string;
+          author_user_id: string;
+          author_name: string;
+          body: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          life_event_id: string;
+          author_user_id: string;
+          author_name?: string;
+          body: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          life_event_id?: string;
+          author_user_id?: string;
+          author_name?: string;
+          body?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'life_event_comments_life_event_id_fkey';
+            columns: ['life_event_id'];
+            isOneToOne: false;
+            referencedRelation: 'life_events';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;

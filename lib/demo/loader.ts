@@ -20,10 +20,12 @@ import { needs } from '@/data/needs';
 import { offers } from '@/data/offers';
 import { mealTrains } from '@/data/meal-trains';
 import { bibleStudyGroups } from '@/data/bible-study';
+import { lifeEvents } from '@/data/life-events';
 import type {
   AssetWithOwner,
   BibleStudyGroup,
   KudosEntry,
+  LifeEvent,
   MealTrain,
   Member,
   Need,
@@ -48,6 +50,15 @@ export function demoMealTrains(): MealTrain[] {
 
 export function demoBibleStudyGroups(): BibleStudyGroup[] {
   return bibleStudyGroups;
+}
+
+/**
+ * The Life Events feed. These are demo celebrations for a demo church -- the
+ * production feed comes from the `life_events` table through the
+ * `/api/life-events` route.
+ */
+export function demoLifeEvents(): LifeEvent[] {
+  return lifeEvents;
 }
 
 /**

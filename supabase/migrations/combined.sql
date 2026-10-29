@@ -746,5 +746,79 @@ GRANT ALL ON kudos TO service_role;
 --   AND table_schema = 'public' AND table_name = 'kudos';
 -- ============================================================================
 
+
+-- ============================================================================
+-- SECTION 10: Life Events board
+-- ============================================================================
+-- Source: 007_life_events.sql
+--
+-- The Life Events page shipped four fictional celebrations with no table to
+-- post a real one into: MOCK_EVENTS lived in the page component and
+-- handleCreate() pushed a new event into React state and nowhere else.
+-- The API route (app/api/life-events/route.ts) is the authorization boundary:
+-- it derives the church from the caller's own membership.
+CREATE TABLE life_events (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  church_id UUID NOT NULL REFERENCES churches(id) ON DELETE CASCADE,
+  created_by_user_id TEXT NOT NULL,                 -- Clerk user ID
+  created_by_name TEXT NOT NULL DEFAULT '',
+  to_member_id UUID REFERENCES members(id) ON DELETE SET NULL,
+  event_type TEXT NOT NULL
+    CHECK (event_type IN ('baby', 'birthday', 'wedding', 'new-home', 'graduation', 'travel')),
+  title TEXT NOT NULL
+    CHECK (char_length(title) BETWEEN 1 AND 100),
+  description TEXT NOT NULL DEFAULT ''
+    CHECK (char_length(description) <= 300),
+  event_date DATE NOT NULL,
+  campus_id UUID REFERENCES campuses(id) ON DELETE SET NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_life_events_church_date ON life_events(church_id, event_date DESC, created_at DESC);
+
+CREATE TABLE life_event_comments (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  life_event_id UUID NOT NULL REFERENCES life_events(id) ON DELETE CASCADE,
+  author_user_id TEXT NOT NULL,                    -- Clerk user ID
+  author_name TEXT NOT NULL DEFAULT '',
+  body TEXT NOT NULL
+    CHECK (char_length(body) BETWEEN 1 AND 500),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_life_event_comments_event ON life_event_comments(life_event_id, created_at ASC);
+
+ALTER TABLE life_events ENABLE ROW LEVEL SECURITY;
+ALTER TABLE life_event_comments ENABLE ROW LEVEL SECURITY;
+
+REVOKE ALL ON life_events FROM anon, authenticated;
+REVOKE ALL ON life_event_comments FROM anon, authenticated;
+
+DROP POLICY IF EXISTS "deny_client_access" ON life_events;
+CREATE POLICY "deny_client_access" ON life_events
+  FOR ALL TO anon, authenticated USING (false) WITH CHECK (false);
+
+DROP POLICY IF EXISTS "deny_client_access" ON life_event_comments;
+CREATE POLICY "deny_client_access" ON life_event_comments
+  FOR ALL TO anon, authenticated USING (false) WITH CHECK (false);
+
+GRANT ALL ON life_events TO service_role;
+GRANT ALL ON life_event_comments TO service_role;
+
+-- ============================================================================
+-- SECTION 11: Verification (Life Events)
+-- ============================================================================
+-- SELECT table_name FROM information_schema.tables
+-- WHERE table_schema = 'public'
+--   AND table_name IN ('life_events', 'life_event_comments');
+--
+-- SELECT grantee, table_name, privilege_type
+-- FROM information_schema.role_table_grants
+-- WHERE grantee IN ('anon','authenticated')
+--   AND table_schema = 'public'
+--   AND table_name IN ('life_events', 'life_event_comments');
+-- ============================================================================
+
 -- DONE — Schema is ready
 -- ============================================================================

@@ -4,7 +4,7 @@
  * Executes the FULL Kinship migration chain against a real PostgreSQL engine
  * (PGlite 0.5.x, compiled Postgres — not a mock) and proves:
  *
- *   PHASE A  the 7-file migration chain (001 -> 002 -> 002 -> 003 -> 004 -> 005 -> 006) applies cleanly
+ *   PHASE A  the 8-file migration chain (001 -> 002 -> 002 -> 003 -> 004 -> 005 -> 006 -> 007) applies cleanly
  *   PHASE B  the attack battery from proof.js now fails against `anon`
  *   PHASE C  the app's real path (service_role) still works, including updated_at triggers
  *   PHASE D  post-conditions: RLS on every table, anon holds zero table grants,
@@ -31,6 +31,7 @@ const CHAIN = [
   "004_rls_policies.sql",
   "005_offers_and_bible_study.sql",
   "006_kudos.sql",
+  "007_life_events.sql",
 ];
 
 let FAILURES = 0;
@@ -182,14 +183,15 @@ async function auditPostConditions(db, label) {
   const { byTbl, enumMap, checkValues } = await metadata(db);
   const tblCount = await db.query(`select count(*)::int c from pg_class c join pg_namespace n on n.oid=c.relnamespace
     where n.nspname='public' and c.relkind='r'`);
-  check("all 23 tables created", tblCount.rows[0].c === 23, tblCount.rows[0].c + " tables");
+  check("all 25 tables created", tblCount.rows[0].c === 25, tblCount.rows[0].c + " tables");
 
   // The two boards that used to have no table at all must now exist.
   const boardTables = await db.query(`select c.relname from pg_class c join pg_namespace n on n.oid=c.relnamespace
     where n.nspname='public' and c.relkind='r' and c.relname in
-    ('offers','bible_study_groups','bible_study_signups','bible_study_sessions','bible_study_posts','kudos')
+    ('offers','bible_study_groups','bible_study_signups','bible_study_sessions','bible_study_posts','kudos',
+     'life_events','life_event_comments')
     order by c.relname`);
-  check("Offers + Bible Study + Kudos tables exist", boardTables.rows.length === 6,
+  check("Offers + Bible Study + Kudos + Life Events tables exist", boardTables.rows.length === 8,
     boardTables.rows.map((r) => r.relname).join(", "));
 
   // needs.category must now be TEXT holding the UI's labels, not the old enum.
@@ -217,6 +219,10 @@ async function auditPostConditions(db, label) {
     ["READ everyone's physical assets", "select count(*)::int c from assets;"],
     ["READ the kudos feed", "select count(*)::int c from kudos;"],
     ["INSERT a fake kudos entry", insertSql(byTbl, enumMap, checkValues, "kudos")],
+    ["READ the life events feed", "select count(*)::int c from life_events;"],
+    ["INSERT a fake life event", insertSql(byTbl, enumMap, checkValues, "life_events")],
+    ["READ life event comments", "select count(*)::int c from life_event_comments;"],
+    ["INSERT a fake life event comment", insertSql(byTbl, enumMap, checkValues, "life_event_comments")],
     ["INSERT a join request impersonating anyone", insertSql(byTbl, enumMap, checkValues, "join_requests")],
     ["READ member_departures (who left the church)", "select count(*)::int c from member_departures;"],
     ["INSERT into support_tickets", insertSql(byTbl, enumMap, checkValues, "support_tickets")],
@@ -250,7 +256,7 @@ async function auditPostConditions(db, label) {
   // The five new tables must be reachable by service_role. BYPASSRLS does NOT
   // bypass table-level privileges, so a missing GRANT would make the app's own
   // API routes fail even though the row-level policy allows the read.
-  for (const t of ["offers", "bible_study_groups", "bible_study_signups", "bible_study_sessions", "bible_study_posts", "kudos"]) {
+  for (const t of ["offers", "bible_study_groups", "bible_study_signups", "bible_study_sessions", "bible_study_posts", "kudos", "life_events", "life_event_comments"]) {
     const r = await runAs(db, "service_role", `select count(*)::int c from ${t};`);
     check(`service_role: SELECT ${t} (new table is granted)`, r.allowed === true, r.allowed ? r.value : "BLOCKED: " + r.value);
   }
@@ -306,13 +312,13 @@ async function auditPostConditions(db, label) {
   if (combinedOk) {
     const t2 = await db2.query(`select count(*)::int c from pg_class c join pg_namespace n on n.oid=c.relnamespace
       where n.nspname='public' and c.relkind='r'`);
-    check("combined.sql creates all 23 tables", t2.rows[0].c === 23, t2.rows[0].c + " tables");
+    check("combined.sql creates all 25 tables", t2.rows[0].c === 25, t2.rows[0].c + " tables");
     await auditPostConditions(db2, "combined");
     const leak = await runAs(db2, "anon", "select count(*)::int c from churches;");
     check("combined: anon cannot READ churches", leak.allowed === false, leak.allowed ? "ALLOWED" : "blocked");
     const ok = await runAs(db2, "service_role", "select count(*)::int c from churches;");
     check("combined: service_role still works", ok.allowed === true, ok.allowed ? ok.value : "BLOCKED: " + ok.value);
-    for (const t of ["offers", "bible_study_groups", "bible_study_signups", "bible_study_sessions", "bible_study_posts", "kudos"]) {
+    for (const t of ["offers", "bible_study_groups", "bible_study_signups", "bible_study_sessions", "bible_study_posts", "kudos", "life_events", "life_event_comments"]) {
       const r2 = await runAs(db2, "service_role", `select count(*)::int c from ${t};`);
       check(`combined: service_role can reach ${t}`, r2.allowed === true, r2.allowed ? r2.value : "BLOCKED: " + r2.value);
     }
