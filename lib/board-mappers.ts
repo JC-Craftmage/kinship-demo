@@ -13,6 +13,7 @@
 import type {
   Asset,
   BibleStudyGroup,
+  KudosEntry,
   MealSignup,
   MealTrain,
   Member,
@@ -33,6 +34,7 @@ type OfferRow = Tables['offers']['Row'];
 type MealTrainRow = Tables['meal_trains']['Row'];
 type MealSignupRow = Tables['meal_signups']['Row'];
 type StudyGroupRow = Tables['bible_study_groups']['Row'];
+type KudosRow = Tables['kudos']['Row'];
 
 // ---------------------------------------------------------------- categories
 
@@ -122,6 +124,8 @@ export function toNeedStatus(value: string): NeedStatus | null {
 export interface MemberContext {
   campusName: string;
   assets: Asset[];
+  /** Total kudos received by this member, summed from the kudos table. */
+  kudosCount?: number;
 }
 
 export function mapMember(row: MemberRow, ctx: MemberContext): Member {
@@ -132,9 +136,9 @@ export function mapMember(row: MemberRow, ctx: MemberContext): Member {
     skills: row.skills ?? [],
     interests: row.interests ?? [],
     avatar: row.avatar ?? '',
-    // Kudos is its own unit (table + feed + write route); until it exists the
-    // count is honestly zero rather than a mock number.
-    kudos: 0,
+    // Kudos totals come from the kudos table (sum of the amounts received).
+    // Zero means "has not received kudos", not "we do not know yet".
+    kudos: ctx.kudosCount ?? 0,
     jobTitle: row.job_title ?? '',
     company: row.company ?? null,
     bio: row.bio ?? '',
@@ -227,6 +231,36 @@ export function mapOffer(row: OfferRow, ctx: OfferContext): Offer | null {
     campus: ctx.campusName,
     createdAt: row.created_at,
     isVerified: row.is_verified,
+  };
+}
+
+// -------------------------------------------------------------------- kudos
+
+export interface KudosContext {
+  /** Resolved recipient of the kudos. */
+  memberName: string;
+  memberAvatar: string;
+  campusName: string;
+}
+
+/** Kudos amounts are 1..10; anything else is a corrupt row, not a value. */
+export const MAX_KUDOS_AMOUNT = 10;
+
+export function mapKudos(row: KudosRow, ctx: KudosContext): KudosEntry | null {
+  if (!Number.isInteger(row.amount) || row.amount < 1 || row.amount > MAX_KUDOS_AMOUNT) {
+    return null;
+  }
+
+  return {
+    id: row.id,
+    toMemberId: row.to_member_id,
+    memberName: ctx.memberName,
+    memberAvatar: ctx.memberAvatar,
+    fromName: row.from_name?.trim() ? row.from_name : 'A member',
+    reason: row.reason ?? '',
+    amount: row.amount,
+    createdAt: row.created_at,
+    campus: ctx.campusName,
   };
 }
 

@@ -5,3 +5,4 @@ export * from './meal-train';
 export * from './need';
 export * from './offer';
 export * from './bible-study';
+export * from './kudos';

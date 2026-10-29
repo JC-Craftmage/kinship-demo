@@ -68,6 +68,27 @@ export async function loadChurchMembers(churchId: string): Promise<ChurchMembers
   const campusByUser = new Map((membershipRows ?? []).map((row) => [row.user_id, row.campus_id]));
   const userIdByMemberId = new Map(profiles.map((profile) => [profile.id, profile.user_id]));
 
+  // Kudos totals: sum of the amounts each member has received.
+  // A missing table (migrations not applied yet) must not empty the whole
+  // directory, so a failed read degrades to zero rather than aborting.
+  const kudosByMember = new Map<string, number>();
+  {
+    const { data, error } = await supabase
+      .from('kudos')
+      .select('to_member_id, amount')
+      .eq('church_id', churchId);
+
+    if (error) {
+      console.warn('loadChurchMembers (kudos totals) failed:', error.message);
+    } else {
+      for (const row of (data ?? []) as { to_member_id: string; amount: number }[]) {
+        const amount = Number(row.amount);
+        if (!Number.isFinite(amount)) continue;
+        kudosByMember.set(row.to_member_id, (kudosByMember.get(row.to_member_id) ?? 0) + amount);
+      }
+    }
+  }
+
   // assets.owner_id -> the assets that person owns
   const assetsByOwner = new Map<string, Asset[]>();
   for (const row of (assetRows ?? []) as AssetRow[]) {
@@ -83,6 +104,7 @@ export async function loadChurchMembers(churchId: string): Promise<ChurchMembers
     return mapMember(profile, {
       campusName: campusLabel(campusId ? campusNames.get(campusId) : undefined),
       assets: assetsByOwner.get(profile.user_id) ?? [],
+      kudosCount: kudosByMember.get(profile.id) ?? 0,
     });
   });
 

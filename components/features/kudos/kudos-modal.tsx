@@ -12,7 +12,11 @@ interface KudosModalProps {
   isOpen: boolean;
   onClose: () => void;
   member: Member;
-  onGiveKudos: (memberId: string, reason: string, amount: number) => void;
+  /**
+   * Writes the kudos. It resolves only when the write actually succeeded; an
+   * API failure rejects with the server's message so the modal can show it.
+   */
+  onGiveKudos: (memberId: string, reason: string, amount: number) => Promise<void>;
 }
 
 const KUDOS_REASONS = [
@@ -32,23 +36,37 @@ export function KudosModal({ isOpen, onClose, member, onGiveKudos }: KudosModalP
   const [customReason, setCustomReason] = useState('');
   const [amount, setAmount] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const reason = selectedReason === 'other'
       ? customReason.trim()
       : KUDOS_REASONS.find(r => r.id === selectedReason)?.label || '';
 
     if (!reason && !customReason.trim()) return;
 
-    onGiveKudos(member.id, reason || customReason.trim(), amount);
-    setShowSuccess(true);
-    setTimeout(() => {
-      setShowSuccess(false);
-      setSelectedReason(null);
-      setCustomReason('');
-      setAmount(1);
-      onClose();
-    }, 1500);
+    setSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      // The success screen only appears once the write actually landed.
+      await onGiveKudos(member.id, reason || customReason.trim(), amount);
+      setShowSuccess(true);
+      setTimeout(() => {
+        setShowSuccess(false);
+        setSelectedReason(null);
+        setCustomReason('');
+        setAmount(1);
+        onClose();
+      }, 1500);
+    } catch (cause) {
+      setSubmitError(
+        cause instanceof Error ? cause.message : 'Could not give kudos. Please try again.'
+      );
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (showSuccess) {
@@ -146,18 +164,29 @@ export function KudosModal({ isOpen, onClose, member, onGiveKudos }: KudosModalP
           </div>
         )}
 
+        {/* Write error */}
+        {submitError && (
+          <div
+            role="alert"
+            className="rounded-xl border-2 border-red-200 bg-red-50 p-3 text-sm text-red-700"
+          >
+            {submitError}
+          </div>
+        )}
+
         {/* Submit */}
         <div className="flex gap-3 pt-2">
-          <Button variant="secondary" onClick={onClose} className="flex-1">
+          <Button variant="secondary" onClick={onClose} className="flex-1" disabled={submitting}>
             Cancel
           </Button>
           <Button
             variant="primary"
-            onClick={handleSubmit}
+            onClick={() => { void handleSubmit(); }}
+            disabled={submitting}
             className="flex-1 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-500 hover:to-amber-600 text-gray-900"
             icon={<Award size={18} />}
           >
-            Give {amount} Kudos
+            {submitting ? 'Giving…' : `Give ${amount} Kudos`}
           </Button>
         </div>
       </div>

@@ -698,5 +698,53 @@ GRANT ALL ON bible_study_posts    TO service_role;
 -- WHERE grantee IN ('anon','authenticated') AND table_schema = 'public';
 -- ============================================================================
 
+-- ============================================================================
+-- SECTION 8: Kudos board
+-- ============================================================================
+-- Source: 006_kudos.sql
+--
+-- The last board with no table behind it. `MOCK_KUDOS_FEED` lived in the page
+-- component and `Member.kudos` was hard-coded to 0, so the leaderboard and
+-- the feed were fiction. The API route (`app/api/kudos/route.ts`) is the
+-- authorization boundary: it derives the church from the caller's membership
+-- and refuses a kudos whose recipient is not in that same church.
+CREATE TABLE kudos (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  church_id UUID NOT NULL REFERENCES churches(id) ON DELETE CASCADE,
+  to_member_id UUID NOT NULL REFERENCES members(id) ON DELETE CASCADE,
+  from_user_id TEXT NOT NULL,                  -- Clerk user ID
+  from_name TEXT NOT NULL DEFAULT '',
+  amount INTEGER NOT NULL DEFAULT 1
+    CHECK (amount BETWEEN 1 AND 10),
+  reason TEXT NOT NULL DEFAULT ''
+    CHECK (char_length(reason) <= 200),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_kudos_church_created ON kudos(church_id, created_at DESC);
+CREATE INDEX idx_kudos_church_member ON kudos(church_id, to_member_id);
+
+ALTER TABLE kudos ENABLE ROW LEVEL SECURITY;
+
+REVOKE ALL ON kudos FROM anon, authenticated;
+
+DROP POLICY IF EXISTS "deny_client_access" ON kudos;
+CREATE POLICY "deny_client_access" ON kudos
+  FOR ALL TO anon, authenticated USING (false) WITH CHECK (false);
+
+GRANT ALL ON kudos TO service_role;
+
+-- ============================================================================
+-- SECTION 9: Verification (Kudos)
+-- ============================================================================
+-- SELECT table_name FROM information_schema.tables
+-- WHERE table_schema = 'public' AND table_name = 'kudos';
+--
+-- SELECT grantee, table_name, privilege_type
+-- FROM information_schema.role_table_grants
+-- WHERE grantee IN ('anon','authenticated')
+--   AND table_schema = 'public' AND table_name = 'kudos';
+-- ============================================================================
+
 -- DONE — Schema is ready
 -- ============================================================================

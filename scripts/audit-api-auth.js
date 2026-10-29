@@ -120,6 +120,11 @@ const MANIFEST = {
     guards: [["getUserId", "await auth()"], ["getMembership", "requireChurchRole"]],
     note: "Offers shared by the caller's own church.",
   },
+  "app/api/kudos/route.ts": {
+    verbs: ["GET", "POST"], scope: "tenant",
+    guards: [["getUserId", "await auth()"], ["getMembership", "requireChurchRole"]],
+    note: "Kudos of the caller's own church. The church comes from the caller's membership, the recipient must belong to that church, and self-kudos are refused.",
+  },
   "app/api/me/church/route.ts": {
     verbs: ["GET"], scope: "own",
     guards: [["getUserId", "await auth()"], ["getAnyMembership"]],
@@ -148,7 +153,7 @@ const TENANT_TABLES = [
   "meal_signups", "needs", "need_volunteers", "join_requests",
   "join_request_responses", "join_request_denials", "member_departures",
   "support_tickets", "invite_codes", "offers", "bible_study_groups",
-  "bible_study_signups", "bible_study_sessions", "bible_study_posts",
+  "bible_study_signups", "bible_study_sessions", "bible_study_posts", "kudos",
 ];
 
 let FAILURES = 0;

@@ -1092,6 +1092,54 @@ export interface Database {
           },
         ]
       };
+      kudos: {
+        Row: {
+          id: string;
+          church_id: string;
+          to_member_id: string;
+          from_user_id: string;
+          from_name: string;
+          amount: number;
+          reason: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          church_id: string;
+          to_member_id: string;
+          from_user_id: string;
+          from_name?: string;
+          amount?: number;
+          reason?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          church_id?: string;
+          to_member_id?: string;
+          from_user_id?: string;
+          from_name?: string;
+          amount?: number;
+          reason?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'kudos_church_id_fkey';
+            columns: ['church_id'];
+            isOneToOne: false;
+            referencedRelation: 'churches';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'kudos_to_member_id_fkey';
+            columns: ['to_member_id'];
+            isOneToOne: false;
+            referencedRelation: 'members';
+            referencedColumns: ['id'];
+          },
+        ]
+      };
     };
     Views: {
       [_ in never]: never;

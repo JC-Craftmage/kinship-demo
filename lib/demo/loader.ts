@@ -15,6 +15,7 @@
 import 'server-only';
 
 import { members } from '@/data/members';
+import { kudos } from '@/data/kudos';
 import { needs } from '@/data/needs';
 import { offers } from '@/data/offers';
 import { mealTrains } from '@/data/meal-trains';
@@ -22,6 +23,7 @@ import { bibleStudyGroups } from '@/data/bible-study';
 import type {
   AssetWithOwner,
   BibleStudyGroup,
+  KudosEntry,
   MealTrain,
   Member,
   Need,
@@ -46,6 +48,34 @@ export function demoMealTrains(): MealTrain[] {
 
 export function demoBibleStudyGroups(): BibleStudyGroup[] {
   return bibleStudyGroups;
+}
+
+/**
+ * The Kudos feed. The fixture references recipients by `members.id`, so the
+ * name, avatar and campus are resolved from the members fixture here instead
+ * of being duplicated -- the feed can never disagree with the directory.
+ */
+export function demoKudos(): KudosEntry[] {
+  const memberById = new Map(members.map((member) => [member.id, member]));
+
+  return kudos
+    .map((record) => {
+      const member = memberById.get(record.toMemberId);
+      if (!member) return null;
+
+      return {
+        id: record.id,
+        toMemberId: member.id,
+        memberName: member.name,
+        memberAvatar: member.avatar,
+        fromName: record.fromName,
+        reason: record.reason,
+        amount: record.amount,
+        createdAt: record.createdAt,
+        campus: member.campus,
+      } satisfies KudosEntry;
+    })
+    .filter((entry): entry is KudosEntry => entry !== null);
 }
 
 /**
