@@ -18,6 +18,7 @@ import { demoKudos } from '@/lib/demo/loader';
 import { getUserId, getAnyMembership, getMembership } from '@/lib/supabase/queries';
 import { loadChurchMembers } from '@/lib/supabase/members';
 import { mapKudos, MAX_KUDOS_AMOUNT } from '@/lib/board-mappers';
+import { createNotification } from '@/lib/supabase/notifications';
 import type { KudosEntry } from '@/lib/types';
 import type { Database } from '@/lib/supabase/types';
 
@@ -226,6 +227,21 @@ export async function POST(request: NextRequest) {
     const row = inserted as KudosRow;
     const bundle = await loadChurchMembers(churchId);
     const member = bundle.members.find((entry) => entry.id === toMemberId);
+
+    // The bell rings for the recipient. A failure here never fails the
+    // kudos -- the recognition still happened.
+    await createNotification({
+      userId: target.user_id,
+      churchId,
+      actorUserId: userId,
+      actorName: fromName,
+      type: 'kudos',
+      title: 'You received kudos!',
+      message: reason
+        ? `${fromName || 'Someone'} gave you ${amount} kudos for "${reason}"`
+        : `${fromName || 'Someone'} gave you ${amount} kudos`,
+      actionUrl: '/kudos',
+    });
 
     const entry = mapKudos(row, {
       memberName: member?.name ?? target.name,

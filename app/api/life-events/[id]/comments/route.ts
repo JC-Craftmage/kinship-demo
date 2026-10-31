@@ -11,6 +11,7 @@ import { supabase } from '@/lib/supabase/server';
 import { demoWriteBlocked } from '@/lib/demo/mode';
 import { getUserId, getAnyMembership, getMembership } from '@/lib/supabase/queries';
 import { mapLifeEventComment } from '@/lib/board-mappers';
+import { createNotification } from '@/lib/supabase/notifications';
 import type { Database } from '@/lib/supabase/types';
 
 export const dynamic = 'force-dynamic';
@@ -172,6 +173,19 @@ export async function POST(
     if (!comment) {
       return NextResponse.json({ error: 'Failed to post comment' }, { status: 500 });
     }
+
+    // The bell rings for whoever posted the event. A failure here never
+    // fails the comment -- it still posted.
+    await createNotification({
+      userId: event.created_by_user_id,
+      churchId,
+      actorUserId: userId,
+      actorName: authorName,
+      type: 'comment',
+      title: 'New comment',
+      message: `${authorName || 'Someone'} commented on your life event`,
+      actionUrl: '/life-events',
+    });
 
     return NextResponse.json({ comment, demo: false }, { status: 201 });
   } catch (error) {

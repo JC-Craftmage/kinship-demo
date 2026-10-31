@@ -820,5 +820,85 @@ GRANT ALL ON life_event_comments TO service_role;
 --   AND table_name IN ('life_events', 'life_event_comments');
 -- ============================================================================
 
+-- ============================================================================
+-- SECTION 12: Notifications
+-- The bell in the dashboard header. One row per user (own scope).
+-- ============================================================================
+
+-- ============================================================================
+-- SECTION 1: Notifications table
+-- ============================================================================
+-- UI contract: lib/types/notifications.ts
+--   AppNotification.id          string -> uuid PK
+--   AppNotification.type        string -> type
+--   AppNotification.title       string -> title
+--   AppNotification.message     string -> message
+--   AppNotification.timestamp   string -> created_at
+--   AppNotification.read        boolean -> is_read
+--   AppNotification.avatar      string -> resolved from members.avatar
+--   AppNotification.actionUrl   string -> action_url
+CREATE TABLE notifications (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id TEXT NOT NULL,                         -- Clerk user ID (recipient)
+  church_id UUID REFERENCES churches(id) ON DELETE SET NULL,
+  actor_user_id TEXT NOT NULL DEFAULT '',        -- Clerk user ID (who caused it)
+  actor_name TEXT NOT NULL DEFAULT '',           -- denormalized, survives deletion
+  type TEXT NOT NULL
+    CHECK (type IN (
+      'kudos', 'meal_train', 'asset_request', 'join_request', 'comment', 'mention'
+    )),
+  title TEXT NOT NULL DEFAULT ''
+    CHECK (char_length(title) <= 120),
+  message TEXT NOT NULL DEFAULT ''
+    CHECK (char_length(message) <= 300),
+  action_url TEXT NOT NULL DEFAULT '',
+  is_read BOOLEAN NOT NULL DEFAULT false,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- The bell shows one user's notifications, newest first.
+CREATE INDEX idx_notifications_user_created ON notifications(user_id, created_at DESC);
+-- The unread badge counts only what has not been read.
+CREATE INDEX idx_notifications_user_unread ON notifications(user_id) WHERE is_read = false;
+
+-- ============================================================================
+-- SECTION 2: RLS, client-access revocation, and service_role grants
+-- ============================================================================
+-- Same three locks as every other table in this schema:
+--   1. RLS enabled
+--   2. anon / authenticated have no table privileges
+--   3. an explicit deny-all policy for those roles (defense in depth)
+-- service_role bypasses RLS and keeps full access -- the app's own API routes
+-- are the authorization boundary, via explicit user-scoped checks in code.
+ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
+
+REVOKE ALL ON notifications FROM anon, authenticated;
+
+DROP POLICY IF EXISTS "deny_client_access" ON notifications;
+CREATE POLICY "deny_client_access" ON notifications
+  FOR ALL TO anon, authenticated USING (false) WITH CHECK (false);
+
+-- Explicit, because 004's `GRANT ALL ON ALL TABLES` only covers the tables
+-- that exist when 004 runs. When this migration runs AFTER 004 (file chain
+-- order), this is the statement that makes the table reachable from the app's
+-- API routes.
+GRANT ALL ON notifications TO service_role;
+
+-- ============================================================================
+-- SECTION 3: Verification
+-- ============================================================================
+-- After applying, the new table should appear here:
+--
+-- SELECT table_name FROM information_schema.tables
+-- WHERE table_schema = 'public' AND table_name = 'notifications';
+--
+-- And no client role should hold any privilege on it:
+--
+-- SELECT grantee, table_name, privilege_type
+-- FROM information_schema.role_table_grants
+-- WHERE grantee IN ('anon','authenticated')
+--   AND table_schema = 'public' AND table_name = 'notifications';
+-- ============================================================================
+
 -- DONE — Schema is ready
 -- ============================================================================

@@ -11,6 +11,7 @@
 // count rather than inventing a value.
 
 import type {
+  AppNotification,
   Asset,
   BibleStudyGroup,
   KudosEntry,
@@ -23,12 +24,14 @@ import type {
   Need,
   NeedCategory,
   NeedStatus,
+  NotificationType,
   Offer,
   OfferAvailability,
   OfferCategory,
 } from '@/lib/types';
 import type { Database } from '@/lib/supabase/types';
 import { LIFE_EVENT_TYPES } from '@/lib/types/life-events';
+import { NOTIFICATION_TYPES } from '@/lib/types/notifications';
 
 type Tables = Database['public']['Tables'];
 type MemberRow = Tables['members']['Row'];
@@ -41,6 +44,7 @@ type StudyGroupRow = Tables['bible_study_groups']['Row'];
 type KudosRow = Tables['kudos']['Row'];
 type LifeEventRow = Tables['life_events']['Row'];
 type LifeEventCommentRow = Tables['life_event_comments']['Row'];
+type NotificationRow = Tables['notifications']['Row'];
 
 // ---------------------------------------------------------------- categories
 
@@ -325,6 +329,39 @@ export function mapLifeEventComment(
     authorAvatar,
     text: row.body.trim(),
     time: row.created_at,
+  };
+}
+
+// -------------------------------------------------------------- notifications
+
+/** The UI's notification types, mirrored so an unknown type is detectable. */
+export const NOTIFICATION_TYPE_VALUES: readonly string[] = NOTIFICATION_TYPES;
+
+function isNotificationType(value: string): value is NotificationType {
+  return (NOTIFICATION_TYPES as readonly string[]).includes(value);
+}
+
+/**
+ * A notification with a type the UI does not know is a corrupt row, not a
+ * value: the bell has no icon for it, so it is dropped rather than rendered
+ * as something it is not.
+ */
+export function mapNotification(
+  row: NotificationRow,
+  ctx: { avatar: string },
+): AppNotification | null {
+  if (!isNotificationType(row.type)) return null;
+  if (!row.title || !row.title.trim()) return null;
+
+  return {
+    id: row.id,
+    type: row.type,
+    title: row.title.trim(),
+    message: (row.message ?? '').trim(),
+    timestamp: row.created_at,
+    read: row.is_read,
+    avatar: ctx.avatar || undefined,
+    actionUrl: row.action_url || undefined,
   };
 }
 

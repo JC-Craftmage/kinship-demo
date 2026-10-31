@@ -2,7 +2,7 @@
 
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
@@ -18,29 +18,19 @@ import { UserCheck, HandHeart, Award, Users, Truck, ChefHat, ArrowRight, Calenda
 import { PhotoPromptModal } from '@/components/features/onboarding/photo-prompt-modal';
 import { ProfileCompletenessNudge } from '@/components/features/onboarding/profile-completeness-nudge';
 import { useProfileCompleteness } from '@/hooks/use-profile-completeness';
+import { useKudos } from '@/hooks/use-kudos';
+import { useLifeEvents } from '@/hooks/use-life-events';
+import type { LifeEventType } from '@/lib/types';
 
-// Mock recent activity
-const RECENT_ACTIVITY = [
-  { id: 1, type: 'kudos', text: 'Mike Chen received 3 kudos for "Helped with moving"', time: '2h ago', icon: '🏆' },
-  { id: 2, type: 'life_event', text: 'Baby Elijah James born to the Thompson family!', time: '1d ago', icon: '👶' },
-  { id: 3, type: 'meal_train', text: 'Meal train created for Sarah Johnson', time: '2d ago', icon: '🍲' },
-  { id: 4, type: 'new_member', text: 'Emily Davis joined the community', time: '3d ago', icon: '👋' },
-  { id: 5, type: 'kudos', text: 'Robert Chen received 5 kudos for "Cooked meals for new mom"', time: '4d ago', icon: '🏆' },
-];
-
-// Mock life events for widget
-const RECENT_LIFE_EVENTS = [
-  { id: 1, type: 'baby', title: 'Baby Elijah Born', member: 'The Thompson Family', date: '2026-04-15', emoji: '👶' },
-  { id: 2, type: 'wedding', title: 'David & Maria Wedding', member: 'David & Maria Reyes', date: '2026-04-10', emoji: '💒' },
-  { id: 3, type: 'graduation', title: 'Joshua Graduated!', member: 'The Martinez Family', date: '2026-04-08', emoji: '🎓' },
-];
-
-// Upcoming events
-const UPCOMING_EVENTS = [
-  { id: 1, title: 'Potluck Sunday', date: '2026-04-27', campus: 'Downtown', icon: '🍽️' },
-  { id: 2, title: 'Youth Group', date: '2026-04-25', campus: 'Westside', icon: '🎸' },
-  { id: 3, title: 'Community Service Day', date: '2026-05-03', campus: 'All Campuses', icon: '🤝' },
-];
+/** Emoji for each kind of celebration. */
+const LIFE_EVENT_EMOJI: Record<LifeEventType, string> = {
+  baby: '👶',
+  birthday: '🎂',
+  wedding: '💍',
+  'new-home': '🏠',
+  graduation: '🎓',
+  travel: '✈',
+};
 
 export default function HomePage() {
   const router = useRouter();
@@ -50,6 +40,60 @@ export default function HomePage() {
   const { needs } = useNeeds();
   const { mealTrains } = useMealTrains();
   const { completenessPercent, isComplete } = useProfileCompleteness();
+  const { kudos } = useKudos();
+  const { events: lifeEvents } = useLifeEvents();
+
+  // The celebrations worth celebrating, newest first.
+  const recentLifeEvents = useMemo(
+    () =>
+      [...lifeEvents]
+        .sort((a, b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime())
+        .slice(0, 3),
+    [lifeEvents]
+  );
+
+  // Everything that actually happened lately: kudos, needs, celebrations.
+  // The list is built from the database feeds, so it can never contain
+  // invented people.
+  const recentActivity = useMemo(() => {
+    const items = [
+      ...kudos.map((entry) => ({
+        id: `kudos-${entry.id}`,
+        text: `${entry.memberName} received ${entry.amount} kudos${entry.reason ? ` for "${entry.reason}"` : ''}`,
+        time: entry.createdAt,
+        icon: '🏆',
+        href: '/kudos',
+      })),
+      ...needs.map((need) => ({
+        id: `need-${need.id}`,
+        text: need.isAnonymous ? 'A member posted a need' : `${need.poster.name} posted: ${need.title}`,
+        time: need.createdAt,
+        icon: '🆘',
+        href: '/needs',
+      })),
+      ...lifeEvents.map((event) => ({
+        id: `event-${event.id}`,
+        text: event.title,
+        time: event.postedAt,
+        icon: LIFE_EVENT_EMOJI[event.type],
+        href: '/life-events',
+      })),
+    ];
+
+    return items
+      .filter((item) => Boolean(item.time))
+      .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
+      .slice(0, 5);
+  }, [kudos, needs, lifeEvents]);
+
+  // What is scheduled, soonest first.
+  const upcomingMeals = useMemo(() => {
+    const today = new Date().toISOString().slice(0, 10);
+    return mealTrains
+      .filter((train) => train.startDate >= today)
+      .sort((a, b) => a.startDate.localeCompare(b.startDate))
+      .slice(0, 4);
+  }, [mealTrains]);
 
   const isAdmin = role && ['moderator', 'overseer', 'owner'].includes(role);
   const firstName = user?.firstName || 'Friend';
@@ -336,18 +380,22 @@ export default function HomePage() {
                   </div>
                 </div>
                 <div className="p-3 space-y-2">
-                  {RECENT_LIFE_EVENTS.map(event => (
-                    <Link key={event.id} href="/life-events" className="block">
-                      <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg hover:bg-purple-100 transition">
-                        <div className="text-2xl">{event.emoji}</div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-gray-900 truncate">{event.title}</p>
-                          <p className="text-xs text-gray-500">{event.member}</p>
+                  {recentLifeEvents.length === 0 ? (
+                    <div className="p-4 text-center text-sm text-gray-500">No celebrations yet</div>
+                  ) : (
+                    recentLifeEvents.map(event => (
+                      <Link key={event.id} href="/life-events" className="block">
+                        <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg hover:bg-purple-100 transition">
+                          <div className="text-2xl">{LIFE_EVENT_EMOJI[event.type]}</div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-gray-900 truncate">{event.title}</p>
+                            <p className="text-xs text-gray-500">{event.memberName || event.campus}</p>
+                          </div>
+                          <span className="text-xs text-purple-600 font-medium">{formatDate(event.date)}</span>
                         </div>
-                        <span className="text-xs text-purple-600 font-medium">{formatDate(event.date)}</span>
-                      </div>
-                    </Link>
-                  ))}
+                      </Link>
+                    ))
+                  )}
                 </div>
               </Card>
             </div>
@@ -364,15 +412,25 @@ export default function HomePage() {
                   </div>
                 </div>
                 <div className="divide-y">
-                  {RECENT_ACTIVITY.map(activity => (
-                    <div key={activity.id} className="flex items-start gap-3 p-3 hover:bg-gray-50 transition">
-                      <div className="text-2xl">{activity.icon}</div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm text-gray-800">{activity.text}</p>
-                        <p className="text-xs text-gray-400 mt-0.5">{activity.time}</p>
-                      </div>
+                  {recentActivity.length === 0 ? (
+                    <div className="p-4 text-center text-sm text-gray-500">
+                      Nothing yet — kudos, needs and celebrations show up here.
                     </div>
-                  ))}
+                  ) : (
+                    recentActivity.map(activity => (
+                      <Link
+                        key={activity.id}
+                        href={activity.href}
+                        className="flex items-start gap-3 p-3 hover:bg-gray-50 transition"
+                      >
+                        <div className="text-2xl">{activity.icon}</div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-gray-800">{activity.text}</p>
+                          <p className="text-xs text-gray-400 mt-0.5">{getTimeAgo(activity.time)}</p>
+                        </div>
+                      </Link>
+                    ))
+                  )}
                 </div>
               </Card>
 
@@ -385,16 +443,24 @@ export default function HomePage() {
                   </h3>
                 </div>
                 <div className="divide-y">
-                  {UPCOMING_EVENTS.map(event => (
-                    <div key={event.id} className="flex items-start gap-3 p-3 hover:bg-gray-50 transition">
-                      <div className="text-2xl">{event.icon}</div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-gray-900">{event.title}</p>
-                        <p className="text-xs text-gray-500">{event.campus}</p>
-                      </div>
-                      <span className="text-xs text-indigo-600 font-medium">{formatDate(event.date)}</span>
-                    </div>
-                  ))}
+                  {upcomingMeals.length === 0 ? (
+                    <div className="p-4 text-center text-sm text-gray-500">Nothing scheduled yet</div>
+                  ) : (
+                    upcomingMeals.map(train => (
+                      <Link
+                        key={train.id}
+                        href="/meal-trains"
+                        className="flex items-start gap-3 p-3 hover:bg-gray-50 transition"
+                      >
+                        <div className="text-2xl">🍲</div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-gray-900">Meal train for {train.recipient.name}</p>
+                          <p className="text-xs text-gray-500">{train.recipient.campus}</p>
+                        </div>
+                        <span className="text-xs text-indigo-600 font-medium">{formatDate(train.startDate)}</span>
+                      </Link>
+                    ))
+                  )}
                 </div>
               </Card>
             </div>

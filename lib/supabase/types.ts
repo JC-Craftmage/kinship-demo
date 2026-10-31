@@ -1242,6 +1242,56 @@ export interface Database {
           },
         ];
       };
+      notifications: {
+        Row: {
+          id: string;
+          user_id: string;
+          church_id: string | null;
+          actor_user_id: string;
+          actor_name: string;
+          type: string;
+          title: string;
+          message: string;
+          action_url: string;
+          is_read: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          church_id?: string | null;
+          actor_user_id?: string;
+          actor_name?: string;
+          type: string;
+          title?: string;
+          message?: string;
+          action_url?: string;
+          is_read?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          church_id?: string | null;
+          actor_user_id?: string;
+          actor_name?: string;
+          type?: string;
+          title?: string;
+          message?: string;
+          action_url?: string;
+          is_read?: boolean;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'notifications_church_id_fkey';
+            columns: ['church_id'];
+            isOneToOne: false;
+            referencedRelation: 'churches';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;

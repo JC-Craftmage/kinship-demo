@@ -140,6 +140,11 @@ const MANIFEST = {
     guards: [["getUserId", "await auth()"], ["getAnyMembership"]],
     note: "Returns only the caller's own membership.",
   },
+  "app/api/notifications/route.ts": {
+    verbs: ["GET", "PATCH", "DELETE"], scope: "own",
+    guards: [["getUserId", "await auth()"], [".eq('user_id'"]],
+    note: "The caller's OWN inbox. Notifications belong to one person, not to a church, so every read and every write is filtered by the caller's own user id and nothing else. A notification id belonging to somebody else returns the same 'not found' as an id that does not exist.",
+  },
   "app/api/support/route.ts": {
     verbs: ["POST", "GET"], scope: "own",
     guards: [["getUserId", "await auth()"], ["getMembership", "requireChurchRole"]],

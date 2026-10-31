@@ -21,7 +21,9 @@ import { offers } from '@/data/offers';
 import { mealTrains } from '@/data/meal-trains';
 import { bibleStudyGroups } from '@/data/bible-study';
 import { lifeEvents } from '@/data/life-events';
+import { notifications } from '@/data/notifications';
 import type {
+  AppNotification,
   AssetWithOwner,
   BibleStudyGroup,
   KudosEntry,
@@ -34,6 +36,15 @@ import type {
 
 export function demoMembers(): Member[] {
   return members;
+}
+
+/**
+ * The notification bell. These are demo notifications for the demo user --
+ * the production bell reads the `notifications` table through the
+ * `/api/notifications` route, scoped to the caller's own user id.
+ */
+export function demoNotifications(): AppNotification[] {
+  return notifications;
 }
 
 export function demoNeeds(): Need[] {
