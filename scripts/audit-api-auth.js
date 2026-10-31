@@ -24,15 +24,15 @@ const API_DIR = path.join(ROOT, "app", "api");
 
 /**
  * scope:
- *   'own'     — the caller's own data only (scoped by user_id)
- *   'tenant'  — data belonging to one church; requires a membership/role check
- *   'public'  — no user data; cross-tenant by design (listing/discovery)
+ *   'own'     - the caller's own data only (scoped by user_id)
+ *   'tenant'  - data belonging to one church; requires a membership/role check
+ *   'public'  - no user data; cross-tenant by design (listing/discovery)
  *
  * guards: each entry is a list of ALTERNATIVES; at least one must appear.
- *   auth       — the caller must be identified: `getUserId()` or `await auth()`
- *   membership — a church-scoped lookup must happen: `getMembership(` or
+ *   auth       - the caller must be identified: `getUserId()` or `await auth()`
+ *   membership - a church-scoped lookup must happen: `getMembership(` or
  *                `requireChurchRole(`
- *   role       — the role must be checked: a role list must be applied
+ *   role       - the role must be checked: a role list must be applied
  */
 const MANIFEST = {
   "app/api/churches/create/route.ts": {
@@ -208,7 +208,7 @@ console.log("service_role bypasses RLS. These route guards are the real boundary
 const routeFiles = walk(API_DIR).map(rel).sort();
 console.log(`[1] Manifest coverage (${routeFiles.length} routes found)`);
 for (const r of routeFiles) {
-  if (!MANIFEST[r]) fail(`${r} is NOT in the manifest — classify it (new route = unclassified risk)`);
+  if (!MANIFEST[r]) fail(`${r} is NOT in the manifest - classify it (new route = unclassified risk)`);
 }
 const declared = Object.keys(MANIFEST);
 for (const d of declared) {
@@ -242,13 +242,13 @@ for (const r of routeFiles) {
   // every declared guard must be satisfied by at least one of its alternatives
   m.guards.forEach((alts, idx) => {
     if (!alts.some((a) => src.includes(a))) {
-      fail(`${label}: guard #${idx + 1} unsatisfied — none of [${alts.join(" | ")}] appear in the route`);
+      fail(`${label}: guard #${idx + 1} unsatisfied - none of [${alts.join(" | ")}] appear in the route`);
     }
   });
 
   // a route must authenticate unless it touches no user data at all
   const authenticates = src.includes("await auth()") || src.includes("getUserId()");
-  if (!authenticates) fail(`${label}: no authentication — the caller is never identified`);
+  if (!authenticates) fail(`${label}: no authentication - the caller is never identified`);
 
   // tenant scope must actually consult membership
   if (m.scope === "tenant") {
@@ -283,9 +283,18 @@ function scanDir(dir) {
     const pubSupabase = [...src.matchAll(/NEXT_PUBLIC_SUPABASE_[A-Z_]+/g)].map((m) => m[0]);
     for (const name of new Set(pubSupabase)) {
       if (name === "NEXT_PUBLIC_SUPABASE_URL") {
-        if (!/server-only/.test(src)) leakFiles.push(relp + ` (${name} used outside a server-only module)`);
+        // Node-only verification scripts under scripts/ are never part of the
+        // Next.js module graph and never ship to a browser, so the
+        // 'server-only' marker does not apply to them. This exemption is
+        // scoped to that directory and to this one variable name: every
+        // other rule below (rejected anon keys, service_role in a client
+        // component) still applies to scripts/ exactly as before.
+        const isNodeOnlyScript = relp.startsWith("scripts/");
+        if (!/server-only/.test(src) && !isNodeOnlyScript) {
+          leakFiles.push(relp + ` (${name} used outside a server-only module)`);
+        }
       } else {
-        leakFiles.push(relp + ` (${name} — browser-reachable Supabase credential)`);
+        leakFiles.push(relp + ` (${name} - browser-reachable Supabase credential)`);
       }
     }
     if (/service_role|SUPABASE_SERVICE_ROLE/.test(src) && isClient) leakFiles.push(relp + " (service_role reference in a client component)");
@@ -308,7 +317,7 @@ if (leakFiles.length) {
 
 // the browser-side client module must not exist at all
 if (fs.existsSync(path.join(ROOT, "lib", "supabase", "client.ts"))) {
-  fail("lib/supabase/client.ts still exists — the browser can reach Supabase directly");
+  fail("lib/supabase/client.ts still exists - the browser can reach Supabase directly");
 } else {
   pass("lib/supabase/client.ts does not exist");
 }
