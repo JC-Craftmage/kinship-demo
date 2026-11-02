@@ -9,10 +9,11 @@
     "lint": "eslint",
     "verify:db": "node scripts/verify-migrations.js",
     "audit:auth": "node scripts/audit-api-auth.js",
-    "verify": "npm run check:no-mock && npm run audit:auth && npm run verify:db",
+    "verify": "npm run check:no-mock && npm run audit:auth && npm run verify:db && npm run verify:seed",
     "check:no-mock": "node scripts/check-no-mock-imports.js",
     "verify:live": "node scripts/verify-live-db.js",
-    "verify:live:write": "node scripts/verify-live-db.js --write"
+    "verify:live:write": "node scripts/verify-live-db.js --write",
+    "verify:seed": "node scripts/verify-seed.js"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.34.1",

@@ -101,6 +101,43 @@ it passes.
 
 ---
 
+## Step 4b — Seed the demo data (recommended before any demo) ⭐
+
+**Do this after Step 4 passes and before you show the app to anyone.**
+
+A brand-new project has 26 tables and **zero rows**. Every board renders an
+empty state, which reads as "broken" to a pastor who is deciding whether to
+answer your email. The seed file fills one clearly-labelled demo church with
+realistic content on every board — directory, needs, offers, assets, meal
+trains, kudos, life events, bible study, notifications, join requests,
+questionnaires and support tickets — so the product shows what it actually does.
+
+1. **SQL Editor → New query.**
+2. Paste the **entire** contents of `supabase/seed.sql` → **Run**.
+3. Paste the **entire** contents of `supabase/seed-bind-owner.sql`, replace
+   `user_REPLACE_WITH_YOUR_CLERK_ID` with your real Clerk user id (Clerk
+   Dashboard → Users → your user; it starts with `user_`) → **Run**.
+4. Sign up in the app, then confirm the demo church loads with content and that
+   your own rows show as "mine".
+
+Properties the seed guarantees (proven by `npm run verify:seed`):
+
+| Property | How it is guaranteed |
+|---|---|
+| It applies cleanly | Executed against a real Postgres engine, not a mock |
+| It is idempotent | Fixed ids + `ON CONFLICT DO NOTHING`; re-running changes no row counts |
+| It never fabricates a legal value | Every CHECK/enum column is asserted to hold only values the UI mapper accepts — a row with an unknown category would be **dropped** by `lib/board-mappers.ts`, so the demo would silently show fewer rows than it claims |
+| It does not weaken security | After seeding: RLS on 26/26, zero `anon`/`authenticated` grants, `deny_client_access` on every table, and the `anon` attack battery still blocked |
+| It cannot be mistaken for a real church | The church is named `Sample Church (DEMO DATA)`, all emails use `@example.com`, and every row belongs to that one church |
+| It never touches a real church | Fixed UUIDs in a fixed id range; every other church is untouched |
+
+The seed **only INSERTs.** It never alters the schema and never grants
+anything. You can delete the demo church with a single `DELETE FROM churches
+WHERE id = '11111111-1111-4111-8111-111111111111';` (cascades to everything
+below it).
+
+---
+
 ## Step 5 — Deploy (Vercel or anywhere that runs Next.js)
 
 The app is a standard Next.js app. Any host works.
@@ -132,11 +169,13 @@ screen. Add the origin first.
 ## Step 6 — Smoke test
 
 1. Sign in. You should land on `/home`.
-2. Create a church (owner) → invite a member → approve a join request.
-3. Post a life event, give kudos, read the notification bell. **Each of these
+2. If you ran Step 4b, the demo church is already populated — every board
+   should have content and your own rows should be flagged as yours.
+3. Create a church (owner) → invite a member → approve a join request.
+4. Post a life event, give kudos, read the notification bell. **Each of these
    writes a real row** — then re-run `npm run verify:live` and confirm nothing
    changed structurally.
-4. Check the row count in the dashboard: **Dashboard → Table Editor**.
+5. Check the row count in the dashboard: **Dashboard → Table Editor**.
 
 ---
 
@@ -146,6 +185,7 @@ screen. Add the origin first.
 |---|---|---|
 | Migration chain applies cleanly | `npm run verify:db` | PASS (9 files, 26 tables, RLS 26/26) |
 | `combined.sql` applies cleanly | `npm run verify:db` (Phase E) | PASS |
+| Seed data applies, is legal, is idempotent, and does not weaken security | `npm run verify:seed` | PASS (27 tables populated, RLS 26/26, anon blocked) |
 | API route auth/tenant scoping | `npm run audit:auth` | PASS |
 | No mock/fixture imports outside the demo loader | `npm run check:no-mock` | PASS |
 | Typecheck / lint / build | `tsc --noEmit`, `npm run lint`, `npm run build` | PASS |
