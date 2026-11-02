@@ -189,6 +189,7 @@ screen. Add the origin first.
 | API route auth/tenant scoping | `npm run audit:auth` | PASS |
 | No mock/fixture imports outside the demo loader | `npm run check:no-mock` | PASS |
 | Typecheck / lint / build | `tsc --noEmit`, `npm run lint`, `npm run build` | PASS |
+| All of the above, automatically, on every push | `.github/workflows/verify.yml` | NEW — CI re-runs the mock gate, the auth audit, the migration chain, the seed proof, typecheck, lint and the build, plus a guard job that fails if `next.config.ts` ever re-enables `ignoreBuildErrors` / `ignoreDuringBuilds` |
 
 The only thing that has never been proven is the one thing that cannot be
 proven without a real project: **the live database in front of real users.**

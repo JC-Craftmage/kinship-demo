@@ -1,0 +1,111 @@
+# ============================================================================
+# KINSHIP — CI VERIFICATION
+# ============================================================================
+# Every check below is one Jesse (or I) already run by hand. The point of this
+# file is that a green build is only worth what it actually CHECKS, and a
+# security boundary you cannot re-run is a comment, not a control.
+#
+# Why this exists (all of these happened, in this repo, for real):
+#   - `next.config.ts` once had BOTH `typescript.ignoreBuildErrors` and
+#     `eslint.ignoreDuringBuilds` set to true. Every "successful build" we ever
+#     reported validated nothing. There is now a guard job that fails if either
+#     flag ever comes back.
+#   - The old RLS policies looked like protection and were not (they were
+#     written against `auth.uid()` while this app uses Clerk, whose ids are
+#     TEXT). The only thing that caught it was re-running the attack battery.
+#   - The RLS proof lived in a scratch folder and would have rotted.
+#
+# These are all re-runnable now, so CI re-runs them on every push.
+# ============================================================================
+name: verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: schema, security, seed, types, lint, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    # DUMMY CREDENTIALS — intentionally fake, no real secret is ever in CI.
+    #
+    # The Clerk publishable key is NOT an arbitrary string. Clerk validates it
+    # by base64-decoding the part after `pk_test_` and requiring the result to
+    # end in `$` and contain a `.` — see
+    # node_modules/@clerk/shared/dist/apiUrlFromPublishableKey.js
+    # (`isValidDecodedPublishableKey`). A plain "pk_test_dummy" makes the
+    # prerender of /welcome and /welcome/join-church fail the whole build.
+    # The value below decodes to "example.clerk.accounts.dev$".
+    env:
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_ZXhhbXBsZS5jbGVyay5hY2NvdW50cy5kZXYk
+      CLERK_SECRET_KEY: sk_test_ci_placeholder_not_a_real_key
+      NEXT_PUBLIC_CLERK_SIGN_IN_URL: /sign-in
+      NEXT_PUBLIC_CLERK_SIGN_UP_URL: /sign-up
+      NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL: /home
+      NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL: /home
+      NEXT_PUBLIC_SUPABASE_URL: https://ci-placeholder.supabase.co
+      SUPABASE_SERVICE_ROLE_KEY: ci-placeholder-not-a-real-service-role-key
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install
+        run: npm ci --no-audit --no-fund
+
+      - name: No mock/fixture data outside the demo loader
+        run: npm run check:no-mock
+
+      - name: API route auth + tenant scoping
+        run: npm run audit:auth
+
+      - name: Migration chain applies cleanly (26 tables, RLS 26/26)
+        run: npm run verify:db
+
+      - name: Seed applies, holds only UI-legal values, is idempotent, does not weaken security
+        run: npm run verify:seed
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+  build-guards:
+    name: the build must actually check something
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: next.config.ts must not silence typecheck or lint
+        run: |
+          # Match only the value `true`. `ignoreBuildErrors: false` is the
+          # healthy state (the build enforces typecheck) - grepping for the
+          # bare key would false-positive on it.
+          if grep -nE "ignore(BuildErrors|DuringBuilds)[[:space:]]*:[[:space:]]*true" next.config.ts; then
+            echo "::error::next.config.ts is ignoring build errors. A green build that validates nothing is worse than a red one."
+            exit 1
+          fi
+          echo "build guards intact"
+
+      - name: the schema and seed files must be present and non-trivial
+        run: |
+          test -s supabase/migrations/combined.sql || { echo "::error::combined.sql missing"; exit 1; }
+          test -s supabase/seed.sql || { echo "::error::seed.sql missing"; exit 1; }
+          echo "schema + seed present"
